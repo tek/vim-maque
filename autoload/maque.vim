@@ -55,6 +55,7 @@ function! maque#make(...) "{{{
 endfunction "}}}
 
 function! maque#make_auto() "{{{
+  let do_set = 1
   let default_setter = 'maque_'.&ft.'#set_makeprg'
   exe 'runtime autoload/maque_'.&ft.'.vim'
   if exists('b:maque_makeprg_setter') && exists('*'.b:maque_makeprg_setter)
@@ -65,10 +66,14 @@ function! maque#make_auto() "{{{
     let setter_name = default_setter
   else
 		echohl WarningMsg | echo 'maque: no makeprg setter found!' | echohl None
-    return 0
+    let do_set = 0
   endif
-  let Setter = function(setter_name)
-  if Setter()
+  let do_make = g:maque_makeprg_set
+  if do_set
+    let Setter = function(setter_name)
+    let do_make = do_make || Setter()
+  endif
+  if do_make
     return maque#make()
   endif
 endfunction "}}}
