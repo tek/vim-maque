@@ -53,6 +53,10 @@ function! maque#make_tmux(cmd) "{{{
   call g:ScreenShellSend(a:cmd)
 endfunction "}}}
 
+function! maque#make_dispatch(cmd) "{{{
+  Make
+endfunction "}}}
+
 function! maque#make_native(cmd) "{{{
   make!
 endfunction "}}}
