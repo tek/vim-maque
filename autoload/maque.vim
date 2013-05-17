@@ -42,6 +42,14 @@ function! maque#make_conque(cmd) "{{{
 endfunction "}}}
 
 function! maque#make_tmux(cmd) "{{{
+  if ! g:ScreenShellActive
+    if g:maque_tmux_vertical
+      ScreenShellVertical
+    else
+      ScreenShell
+    end
+    call g:ScreenShellSend('cd '.g:pwd)
+  end
   call g:ScreenShellSend(a:cmd)
 endfunction "}}}
 

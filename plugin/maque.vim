@@ -4,6 +4,7 @@ let g:maque_conque_horizontal = 1
 let g:maque_conque_term_nowrap = 0
 let g:maque_makeprg_set = 0
 let g:maque_command = 'make'
+let g:maque_tmux_vertical = 1
 
 nnoremap <silent> <Plug>Maque :call maque#make()<cr>
 nnoremap <silent> <Plug>AutoMaque :call maque#make_auto()<cr>
