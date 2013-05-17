@@ -114,3 +114,16 @@ function! maque#start_service(cmd) "{{{
   wincmd c
   return proc
 endfunction "}}}
+
+function! maque#command() "{{{
+  if exists('b:maque_command')
+    return b:maque_command
+  else
+    return g:maque_command
+  fi
+endfunction "}}}
+
+function! maque#query() "{{{
+  let fname = input('File name: ', '', 'file')
+  let &makeprg = maque#command().' '.fname
+endfunction "}}}
