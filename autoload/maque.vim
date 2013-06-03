@@ -83,7 +83,7 @@ function! maque#make_auto() "{{{
   let do_make = g:maque_makeprg_set
   if do_set
     let Setter = function(setter_name)
-    let do_make = do_make || Setter()
+    let do_make = Setter() || do_make
   endif
   if do_make
     return maque#make()
