@@ -3,7 +3,7 @@ let g:maque_maker = 'maque#make_conque'
 let g:maque_conque_horizontal = 1
 let g:maque_conque_term_nowrap = 0
 let g:maque_makeprg_set = 0
-let g:maque_command = 'make'
+let g:maque_default_command = 'make'
 let g:maque_tmux_vertical = 1
 
 nnoremap <silent> <Plug>Maque :call maque#make()<cr>

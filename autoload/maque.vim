@@ -130,8 +130,12 @@ endfunction "}}}
 function! maque#command() "{{{
   if exists('b:maque_command')
     return b:maque_command
-  else
+  elseif exists('g:maque_command')
     return g:maque_command
+  elseif exists('b:maque_default_command')
+    return b:maque_default_command
+  else
+    return g:maque_default_command
   fi
 endfunction "}}}
 
