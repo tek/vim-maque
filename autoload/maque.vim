@@ -68,8 +68,8 @@ endfunction "}}}
 
 function! maque#make_auto() "{{{
   let do_set = 1
-  let default_setter = 'maque_'.&ft.'#set_makeprg'
-  exe 'runtime autoload/maque_'.&ft.'.vim'
+  let default_setter = 'maque_'.maque#filetype().'#set_makeprg'
+  exe 'runtime autoload/maque_'.maque#filetype().'.vim'
   if exists('b:maque_makeprg_setter') && exists('*'.b:maque_makeprg_setter)
     let setter_name = b:maque_makeprg_setter
   elseif exists('g:maque_makeprg_setter') && exists('*'.g:maque_makeprg_setter)
@@ -142,4 +142,8 @@ endfunction "}}}
 function! maque#query() "{{{
   let fname = input('File name: ', '', 'file')
   let &makeprg = maque#command().' '.fname
+endfunction "}}}
+
+function! maque#filetype() "{{{
+  return exists('b:maque_filetype') ? b:maque_filetype : &filetype
 endfunction "}}}
