@@ -63,7 +63,8 @@ endfunction "}}}
 
 function! maque#make(...) "{{{
 	let cmd = a:0 > 0 ? a:1 : &makeprg
-  return call(g:maque_maker, [cmd])
+  let Maker = function('maque#make_'.g:maque_handler)
+  return Maker(cmd)
 endfunction "}}}
 
 function! maque#make_auto() "{{{

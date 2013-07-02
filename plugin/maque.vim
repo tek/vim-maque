@@ -1,5 +1,5 @@
 let g:maque_leave_conque = 1
-let g:maque_maker = 'maque#make_tmux'
+let g:maque_handler = 'tmux'
 let g:maque_conque_horizontal = 1
 let g:maque_conque_term_nowrap = 0
 let g:maque_makeprg_set = 0
