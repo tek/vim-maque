@@ -21,8 +21,12 @@ endfunction "}}}
 function! maque#tmux#parse() "{{{
   if exists('g:maque_errorfile')
     cgetfile
-    copen
-    execute 'c'.g:maque_jump_to_error
-    normal! zv
+    if empty(getqflist())
+      echohl WarningMsg | echo 'maque: no errors!' | echohl None
+    else
+      copen
+      execute 'c'.g:maque_jump_to_error
+      normal! zv
+    endif
   endif
 endfunction "}}}
