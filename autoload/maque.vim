@@ -48,9 +48,13 @@ function! maque#make_tmux(cmd) "{{{
     else
       ScreenShell
     end
-    call g:ScreenShellSend('cd '.g:pwd)
+    call maque#tmux#send('cd '.g:pwd)
   end
-  call g:ScreenShellSend(a:cmd)
+  let pipe_cmd = 'tmux pipe-pane -t '.g:ScreenShellTmuxPane
+  call maque#tmux#send(a:cmd.';'.pipe_cmd)
+  let g:maque_errorfile = tempname()
+  let filter = "sed -u -e \"s/\r//g\" -e \"s/\e[[0-9;]*m//g\" > ".g:maque_errorfile
+  call system(pipe_cmd.' '.shellescape(filter))
 endfunction "}}}
 
 function! maque#make_dispatch(cmd) "{{{
@@ -110,7 +114,7 @@ function! maque#remove_errorfile() "{{{
   redraw!
 endfunction "}}}
 
-function! maque#parse_output(origin_name) "{{{
+function! maque#parse_conque(origin_name) "{{{
   call maque#write_errorfile(a:origin_name)
   cgetfile
   call maque#remove_errorfile()
@@ -120,6 +124,15 @@ function! maque#parse_output(origin_name) "{{{
   exe nr.'wincmd w'
 	clast
   normal! zv
+endfunction "}}}
+
+function! maque#parse_tmux() "{{{
+  if exists('g:maque_errorfile')
+    execute 'cgetfile '.g:maque_errorfile
+    copen
+    execute 'c'.g:maque_jump_to_error
+    normal! zv
+  endif
 endfunction "}}}
 
 function! maque#start_service(cmd) "{{{
@@ -147,4 +160,9 @@ endfunction "}}}
 
 function! maque#filetype() "{{{
   return exists('b:maque_filetype') ? b:maque_filetype : &filetype
+endfunction "}}}
+
+function! maque#parse() "{{{
+  let Parser = function('maque#parse_'.g:maque_handler)
+  return Parser()
 endfunction "}}}
