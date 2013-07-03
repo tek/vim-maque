@@ -13,13 +13,13 @@ function! maque#tmux#make(cmd) "{{{
   end
   let pipe_cmd = 'tmux pipe-pane -t '.g:ScreenShellTmuxPane
   call maque#tmux#send(a:cmd.';'.pipe_cmd)
-  let g:maque_errorfile = tempname()
-  let filter = "sed -u -e \"s/\r//g\" -e \"s/\e[[0-9;]*m//g\" > ".g:maque_errorfile
+  let &errorfile = tempname()
+  let filter = "sed -u -e \"s/\r//g\" -e \"s/\e[[0-9;]*m//g\" > ".&errorfile
   call system(pipe_cmd.' '.shellescape(filter))
 endfunction "}}}
 
 function! maque#tmux#parse() "{{{
-  if exists('g:maque_errorfile')
+  if filereadable(&errorfile)
     cgetfile
     if empty(getqflist())
       echohl WarningMsg | echo 'maque: no errors!' | echohl None
