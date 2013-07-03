@@ -166,3 +166,9 @@ function! maque#parse() "{{{
   let Parser = function('maque#parse_'.g:maque_handler)
   return Parser()
 endfunction "}}}
+
+function! maque#cycle() "{{{
+  let h_index = index(g:maque_handlers, g:maque_handler)
+  let h_index = (h_index + 1) % len(g:maque_handlers)
+  let g:maque_handler = g:maque_handlers[h_index]
+endfunction "}}}
