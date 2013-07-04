@@ -15,9 +15,9 @@ endfunction "}}}
 
 function! maque#tmux#make(cmd) "{{{
   call maque#tmux#init_pane()
+  let &errorfile = tempname()
   let pipe_cmd = 'tmux pipe-pane -t '.g:ScreenShellTmuxPane
   let filter = "sed -u -e \"s/\r//g\" -e \"s/\e[[0-9;]*m//g\" > ".&errorfile
-  let &errorfile = tempname()
   call maque#tmux#send(a:cmd.';'.pipe_cmd)
   call system(pipe_cmd.' '.shellescape(filter))
 endfunction "}}}
