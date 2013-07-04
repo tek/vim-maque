@@ -68,12 +68,10 @@ endfunction "}}}
 function! maque#cwd_error_index() "{{{
   let last = g:maque_jump_to_error == 'last'
   let error_list = getqflist()
-  echo last
   if last
     call reverse(error_list)
   endif
   for error in error_list
-    echo error.bufnr
     if maque#util#buffer_is_in_project(error.bufnr)
       return index(getqflist(), error) + 1
     endif
