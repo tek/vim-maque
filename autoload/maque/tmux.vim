@@ -29,10 +29,7 @@ function! maque#tmux#parse() "{{{
       echohl WarningMsg | echo 'maque: no errors!' | echohl None
     else
       copen
-      if len(g:maque_jump_to_error)
-        execute 'c'.g:maque_jump_to_error
-        normal! zv
-      endif
+      call maque#jump_to_error()
     endif
   endif
 endfunction "}}}
