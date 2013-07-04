@@ -3,14 +3,14 @@ function! maque#tmux#send(cmd) "{{{
 endfunction "}}}
 
 function! maque#tmux#init_pane() "{{{
-  if ! g:ScreenShellActive
+  if !g:ScreenShellActive
     if g:maque_tmux_vertical
       ScreenShellVertical
     else
       ScreenShell
-    end
+    endif
     call maque#tmux#send('cd '.g:pwd)
-  end
+  endif
 endfunction "}}}
 
 function! maque#tmux#make(cmd) "{{{
