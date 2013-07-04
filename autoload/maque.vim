@@ -64,3 +64,31 @@ function! maque#cycle() "{{{
   let h_index = (h_index + 1) % len(g:maque_handlers)
   let g:maque_handler = g:maque_handlers[h_index]
 endfunction "}}}
+
+function! maque#cwd_error_index() "{{{
+  let last = g:maque_jump_to_error == 'last'
+  let error_list = getqflist()
+  echo last
+  if last
+    call reverse(error_list)
+  endif
+  for error in error_list
+    echo error.bufnr
+    if maque#util#buffer_is_in_project(error.bufnr)
+      return index(getqflist(), error) + 1
+    endif
+  endfor
+  return last ? len(error_list) : 1
+endfunction "}}}
+
+function! maque#jump_to_error() "{{{
+  if len(g:maque_jump_to_error)
+    if g:maque_seek_cwd_error
+      let index = maque#cwd_error_index()
+      execute 'cc! '.index
+    else
+      execute 'c'.g:maque_jump_to_error
+    endif
+    normal! zv
+  endif
+endfunction "}}}

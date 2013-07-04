@@ -7,6 +7,7 @@ let g:maque_default_command = 'make'
 let g:maque_tmux_vertical = 1
 let g:maque_jump_to_error = 'first'
 let g:maque_handlers = ['tmux', 'dispatch', 'conque', 'native']
+let g:maque_seek_cwd_error = 1
 
 nnoremap <silent> <Plug>Maque :call maque#make()<cr>
 nnoremap <silent> <Plug>AutoMaque :call maque#make_auto()<cr>
