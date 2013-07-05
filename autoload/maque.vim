@@ -24,6 +24,7 @@ function! maque#make_auto() "{{{
     let do_make = Setter() || do_make
   endif
   if do_make
+    call maque#dispatch#focus()
     return maque#make()
   endif
 endfunction "}}}

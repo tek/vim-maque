@@ -1,3 +1,9 @@
 function! maque#dispatch#make(cmd) "{{{
-  Make
+  exe g:maque_dispatch_command
+endfunction "}}}
+
+function! maque#dispatch#focus() "{{{
+  if exists(':FocusDispatch')
+    FocusDispatch &makeprg
+  endif
 endfunction "}}}
