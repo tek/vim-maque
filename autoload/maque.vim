@@ -64,6 +64,7 @@ function! maque#cycle() "{{{
   let h_index = index(g:maque_handlers, g:maque_handler)
   let h_index = (h_index + 1) % len(g:maque_handlers)
   let g:maque_handler = g:maque_handlers[h_index]
+  echo 'selected maque handler "'.g:maque_handler.'".'
 endfunction "}}}
 
 function! maque#cwd_error_index() "{{{
