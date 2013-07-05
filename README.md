@@ -21,8 +21,9 @@ To add your own `make` replacement, assign a function name to `g:maque_maker`.
 
 To replace the default `makeprg` assembly methods, assign yours to
 `b:maque_makeprg_setter` or `g:maque_makeprg_setter`, or define the function
-`maque#ft#{&filetype}#set_makeprg`.
-If none of these exist, the plugin's default setter is used.
+`maque#ft#{&filetype}#set_makeprg`. The function's return value is indicative
+of whether make should be executed subsequently.  If none of these exist, the
+plugin's default setter is used.
 
 ## Details
 
