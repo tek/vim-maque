@@ -12,8 +12,8 @@ let g:maque_dispatch_command = 'Dispatch'
 
 nnoremap <silent> <Plug>Maque :call maque#make()<cr>
 nnoremap <silent> <Plug>AutoMaque :call maque#make_auto()<cr>
-nnoremap <silent> <Plug>MaqueFile :call maque_common#set_file()<Bar>call maque#make()<cr>
-nnoremap <silent> <Plug>MaqueLine :call maque_common#set_line()<Bar>call maque#make()<cr>
+nnoremap <silent> <Plug>MaqueFile :call maque#ft#common#set_file()<Bar>call maque#make()<cr>
+nnoremap <silent> <Plug>MaqueLine :call maque#ft#common#set_line()<Bar>call maque#make()<cr>
 nnoremap <silent> <Plug>MaqueQuery :call maque#query()<Bar>call maque#make()<cr>
 nnoremap <silent> <Plug>MaqueParse :call maque#parse()<cr>
 nnoremap <silent> <Plug>MaqueCycle :call maque#cycle()<cr>
