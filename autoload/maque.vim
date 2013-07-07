@@ -1,5 +1,5 @@
 function! maque#make(...) "{{{
-	let cmd = a:0 > 0 ? a:1 : &makeprg
+	let cmd = a:0 > 0 ? a:1 : maque#prg()
   let Maker = function('maque#'.g:maque_handler.'#make')
   return Maker(cmd)
 endfunction "}}}
@@ -34,21 +34,21 @@ function! maque#remove_errorfile() "{{{
   redraw!
 endfunction "}}}
 
-function! maque#command() "{{{
-  if exists('b:maque_command')
-    return b:maque_command
-  elseif exists('g:maque_command')
-    return g:maque_command
-  elseif exists('b:maque_default_command')
-    return b:maque_default_command
-  else
-    return g:maque_default_command
-  fi
+function! maque#args() "{{{
+  for src in ['', 'default_']
+    for scope in ['b', 'g']
+      let var = scope.':maque_args_'.src.&makeprg
+      if exists(var)
+        return {var}
+      endif
+    endfor
+  endfor
+  return ''
 endfunction "}}}
 
 function! maque#query() "{{{
   let fname = input('File name: ', '', 'file')
-  let &makeprg = maque#command().' '.fname
+  call maque#set_params(fname)
 endfunction "}}}
 
 function! maque#filetype() "{{{
@@ -91,4 +91,15 @@ function! maque#jump_to_error() "{{{
     endif
     normal! zv
   endif
+endfunction "}}}
+
+function! maque#prg() "{{{
+  if !exists('g:maqueprg')
+    call maque#set_params('')
+  endif
+  return g:maqueprg
+endfunction "}}}
+
+function! maque#set_params(params) "{{{
+  let g:maqueprg = &makeprg.' '.maque#args().' '.a:params
 endfunction "}}}

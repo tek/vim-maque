@@ -3,12 +3,12 @@ let g:maque_handler = 'tmux'
 let g:maque_conque_horizontal = 1
 let g:maque_conque_term_nowrap = 0
 let g:maque_makeprg_set = 0
-let g:maque_default_command = 'make'
 let g:maque_tmux_vertical = 1
 let g:maque_jump_to_error = 'first'
 let g:maque_handlers = ['tmux', 'dispatch', 'conque', 'native']
 let g:maque_seek_cwd_error = 1
 let g:maque_dispatch_command = 'Dispatch'
+let g:maque_set_ft_options = 0
 
 nnoremap <silent> <Plug>Maque :call maque#make()<cr>
 nnoremap <silent> <Plug>AutoMaque :call maque#make_auto()<cr>

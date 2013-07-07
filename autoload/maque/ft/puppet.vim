@@ -11,7 +11,7 @@ function! maque#ft#puppet#set_cursor_node() "{{{
 endfunction "}}}
 
 function! maque#ft#puppet#reset_makeprg() "{{{
-  let &makeprg = 'vagrant provision '.g:maque_puppet_node
+  call maque#set_params('provision '.g:maque_puppet_node)
   let g:maque_makeprg_set = 1
 endfunction "}}}
 
@@ -30,13 +30,13 @@ endfunction "}}}
 function! maque#ft#puppet#command(cmd) "{{{
   call maque#ft#puppet#set_cursor_node()
   if exists('g:maque_puppet_node')
-    let &makeprg = printf(a:cmd, g:maque_puppet_node)
+    call maque#set_params(printf(a:cmd, g:maque_puppet_node))
     call maque#make()
   endif
 endfunction "}}}
 
 function! maque#ft#puppet#simple_command(name) "{{{
-  let cmd = 'vagrant '.a:name.' %s'
+  let cmd = a:name.' %s'
   call maque#ft#puppet#command(cmd)
 endfunction "}}}
 

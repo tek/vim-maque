@@ -1,11 +1,11 @@
 function! maque#ft#common#set_file() "{{{
-  let &makeprg = maque#command().' '.expand('%')
+  call maque#set_params(expand('%'))
   let g:maque_makeprg_set = 1
   return 1
 endfunction "}}}
 
 function! maque#ft#common#set_line() "{{{
   call maque#ft#common#set_file()
-  let &makeprg .= ':'.line('.')
+  let g:maqueprg .= ':'.line('.')
   return 1
 endfunction "}}}

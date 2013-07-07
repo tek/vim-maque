@@ -11,7 +11,7 @@ let g:maque_zsh_args = ''
 
 function! maque#ft#zsh#set_makeprg() "{{{
   if maque#ft#zsh#set_cursor_function()
-    let &makeprg = 'zsh -ic '.g:maque_zsh_function.' '.g:maque_zsh_args
+    call maque#set_params(g:maque_zsh_function.' '.g:maque_zsh_args)
     let g:maque_zsh_makeprg_set = 1
   endif
   return exists('g:maque_zsh_makeprg_set')
