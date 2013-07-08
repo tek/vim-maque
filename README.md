@@ -5,8 +5,7 @@ assembling command lines.
 
 [Conque](https://github.com/rson/vim-conque 'github repo'),
 [tmux](https://github.com/erwandev/screen 'github repo') and
-[dispatch](https://github.com/tpope/vim-dispatch 'github repo')
-
+[dispatch](https://github.com/tpope/vim-dispatch 'github repo') 
 are currently supported methods.
 
 ## Usage
