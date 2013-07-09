@@ -7,7 +7,7 @@ endfunction "}}}
 function! maque#make_auto() "{{{
   let do_set = 1
   let default_setter = 'maque#ft#'.maque#filetype().'#set_makeprg'
-  exe 'runtime autoload/maque/ft/'.maque#filetype().'.vim'
+  exe 'runtime! autoload/maque/ft/'.maque#filetype().'.vim'
   if exists('b:maque_makeprg_setter') && exists('*'.b:maque_makeprg_setter)
     let setter_name = b:maque_makeprg_setter
   elseif exists('g:maque_makeprg_setter') && exists('*'.g:maque_makeprg_setter)
