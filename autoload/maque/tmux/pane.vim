@@ -14,7 +14,8 @@ function! maque#tmux#pane#new(name, splitter) "{{{
 
   function! pane.create() dict "{{{
     let panes_before = maque#tmux#pane#all()
-    call maque#tmux#command(self.splitter)
+    let splitter = self.splitter == 0 ? g:maque_tmux_split_cmd : self.splitter
+    call system(splitter)
     let matcher = 'index(panes_before, v:val) == -1'
     let matches = filter(maque#tmux#pane#all(), matcher)
     let self.id = len(matches) > 0 ? matches[0] : -1

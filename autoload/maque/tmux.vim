@@ -68,7 +68,7 @@ endfunction "}}}
 " internals
 
 let g:maque#tmux#panes = {
-      \ 'main': maque#tmux#pane#new('main', g:maque_tmux_split_cmd)
+      \ 'main': maque#tmux#pane#new('main', 0)
       \ }
 let g:maque#tmux#current_pane = 'main'
 
