@@ -15,8 +15,7 @@ command -nargs=* MaqueTmuxBuffer call maque#tmux#create_buffer_pane(<q-args>)<Ba
 command MaqueTmuxDebuffer call maque#tmux#delete_buffer_pane()
 command MaqueTmuxCycle call maque#tmux#cycle_panes()
 command -nargs=+ MaqueTmuxAddPane call maque#tmux#add_pane(<f-args>)
-
-command Maque call maque#make()
+command -nargs=* Maque call maque#make(<q-args>)
 command AutoMaque call maque#make_auto()
 command MaqueFile call maque#ft#common#set_file()<Bar>call maque#make()
 command MaqueLine call maque#ft#common#set_line()<Bar>call maque#make()
