@@ -14,7 +14,7 @@ are currently supported methods.
 Essential mappings:  
 `<Plug>Maque` executes `g:maqueprg`  
 `<Plug>AutoMaque` calls a `g:maqueprg` setter function and executes it.  
-`<Plug>MaqueParse` populates the quickfix list using `'errorformat'`  
+`<Plug>MaqueParse` populates the quickfix list using `'errorformat'`
 
 ## Customization
 
@@ -44,11 +44,17 @@ populates the quickfix list identically to how :make does.
 
 ## tmux
 
-The tmux method is designed to maintain a permanently open pane for
+The tmux method is designed to maintain a persistently open pane for
 dispatching. Before and after each test execution, output redirection to a temp
 file is (de)activated.
 A mapping `<Plug>MaqueToggleTmux` is provided to manually kill or open the tmux
 pane.
+
+A new pane is created as a horizontal split by default, but you can specify an
+arbitrary system command via `g:maque_tmux_split_cmd`. You can even launch a
+new session in a fresh terminal by setting the variable to `'TMUX= urxvt -e
+tmux &!'` (note that tmux will not nest, indicated by the `$TMUX` environment
+variable). As long as as the pane is on localhost, it will be found.
 
 There are two commands available to create additional panes:
 
