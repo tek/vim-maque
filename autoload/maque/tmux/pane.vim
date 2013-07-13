@@ -32,9 +32,15 @@ function! maque#tmux#pane#new(name, splitter) "{{{
     call self.pipe_to_file()
   endfunction "}}}
 
+  " execute a command in the target pane
   function! pane.send(cmd) dict "{{{
-    " execute a command in the target pane
-    call maque#tmux#command('send-keys -t '.self.id.' "'.a:cmd.'" ENTER')
+    call self.send_keys("'".a:cmd."'")
+    call self.send_keys('ENTER')
+  endfunction "}}}
+
+  " send input to the target pane
+  function! pane.send_keys(cmd) dict "{{{
+    call maque#tmux#command('send-keys -t '.self.id.' '.a:cmd)
   endfunction "}}}
 
   function! pane.open() dict "{{{
