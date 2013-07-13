@@ -78,7 +78,6 @@ endfunction "}}}
 
 function! maque#tmux#close_all() "{{{
   for pane in values(g:maque#tmux#panes)
-    echo pane
     call pane.close()
   endfor
 endfunction "}}}
