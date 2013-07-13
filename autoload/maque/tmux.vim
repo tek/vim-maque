@@ -1,22 +1,24 @@
 " user functions
 
+function! s:warn(msg) "{{{
+  echohl WarningMsg
+  echo a:msg
+  echohl None
+endfunction "}}}
+
 function! maque#tmux#make(cmd) "{{{
-  call maque#tmux#create_pane()
-  let &errorfile = tempname()
-  call maque#tmux#send(a:cmd)
-  " send the pipe canceling command now, so that it executes as soon as the
-  " make command is finished
-  call maque#tmux#send('tmux '.s:pipe_cmd())
-  " initiate the pipe to the errorfile after starting the command, so that it
-  " doesn't contain the command line
-  call maque#tmux#pipe_to_file(&errorfile, 1)
+  let pane = s:pane()
+  if !pane.open()
+    call pane.create()
+  endif
+  call pane.make(a:cmd)
 endfunction "}}}
 
 function! maque#tmux#parse() "{{{
-  if filereadable(&errorfile)
-    cgetfile
+  if filereadable(s:pane().errorfile)
+    execute 'cgetfile'.s:pane().errorfile
     if empty(getqflist())
-      echohl WarningMsg | echo 'maque: no errors!' | echohl None
+      call s:warn('maque: no errors!')
     else
       copen
       call maque#jump_to_error()
@@ -24,83 +26,75 @@ function! maque#tmux#parse() "{{{
   endif
 endfunction "}}}
 
+function! maque#tmux#toggle_pane() "{{{
+  call s:pane().toggle()
+endfunction "}}}
+
+function! maque#tmux#cycle_panes() "{{{
+  let names = sort(keys(g:maque#tmux#panes))
+  let current = index(names, g:maque#tmux#current_pane)
+  let new_index = (current + 1) % len(g:maque#tmux#panes)
+  let g:maque#tmux#current_pane = names[new_index]
+  echo 'maque: selected pane "'.s:pane().name .'".'
+endfunction "}}}
+
+function! maque#tmux#close_all() "{{{
+  for pane in values(g:maque#tmux#panes)
+    echo pane
+    call pane.close()
+  endfor
+endfunction "}}}
+
 " internals
 
-function! maque#tmux#send(cmd) "{{{
-  " execute a command in the target pane
-  call s:tmux('send-keys -t '.s:pane().' "'.a:cmd.'" ENTER')
-endfunction "}}}
+let g:maque#tmux#panes = {
+      \ 'main': maque#tmux#pane#new('main', g:maque_tmux_split_cmd)
+      \ }
+let g:maque#tmux#current_pane = 'main'
 
-let g:maque#tmux#pane = -1
-
-function! maque#tmux#create_pane() "{{{
-  if !maque#tmux#pane_open()
-    let panes_before = s:panes()
-    call s:tmux(g:maque_tmux_split_cmd)
-    let matcher = 'index(panes_before, v:val) == -1'
-    let matches = filter(s:panes(), matcher)
-    let g:maque#tmux#pane = len(matches) > 0 ? matches[0] : -1
-    call s:add_close_autocmd()
-    call maque#tmux#send('cd '.g:pwd)
+function! s:pane() "{{{
+  let name = g:maque#tmux#current_pane
+  if has_key(g:maque#tmux#panes, s:buffer())
+    let name = s:buffer()
   endif
+  return g:maque#tmux#panes[name]
 endfunction "}}}
 
-function! maque#tmux#pane_open() abort "{{{
-  return index(s:panes(), s:pane()) >= 0
-endfunction "}}}
-
-function! maque#tmux#close() "{{{
-  augroup maque_tmux_pane
-    autocmd!
-  augroup END
-  call s:tmux('kill-pane -t '.s:pane())
-endfunction "}}}
-
-function! maque#tmux#toggle_pane() "{{{
-  if maque#tmux#pane_open()
-    call maque#tmux#close()
-  else
-    call maque#tmux#create_pane()
-  endif
-endfunction "}}}
-
-let g:maque#tmux#escape_filter = "sed -u -e \"s/\r//g\" -e \"s/\e[[0-9;]*m//g\""
-
-function! maque#tmux#pipe_to_file(fname, filter_escape_sequences) "{{{
-  let filter = a:filter_escape_sequences ? g:maque#tmux#escape_filter : 'tee'
-  let redirect = filter . ' > '.a:fname
-  call s:tmux(s:pipe_cmd().' '.shellescape(redirect))
-endfunction "}}}
-
-function! s:tmux(cmd) "{{{
+function! maque#tmux#command(cmd) "{{{
   return system('tmux '.a:cmd)
 endfunction "}}}
 
-function! s:pane() "{{{
-  return g:maque#tmux#pane
+function! maque#tmux#create_buffer_pane(...) "{{{
+  let splitter = a:0 ? a:1 : g:maque_tmux_split_cmd
+  if has_key(g:maque#tmux#panes, s:buffer())
+    call s:warn('maque: buffer pane already created!')
+  else
+    let g:maque#tmux#panes[s:buffer()] = maque#tmux#pane#new(s:buffer(),
+          \ splitter)
+  endif
 endfunction "}}}
 
-function! s:panes() "{{{
-  return split(s:tmux('list-panes -F "#{pane_id}"'), "\n")
+function! maque#tmux#delete_buffer_pane() "{{{
+  if has_key(g:maque#tmux#panes, s:buffer())
+    unlet g:maque#tmux#panes[s:buffer()]
+  endif
 endfunction "}}}
 
-function! s:add_close_autocmd() "{{{
-  augroup maque_tmux_pane
-    autocmd!
-    autocmd VimLeave * call maque#tmux#close()
-  augroup END
+function! maque#tmux#add_pane(name, ...) "{{{
+  let splitter = a:0 ? a:1 : g:maque_tmux_split_cmd
+  if has_key(g:maque#tmux#panes, s:buffer())
+    call s:warn('maque: pane "'.a:name.'" already created!')
+  else
+    let g:maque#tmux#panes[a:name] = maque#tmux#pane#new(a:name, splitter)
+    let g:maque#tmux#current_pane = a:name
+  endif
 endfunction "}}}
 
-function! s:pipe_cmd() "{{{
-  return 'pipe-pane -t '.s:pane()
+function! s:buffer() "{{{
+  return 'buffer'.bufnr('%')
 endfunction "}}}
 
-" make everything public, keep s: functions for brevity
-
-function! maque#tmux#tmux(cmd) "{{{
-  return s:tmux(a:cmd)
-endfunction "}}}
-
-function! maque#tmux#panes() "{{{
-  return s:panes()
-endfunction "}}}
+augroup maque_tmux
+  autocmd!
+  autocmd VimLeave * call maque#tmux#close_all()
+augroup END

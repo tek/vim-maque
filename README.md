@@ -39,14 +39,27 @@ functions for an example).
 The default assembly methods uses `'makeprg'` as executable. If a global or
 buffer-local variable `maque_args_{&makeprg}` is set, it is appended.
 
+After having executed a test, `<Plug>MaqueParse` executes `:cgetfile`, which
+populates the quickfix list identically to how :make does.
+
+## tmux
+
 The tmux method is designed to maintain a permanently open pane for
 dispatching. Before and after each test execution, output redirection to a temp
 file is (de)activated.
 A mapping `<Plug>MaqueToggleTmux` is provided to manually kill or open the tmux
 pane.
 
-After having executed a test, `<Plug>MaqueParse` executes `:cgetfile`, which
-populates the quickfix list identically to how :make does.
+There are two commands available to create additional panes:
+
+`:MaqueTmuxAddPane name ['tmux split command']` creates a named pane which will
+receive all following makes and toggle commands. It will become visible after
+executing `<Plug>Maque` or `<Plug>MaqueToggleTmux`.
+To activate a different pane, run `:MaqueTmuxCycle` or assign its name to
+`g:maque#tmux#current_pane`.
+
+`:MaqueTmuxBuffer` and `:MaqueTmuxDebuffer` create and destroy a pane that is
+associated with the current buffer and will receive all makes executed from it.
 
 ## Example
 
@@ -55,3 +68,8 @@ invoking the `<Plug>AutoMaque` mapping, the default makeprg setter appends
 `spec/current_file_spec.rb:23`, given that the cursor is on line 23. The whole
 command line then becomes `rspec --drb spec/current_file_spec.rb:23`, which
 will run only the example (group) under the cursor.
+
+## License
+
+Copyright (c) Torsten Schmits. Distributed under the same terms as Vim itself.
+See `:help license`.
