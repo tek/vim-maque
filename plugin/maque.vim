@@ -23,6 +23,7 @@ command MaqueQuery call maque#query()<Bar>call maque#make()
 command MaqueParse call maque#parse()
 command MaqueCycle call maque#cycle()
 command MaqueToggleTmux call maque#tmux#toggle_pane()
+command MaqueTmuxKill call maque#tmux#kill()
 
 nnoremap <silent> <Plug>Maque :Maque<cr>
 nnoremap <silent> <Plug>AutoMaque :AutoMaque<cr>

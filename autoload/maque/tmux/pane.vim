@@ -32,6 +32,10 @@ function! maque#tmux#pane#new(name, splitter) "{{{
     call self.pipe_to_file()
   endfunction "}}}
 
+  function! pane.kill() dict "{{{
+    call self.send_keys('C-c')
+  endfunction "}}}
+
   " execute a command in the target pane
   function! pane.send(cmd) dict "{{{
     call self.send_keys("'".a:cmd."'")
