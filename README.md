@@ -3,14 +3,15 @@
 **maque** executes alternative methods to vim's :make command and assists in
 assembling command lines.
 
+A persistent tmux pane,
 [Conque](https://github.com/rson/vim-conque 'github repo'),
-[tmux](https://github.com/erwandev/screen 'github repo') and
-[dispatch](https://github.com/tpope/vim-dispatch 'github repo') 
+[dispatch](https://github.com/tpope/vim-dispatch 'github repo') and
+using vim's native `:make`
 are currently supported methods.
 
 ## Usage
 
-Convenience mappings:  
+Essential mappings:  
 `<Plug>Maque` executes `g:maqueprg`  
 `<Plug>AutoMaque` calls a `g:maqueprg` setter function and executes it.  
 `<Plug>MaqueParse` populates the quickfix list using `'errorformat'`  
@@ -41,6 +42,8 @@ buffer-local variable `maque_args_{&makeprg}` is set, it is appended.
 The tmux method is designed to maintain a permanently open pane for
 dispatching. Before and after each test execution, output redirection to a temp
 file is (de)activated.
+A mapping `<Plug>MaqueToggleTmux` is provided to manually kill or open the tmux
+pane.
 
 After having executed a test, `<Plug>MaqueParse` executes `:cgetfile`, which
 populates the quickfix list identically to how :make does.
