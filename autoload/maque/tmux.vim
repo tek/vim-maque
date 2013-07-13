@@ -1,11 +1,6 @@
-" user functions
+" public functions
 
-function! s:warn(msg) "{{{
-  echohl WarningMsg
-  echo a:msg
-  echohl None
-endfunction "}}}
-
+" execute a command in the active pane, creating it if necessary
 function! maque#tmux#make(cmd) "{{{
   let pane = s:pane()
   if !pane.open()
@@ -14,6 +9,7 @@ function! maque#tmux#make(cmd) "{{{
   call pane.make(a:cmd)
 endfunction "}}}
 
+" parse the active pane's last command's output into the quickfix list
 function! maque#tmux#parse() "{{{
   if filereadable(s:pane().errorfile)
     execute 'cgetfile'.s:pane().errorfile
@@ -26,10 +22,12 @@ function! maque#tmux#parse() "{{{
   endif
 endfunction "}}}
 
+" destroy or (re)create the active pane
 function! maque#tmux#toggle_pane() "{{{
   call s:pane().toggle()
 endfunction "}}}
 
+" activate the next pane, alphabetically
 function! maque#tmux#cycle_panes() "{{{
   let names = sort(keys(g:maque#tmux#panes))
   let current = index(names, g:maque#tmux#current_pane)
@@ -38,32 +36,7 @@ function! maque#tmux#cycle_panes() "{{{
   echo 'maque: selected pane "'.s:pane().name .'".'
 endfunction "}}}
 
-function! maque#tmux#close_all() "{{{
-  for pane in values(g:maque#tmux#panes)
-    echo pane
-    call pane.close()
-  endfor
-endfunction "}}}
-
-" internals
-
-let g:maque#tmux#panes = {
-      \ 'main': maque#tmux#pane#new('main', g:maque_tmux_split_cmd)
-      \ }
-let g:maque#tmux#current_pane = 'main'
-
-function! s:pane() "{{{
-  let name = g:maque#tmux#current_pane
-  if has_key(g:maque#tmux#panes, s:buffer())
-    let name = s:buffer()
-  endif
-  return g:maque#tmux#panes[name]
-endfunction "}}}
-
-function! maque#tmux#command(cmd) "{{{
-  return system('tmux '.a:cmd)
-endfunction "}}}
-
+" create a pane and restrict interaction from the current buffer to it
 function! maque#tmux#create_buffer_pane(...) "{{{
   let splitter = a:0 ? a:1 : g:maque_tmux_split_cmd
   if has_key(g:maque#tmux#panes, s:buffer())
@@ -74,12 +47,14 @@ function! maque#tmux#create_buffer_pane(...) "{{{
   endif
 endfunction "}}}
 
+" remove this buffer's pane association
 function! maque#tmux#delete_buffer_pane() "{{{
   if has_key(g:maque#tmux#panes, s:buffer())
     unlet g:maque#tmux#panes[s:buffer()]
   endif
 endfunction "}}}
 
+" add a new named pane with optional pane creation command
 function! maque#tmux#add_pane(name, ...) "{{{
   let splitter = a:0 ? a:1 : g:maque_tmux_split_cmd
   if has_key(g:maque#tmux#panes, s:buffer())
@@ -90,11 +65,43 @@ function! maque#tmux#add_pane(name, ...) "{{{
   endif
 endfunction "}}}
 
+" internals
+
+let g:maque#tmux#panes = {
+      \ 'main': maque#tmux#pane#new('main', g:maque_tmux_split_cmd)
+      \ }
+let g:maque#tmux#current_pane = 'main'
+
+function! maque#tmux#command(cmd) "{{{
+  return system('tmux '.a:cmd)
+endfunction "}}}
+
+function! maque#tmux#close_all() "{{{
+  for pane in values(g:maque#tmux#panes)
+    echo pane
+    call pane.close()
+  endfor
+endfunction "}}}
+
+function! s:pane() "{{{
+  let name = g:maque#tmux#current_pane
+  if has_key(g:maque#tmux#panes, s:buffer())
+    let name = s:buffer()
+  endif
+  return g:maque#tmux#panes[name]
+endfunction "}}}
+
 function! s:buffer() "{{{
   return 'buffer'.bufnr('%')
 endfunction "}}}
 
-augroup maque_tmux
+function! s:warn(msg) "{{{
+  echohl WarningMsg
+  echo a:msg
+  echohl None
+endfunction "}}}
+
+augroup maque_tmux "{{{
   autocmd!
   autocmd VimLeave * call maque#tmux#close_all()
-augroup END
+augroup END "}}}
