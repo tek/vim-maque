@@ -17,3 +17,4 @@ nnoremap <silent> <Plug>MaqueLine :call maque#ft#common#set_line()<Bar>call maqu
 nnoremap <silent> <Plug>MaqueQuery :call maque#query()<Bar>call maque#make()<cr>
 nnoremap <silent> <Plug>MaqueParse :call maque#parse()<cr>
 nnoremap <silent> <Plug>MaqueCycle :call maque#cycle()<cr>
+nnoremap <silent> <Plug>MaqueToggleTmux :call maque#tmux#toggle_pane()<cr>
