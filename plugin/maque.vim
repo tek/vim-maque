@@ -11,25 +11,29 @@ let g:maque_set_ft_options = 0
 let g:maque_tmux_split_cmd = 'tmux split-window -h -d'
 let g:maque_tmux_filter_escape_sequences = 1
 
-command -nargs=* MaqueTmuxBuffer call maque#tmux#create_buffer_pane(<q-args>)<Bar>call maque#make_auto()
-command MaqueTmuxDebuffer call maque#tmux#delete_buffer_pane()
-command MaqueTmuxCycle call maque#tmux#cycle_panes()
+command -nargs=* Maque            call maque#make(<q-args>)
+command AutoMaque                 call maque#make_auto()
+command MaqueFile                 call maque#ft#common#set_file()<Bar>call maque#make()
+command MaqueLine                 call maque#ft#common#set_line()<Bar>call maque#make()
+command MaqueQuery                call maque#query()<Bar>call maque#make()
+command MaqueParse                call maque#parse()
+command MaqueCycle                call maque#cycle()
+command MaqueToggleTmux           call maque#tmux#toggle_pane()
+command MaqueTmuxKill             call maque#tmux#kill()
+command -nargs=* MaqueTmuxBuffer  call maque#tmux#create_buffer_pane(<q-args>)<Bar>call maque#make_auto()
+command MaqueTmuxDebuffer         call maque#tmux#delete_buffer_pane()
+command MaqueTmuxCycle            call maque#tmux#cycle_panes()
 command -nargs=+ MaqueTmuxAddPane call maque#tmux#add_pane(<f-args>)
-command -nargs=* Maque call maque#make(<q-args>)
-command AutoMaque call maque#make_auto()
-command MaqueFile call maque#ft#common#set_file()<Bar>call maque#make()
-command MaqueLine call maque#ft#common#set_line()<Bar>call maque#make()
-command MaqueQuery call maque#query()<Bar>call maque#make()
-command MaqueParse call maque#parse()
-command MaqueCycle call maque#cycle()
-command MaqueToggleTmux call maque#tmux#toggle_pane()
-command MaqueTmuxKill call maque#tmux#kill()
 
-nnoremap <silent> <Plug>Maque :Maque<cr>
-nnoremap <silent> <Plug>AutoMaque :AutoMaque<cr>
-nnoremap <silent> <Plug>MaqueFile :MaqueFile<cr>
-nnoremap <silent> <Plug>MaqueLine :MaqueLine<cr>
-nnoremap <silent> <Plug>MaqueQuery :MaqueQuery<cr>
-nnoremap <silent> <Plug>MaqueParse :MaqueParse<cr>
-nnoremap <silent> <Plug>MaqueCycle :MaqueCycle<cr>
-nnoremap <silent> <Plug>MaqueToggleTmux :MaqueToggleTmux<cr>
+nnoremap <silent> <Plug>(maque)               :Maque<cr>
+nnoremap <silent> <Plug>(auto-maque)          :AutoMaque<cr>
+nnoremap <silent> <Plug>(maque-file)          :MaqueFile<cr>
+nnoremap <silent> <Plug>(maque-line)          :MaqueLine<cr>
+nnoremap <silent> <Plug>(maque-query)         :MaqueQuery<cr>
+nnoremap <silent> <Plug>(maque-parse)         :MaqueParse<cr>
+nnoremap <silent> <Plug>(maque-cycle)         :MaqueCycle<cr>
+nnoremap <silent> <Plug>(maque-toggle-tmux)   :MaqueToggleTmux<cr>
+nnoremap <silent> <Plug>(maque-tmux-kill)     :MaqueTmuxKill<cr>
+nnoremap <silent> <Plug>(maque-tmux-buffer)   :MaqueTmuxBuffer<cr>
+nnoremap <silent> <Plug>(maque-tmux-debuffer) :MaqueTmuxDebuffer<cr>
+nnoremap <silent> <Plug>(maque-tmux-cycle)    :MaqueTmuxCycle<cr>
