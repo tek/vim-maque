@@ -1,7 +1,7 @@
 let g:maque#tmux#pane#escape_filter = "sed -u -e \"s/\r//g\" -e \"s/\e[[0-9;]*m//g\""
 
 function! maque#tmux#pane#all() "{{{
-  return split(maque#tmux#command('list-panes -F "#{pane_id}"'), "\n")
+  return split(maque#tmux#command('list-panes -a -F "#{pane_id}"'), "\n")
 endfunction "}}}
 
 function! maque#tmux#pane#new(name, splitter) "{{{
