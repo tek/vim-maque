@@ -4,6 +4,6 @@ endfunction "}}}
 
 function! maque#dispatch#focus() "{{{
   if exists(':FocusDispatch')
-    FocusDispatch maque#prg()
+    silent! FocusDispatch maque#prg()
   endif
 endfunction "}}}
