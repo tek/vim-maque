@@ -125,7 +125,7 @@ CREDITS                                                         *maque-credits*
 Developed by Torsten Schmits <github.com/tek>. Distributed under Vim's
 |license|.
 
-Project's homepage:   http://tek.github.com/vim-maque
+Project's homepage:   http://tek.github.io/vim-maque
 Git repository:       https://github.com/tek/vim-maque
 
 ===============================================================================
