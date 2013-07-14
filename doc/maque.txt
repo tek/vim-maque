@@ -1,0 +1,149 @@
+*maque.txt*       makeprg assembler and tmux dispatcher
+*maque* *Maque*
+===============================================================================
+CONTENTS                                                       *maque-contents*
+
+    1. Intro........................................|maque-intro|
+    2. Options......................................|maque-options|
+    3. Commands.....................................|maque-commands|
+    4. Mappings.....................................|maque-mappings|
+
+===============================================================================
+INTRO                                                             *maque-intro*
+
+command assembler and tmux coordinator
+
+===============================================================================
+OPTIONS                                                         *maque-options*
+
+Overview:~
+
+  |maque_handler|............Command dispatch method.
+  |maque_handlers|...........Methods used for cycling.
+  |maqueprg|.................Command line to be executed.
+  |maque_jump_to_error|......Go to the file/line of the first error.
+  |maque_seek_cwd_error|.....Find the first error under cwd.
+  |maque_set_ft_options|.....Set defaults for some filetypes
+
+tmux:
+  |maque_tmux_split_cmd|...............Command for creating a tmux pane.
+  |maque_tmux_filter_escape_sequences|.Remove color codes from output.
+  |maque#tmux#current_pane|............Name of the current target pane.
+
+conque:
+  |maque_leave_conque|.......Go back to the original window.
+  |maque_conque_horizontal|..Split direction for the conque term.
+  |maque_conque_term_nowrap|.Deactivate line wrapping.
+
+dispatch:
+  |maque_dispatch_command|...Command to use for dispatch.vim.
+
+-------------------------------------------------------------------------------
+Detailed descriptions and default values:~
+
+                                                           *'g:maque_handler'*
+>
+  let g:maque_handler = 'tmux'
+<
+
+                                                                 *'g:maqueprg'*
+When executing |:Maque|, this variable is sent to the handler. The intended
+way to customize it is to define a setter function.
+>
+  let g:maqueprg = 'make'
+<
+
+                                                      *'g:maque_jump_to_error'*
+>
+  let g:maque_jump_to_error = 'first'
+<
+
+                                                           *'g:maque_handlers'*
+These values are used for |:MaqueCycle|.
+>
+  let g:maque_handlers = ['tmux', 'dispatch', 'conque', 'native']
+<
+
+                                                     *'g:maque_seek_cwd_error'*
+>
+  let g:maque_seek_cwd_error = 1
+<
+
+                                                     *'g:maque_set_ft_options'*
+>
+  let g:maque_set_ft_options = 0
+<
+
+                                                     *'g:maque_tmux_split_cmd'*
+>
+  let g:maque_tmux_split_cmd = 'tmux split-window -h -d'
+<
+
+                                       *'g:maque_tmux_filter_escape_sequences'*
+>
+  let g:maque_tmux_filter_escape_sequences = 1
+<
+
+                                                       *'g:maque_leave_conque'*
+>
+  let g:maque_leave_conque = 1
+<
+
+                                                  *'g:maque_conque_horizontal'*
+>
+  let g:maque_conque_horizontal = 1
+<
+
+                                                 *'g:maque_conque_term_nowrap'*
+>
+  let g:maque_conque_term_nowrap = 0
+<
+
+                                                   *'g:maque_dispatch_command'*
+>
+  let g:maque_dispatch_command = 'Dispatch'
+<
+
+===============================================================================
+COMMANDS                                                       *maque-commands*
+
+                                                                      *:Maque*
+:Maque [command]
+  Run |g:maqueprg| or [command] with the current handler.
+
+===============================================================================
+MAPPINGS                                                       *maque-mappings*
+
+                                                             *'<Plug>(maque)'*
+<Plug>(maque)
+  Calls |:Maque| without arguments, thus executes the most recently set
+  |g:maqueprg|.
+
+
+===============================================================================
+CUSTOMIZATION                                             *maque-customization*
+
+
+===============================================================================
+CREDITS                                                         *maque-credits*
+
+Developed by Kien Nguyen <github.com/kien>. Distributed under Vim's |license|.
+
+Project's homepage:   http://tek.github.com/vim-maque
+Git repository:       https://github.com/tek/vim-maque
+
+===============================================================================
+CHANGELOG                                                     *maque-changelog*
+
+1.0~
+
+    + Allow tmux panes to be created outside of the current window
+    + Enable toggling of tmux pane
+    + Pipe output to tempfile, parse errors into qfl
+    + Process kill command
+    + Allow multiple panes
+    + Enable binding a pane to a buffer
+    + handle tmux directly
+
+===============================================================================
+vim:ft=help:et:ts=2:sw=2:sts=2:norl
