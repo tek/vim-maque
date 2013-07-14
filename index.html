@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>maque by tek</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/tek/vim-maque">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/tek/vim-maque/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/tek/vim-maque/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>maque</h1>
+          <p>command assembler and tmux coordinator</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/tek">tek</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
+
+        <h2>
+<a name="description" class="anchor" href="#description"><span class="octicon octicon-link"></span></a>Description</h2>
+
+<p><strong>maque</strong> executes alternative methods to vim's :make command and assists in
+assembling command lines.</p>
+
+<p>A persistent tmux pane,
+<a href="https://github.com/rson/vim-conque" title="github repo">Conque</a>,
+<a href="https://github.com/tpope/vim-dispatch" title="github repo">dispatch</a> and
+using vim's native <code>:make</code>
+are currently supported methods.</p>
+
+<h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>Essential mappings:<br><code>&lt;Plug&gt;Maque</code> executes <code>g:maqueprg</code><br><code>&lt;Plug&gt;AutoMaque</code> calls a <code>g:maqueprg</code> setter function and executes it.<br><code>&lt;Plug&gt;MaqueParse</code> populates the quickfix list using <code>'errorformat'</code></p>
+
+<h2>
+<a name="customization" class="anchor" href="#customization"><span class="octicon octicon-link"></span></a>Customization</h2>
+
+<p>To add your own <code>make</code> replacement, assign a function name to
+<code>g:maque_handler</code>.</p>
+
+<p>To replace the default <code>g:maqueprg</code> assembly methods, assign yours to
+<code>b:maque_makeprg_setter</code> or <code>g:maque_makeprg_setter</code>, or define the function
+<code>maque#ft#{&amp;filetype}#set_makeprg</code>. The function's return value is indicative
+of whether make should be executed subsequently.  If none of these exist, the
+plugin's default setter is used.</p>
+
+<h2>
+<a name="details" class="anchor" href="#details"><span class="octicon octicon-link"></span></a>Details</h2>
+
+<p>The main purpose of <strong>maque</strong> is to to assemble test invocation commands for
+various filetypes and manage different test command dispatching methods. The
+first execution of <code>AutoMaque</code> should be done with the cursor on the desired
+unittest. After storing information about the currently selected environment,
+custom mappings can launch different commands in conque or tmux (See the puppet
+functions for an example).</p>
+
+<p>The default assembly methods uses <code>'makeprg'</code> as executable. If a global or
+buffer-local variable <code>maque_args_{&amp;makeprg}</code> is set, it is appended.</p>
+
+<p>After having executed a test, <code>&lt;Plug&gt;MaqueParse</code> executes <code>:cgetfile</code>, which
+populates the quickfix list identically to how :make does.</p>
+
+<h2>
+<a name="tmux" class="anchor" href="#tmux"><span class="octicon octicon-link"></span></a>tmux</h2>
+
+<p>The tmux method is designed to maintain a persistently open pane for
+dispatching. Before and after each test execution, output redirection to a temp
+file is (de)activated.
+A mapping <code>&lt;Plug&gt;MaqueToggleTmux</code> is provided to manually kill or open the tmux
+pane.</p>
+
+<p>A new pane is created as a horizontal split by default, but you can specify an
+arbitrary system command via <code>g:maque_tmux_split_cmd</code>. You can even launch a
+new session in a fresh terminal by setting the variable to <code>'TMUX= urxvt -e
+tmux &amp;!'</code> (note that tmux will not nest, indicated by the <code>$TMUX</code> environment
+variable). As long as as the pane is on localhost, it will be found.</p>
+
+<p>There are two commands available to create additional panes:</p>
+
+<p><code>:MaqueTmuxAddPane name ['tmux split command']</code> creates a named pane which will
+receive all following makes and toggle commands. It will become visible after
+executing <code>&lt;Plug&gt;Maque</code> or <code>&lt;Plug&gt;MaqueToggleTmux</code>.
+To activate a different pane, run <code>:MaqueTmuxCycle</code> or assign its name to
+<code>g:maque#tmux#current_pane</code>.</p>
+
+<p><code>:MaqueTmuxBuffer</code> and <code>:MaqueTmuxDebuffer</code> create and destroy a pane that is
+associated with the current buffer and will receive all makes executed from it.</p>
+
+<h2>
+<a name="example" class="anchor" href="#example"><span class="octicon octicon-link"></span></a>Example</h2>
+
+<p>When editing an rspec file, the default <code>maque_args</code> are set to <code>--drb</code>. When
+invoking the <code>&lt;Plug&gt;AutoMaque</code> mapping, the default makeprg setter appends
+<code>spec/current_file_spec.rb:23</code>, given that the cursor is on line 23. The whole
+command line then becomes <code>rspec --drb spec/current_file_spec.rb:23</code>, which
+will run only the example (group) under the cursor.</p>
+
+<h2>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p>Copyright (c) Torsten Schmits. Distributed under the same terms as Vim itself.
+See <code>:help license</code>.</p>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
