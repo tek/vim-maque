@@ -119,11 +119,6 @@ MAPPINGS                                                       *maque-mappings*
   Calls |:Maque| without arguments, thus executes the most recently set
   |g:maqueprg|.
 
-
-===============================================================================
-CUSTOMIZATION                                             *maque-customization*
-
-
 ===============================================================================
 CREDITS                                                         *maque-credits*
 
