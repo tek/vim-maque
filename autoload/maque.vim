@@ -1,7 +1,9 @@
 function! maque#make(...) "{{{
-	let cmd = a:0 > 0 ? a:1 : maque#prg()
+  if a:0
+    let g:maqueprg = a:1
+  endif
   let Maker = function('maque#'.g:maque_handler.'#make')
-  return Maker(cmd)
+  return Maker(maque#prg())
 endfunction "}}}
 
 function! maque#make_auto() "{{{
