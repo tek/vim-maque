@@ -67,7 +67,7 @@ endfunction "}}}
 
 " kill the process running in the active pane
 function! maque#tmux#kill() "{{{
-  pane().kill()
+  call s:pane().kill()
 endfunction "}}}
 
 " internals
