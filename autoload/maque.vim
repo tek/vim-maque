@@ -1,5 +1,5 @@
 function! maque#make(...) "{{{
-  if a:0
+  if a:0 && len(a:1)
     let g:maqueprg = a:1
   endif
   let Maker = function('maque#'.g:maque_handler.'#make')
