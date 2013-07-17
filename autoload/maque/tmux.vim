@@ -9,6 +9,11 @@ function! maque#tmux#make(cmd) "{{{
   call pane.make(a:cmd)
 endfunction "}}}
 
+function! maque#tmux#make_aux(cmd) "{{{
+  call s:aux_pane().create()
+  call s:aux_pane().make(a:cmd)
+endfunction "}}}
+
 " parse the active pane's last command's output into the quickfix list
 function! maque#tmux#parse() "{{{
   if filereadable(s:pane().errorfile)
@@ -73,7 +78,8 @@ endfunction "}}}
 " internals
 
 let g:maque#tmux#panes = {
-      \ 'main': maque#tmux#pane#new('main', 0)
+      \ 'main': maque#tmux#pane#new('main', 0),
+      \ 'aux': maque#tmux#pane#new('aux', g:maque_tmux_aux_split_cmd),
       \ }
 let g:maque#tmux#current_pane = 'main'
 
@@ -93,6 +99,10 @@ function! s:pane() "{{{
     let name = s:buffer()
   endif
   return g:maque#tmux#panes[name]
+endfunction "}}}
+
+function! s:aux_pane() "{{{
+  return get(g:maque#tmux#panes, 'aux', s:pane())
 endfunction "}}}
 
 function! s:buffer() "{{{

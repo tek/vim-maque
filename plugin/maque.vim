@@ -10,8 +10,10 @@ let g:maque_dispatch_command = 'Dispatch'
 let g:maque_set_ft_options = 0
 let g:maque_tmux_split_cmd = 'tmux split-window -h -d'
 let g:maque_tmux_filter_escape_sequences = 1
+let g:maque_tmux_aux_split_cmd = 'tmux split-window -v -d -p 20'
 
 command -nargs=* Maque            call maque#make(<q-args>)
+command -nargs=* MaqueAux         call maque#make_aux(<q-args>)
 command AutoMaque                 call maque#make_auto()
 command MaqueFile                 call maque#ft#common#set_file()<Bar>call maque#make()
 command MaqueLine                 call maque#ft#common#set_line()<Bar>call maque#make()

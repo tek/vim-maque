@@ -6,6 +6,16 @@ function! maque#make(...) "{{{
   return Maker(maque#prg())
 endfunction "}}}
 
+function! maque#make_aux(cmd) "{{{
+  exe 'runtime autoload/maque/'.g:maque_handler.'.vim'
+  let handler = 'maque#'.g:maque_handler.'#make_aux'
+  if exists('*'.handler)
+    return function(handler)(a:cmd)
+  else
+    return maque#make(a:cmd)
+  endif
+endfunction "}}}
+
 function! maque#make_auto() "{{{
   let do_set = 1
   let default_setter = 'maque#ft#'.maque#filetype().'#set_makeprg'

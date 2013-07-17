@@ -13,13 +13,16 @@ function! maque#tmux#pane#new(name, splitter) "{{{
         \ }
 
   function! pane.create() dict "{{{
-    let panes_before = maque#tmux#pane#all()
-    let splitter = self.splitter == 0 ? g:maque_tmux_split_cmd : self.splitter
-    call system(splitter)
-    let matcher = 'index(panes_before, v:val) == -1'
-    let matches = filter(maque#tmux#pane#all(), matcher)
-    let self.id = len(matches) > 0 ? matches[0] : -1
-    call self.send('cd '.g:pwd)
+    if !self.open()
+      let panes_before = maque#tmux#pane#all()
+      let splitter = type(self.splitter) == type(0) ? g:maque_tmux_split_cmd :
+            \ self.splitter
+      call system(splitter)
+      let matcher = 'index(panes_before, v:val) == -1'
+      let matches = filter(maque#tmux#pane#all(), matcher)
+      let self.id = len(matches) > 0 ? matches[0] : -1
+      call self.send('cd '.g:pwd)
+    endif
   endfunction "}}}
 
   function! pane.make(cmd) dict "{{{
