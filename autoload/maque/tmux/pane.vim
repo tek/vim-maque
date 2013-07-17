@@ -26,14 +26,20 @@ function! maque#tmux#pane#new(name, splitter) "{{{
     call self.send(a:cmd)
     " send the pipe canceling command now, so that it executes as soon as the
     " make command is finished
-    call self.send('tmux '.self.pipe_cmd())
+    call self.send(' tmux '.self.pipe_cmd())
     " initiate the pipe to the errorfile after starting the command, so that it
     " doesn't contain the command line
     call self.pipe_to_file()
   endfunction "}}}
 
+  " TODO seems to sever connection with pane
   function! pane.kill() dict "{{{
-    call self.send_keys('C-c')
+    try
+      for key in ["\n~.", 'C-d', 'C-c', 'C-\', 'C-c']
+        call self.send_keys(key)
+      endfor
+    catch /E484/
+    endtry
   endfunction "}}}
 
   " execute a command in the target pane
