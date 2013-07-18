@@ -6,12 +6,14 @@ endfunction "}}}
 
 function! maque#tmux#pane#new(name, splitter, ...) "{{{
   let capture = a:0 ? a:1 : 1
+  let autoclose = a:0 >= 2 ? a:2 : 0
   let pane = {
         \ 'id': -1,
         \ 'errorfile': tempname(),
         \ 'name': a:name,
         \ 'splitter': a:splitter,
         \ 'capture': capture,
+        \ 'autoclose': autoclose,
         \ }
 
   function! pane.create() dict "{{{
@@ -29,6 +31,7 @@ function! maque#tmux#pane#new(name, splitter, ...) "{{{
 
   function! pane.make(cmd, ...) dict "{{{
     let capture = a:0 ? a:1 : self.capture
+    let autoclose = a:0 >= 2 ? a:2 : self.autoclose
     call self.send(a:cmd)
     if capture
       " send the pipe canceling command now, so that it executes as soon as the
@@ -37,6 +40,9 @@ function! maque#tmux#pane#new(name, splitter, ...) "{{{
       " initiate the pipe to the errorfile after starting the command, so that it
       " doesn't contain the command line
       call self.pipe_to_file()
+    endif
+    if autoclose
+      call self.send('exit')
     endif
   endfunction "}}}
 

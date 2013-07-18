@@ -77,7 +77,7 @@ endfunction "}}}
 if !exists('g:maque#tmux#panes')
   let g:maque#tmux#panes = {
         \ 'main': maque#tmux#pane#new('main', 0),
-        \ 'aux': maque#tmux#pane#new('aux', g:maque_tmux_aux_split_cmd, 0),
+        \ 'aux': maque#tmux#pane#new('aux', g:maque_tmux_aux_split_cmd, 0, 1),
         \ }
   let g:maque#tmux#current_pane = 'main'
 endif
