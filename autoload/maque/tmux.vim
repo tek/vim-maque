@@ -2,11 +2,8 @@
 
 " execute a command in the active pane, creating it if necessary
 function! maque#tmux#make(cmd) "{{{
-  let pane = s:pane()
-  if !pane.open()
-    call pane.create()
-  endif
-  call pane.make(a:cmd)
+  call s:pane().create()
+  call s:pane().make(a:cmd)
 endfunction "}}}
 
 function! maque#tmux#make_aux(cmd) "{{{
@@ -77,11 +74,13 @@ endfunction "}}}
 
 " internals
 
-let g:maque#tmux#panes = {
-      \ 'main': maque#tmux#pane#new('main', 0),
-      \ 'aux': maque#tmux#pane#new('aux', g:maque_tmux_aux_split_cmd),
-      \ }
-let g:maque#tmux#current_pane = 'main'
+if !exists('g:maque#tmux#panes')
+  let g:maque#tmux#panes = {
+        \ 'main': maque#tmux#pane#new('main', 0),
+        \ 'aux': maque#tmux#pane#new('aux', g:maque_tmux_aux_split_cmd),
+        \ }
+  let g:maque#tmux#current_pane = 'main'
+endif
 
 function! maque#tmux#command(cmd) "{{{
   return system('tmux '.a:cmd)
