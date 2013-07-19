@@ -12,9 +12,9 @@ are currently supported methods.
 ## Usage
 
 Essential mappings:  
-`<Plug>Maque` executes `g:maqueprg`  
-`<Plug>AutoMaque` calls a `g:maqueprg` setter function and executes it.  
-`<Plug>MaqueParse` populates the quickfix list using `'errorformat'`
+`<Plug>(maque)` executes `g:maqueprg`  
+`<Plug>(auto-maque)` calls a `g:maqueprg` setter function and executes it.  
+`<Plug>(maque-parse)` populates the quickfix list using `'errorformat'`
 
 ## Customization
 
@@ -39,7 +39,7 @@ functions for an example).
 The default assembly methods uses `'makeprg'` as executable. If a global or
 buffer-local variable `maque_args_{&makeprg}` is set, it is appended.
 
-After having executed a test, `<Plug>MaqueParse` executes `:cgetfile`, which
+After having executed a test, `<Plug>(maque-parse)` executes `:cgetfile`, which
 populates the quickfix list identically to how :make does.
 
 ## tmux
@@ -47,7 +47,7 @@ populates the quickfix list identically to how :make does.
 The tmux method is designed to maintain a persistently open pane for
 dispatching. Before and after each test execution, output redirection to a temp
 file is (de)activated.
-A mapping `<Plug>MaqueToggleTmux` is provided to manually kill or open the tmux
+A mapping `<Plug>(maque-toggle-tmux)` is provided to manually kill or open the tmux
 pane.
 
 A new pane is created as a horizontal split by default, but you can specify an
@@ -60,7 +60,7 @@ There are two commands available to create additional panes:
 
 `:MaqueTmuxAddPane name ['tmux split command']` creates a named pane which will
 receive all following makes and toggle commands. It will become visible after
-executing `<Plug>Maque` or `<Plug>MaqueToggleTmux`.
+executing `<Plug>(maque)` or `<Plug>(maque-toggle-tmux)`.
 To activate a different pane, run `:MaqueTmuxCycle` or assign its name to
 `g:maque#tmux#current_pane`.
 
@@ -70,7 +70,7 @@ associated with the current buffer and will receive all makes executed from it.
 ## Example
 
 When editing an rspec file, the default `maque_args` are set to `--drb`. When
-invoking the `<Plug>AutoMaque` mapping, the default makeprg setter appends
+invoking the `<Plug>(auto-maque)` mapping, the default makeprg setter appends
 `spec/current_file_spec.rb:23`, given that the cursor is on line 23. The whole
 command line then becomes `rspec --drb spec/current_file_spec.rb:23`, which
 will run only the example (group) under the cursor.
