@@ -11,6 +11,11 @@ function! maque#tmux#make_aux(cmd) "{{{
   call s:aux_pane().make(a:cmd)
 endfunction "}}}
 
+function! maque#tmux#make_in(pane, cmd) "{{{
+  call g:maque#tmux#panes[a:pane].create()
+  call g:maque#tmux#panes[a:pane].make(a:cmd)
+endfunction "}}}
+
 " parse the active pane's last command's output into the quickfix list
 function! maque#tmux#parse() "{{{
   if filereadable(s:pane().errorfile)
