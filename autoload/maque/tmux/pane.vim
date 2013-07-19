@@ -32,17 +32,21 @@ function! maque#tmux#pane#new(name, splitter, ...) "{{{
   function! pane.make(cmd, ...) dict "{{{
     let capture = a:0 ? a:1 : self.capture
     let autoclose = a:0 >= 2 ? a:2 : self.autoclose
-    call self.send(a:cmd)
-    if capture
-      " send the pipe canceling command now, so that it executes as soon as the
-      " make command is finished
-      call self.send(' tmux '.self.pipe_cmd())
-      " initiate the pipe to the errorfile after starting the command, so that it
-      " doesn't contain the command line
-      call self.pipe_to_file()
-    endif
-    if autoclose
-      call self.send('exit')
+    if self.open()
+      call self.send(a:cmd)
+      if capture
+        " send the pipe canceling command now, so that it executes as soon as the
+        " make command is finished
+        call self.send(' tmux '.self.pipe_cmd())
+        " initiate the pipe to the errorfile after starting the command, so that it
+        " doesn't contain the command line
+        call self.pipe_to_file()
+      endif
+      if autoclose
+        call self.send('exit')
+      endif
+    else
+      s:warn('make called on pane "'.self.name.'" while not open!')
     endif
   endfunction "}}}
 
@@ -96,4 +100,10 @@ function! maque#tmux#pane#new(name, splitter, ...) "{{{
   endfunction "}}}
 
   return pane
+endfunction "}}}
+
+function! s:warn(msg) "{{{
+  echohl WarningMsg
+  echo a:msg
+  echohl None
 endfunction "}}}
