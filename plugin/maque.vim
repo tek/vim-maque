@@ -1,3 +1,4 @@
+"{{{ variables
 let g:maque_leave_conque = 1
 let g:maque_handler = 'tmux'
 let g:maque_conque_horizontal = 1
@@ -11,7 +12,9 @@ let g:maque_set_ft_options = 0
 let g:maque_tmux_split_cmd = 'tmux split-window -h -d'
 let g:maque_tmux_filter_escape_sequences = 1
 let g:maque_tmux_aux_split_cmd = 'tmux split-window -v -d -p 20'
+"}}}
 
+"{{{ commands
 command! -nargs=* Maque            call maque#make(<q-args>)
 command! -nargs=* MaqueAux         call maque#make_aux(<q-args>)
 command! AutoMaque                 call maque#make_auto()
@@ -26,7 +29,9 @@ command! -nargs=* MaqueTmuxBuffer  call maque#tmux#create_buffer_pane(<q-args>)<
 command! MaqueTmuxDebuffer         call maque#tmux#delete_buffer_pane()
 command! MaqueTmuxCycle            call maque#tmux#cycle_panes()
 command! -nargs=+ MaqueTmuxAddPane call maque#tmux#add_pane(<f-args>)
+"}}}
 
+"{{{ mappings
 nnoremap <silent> <Plug>(maque)               :Maque<cr>
 nnoremap <silent> <Plug>(auto-maque)          :AutoMaque<cr>
 nnoremap <silent> <Plug>(maque-file)          :MaqueFile<cr>
@@ -39,3 +44,4 @@ nnoremap <silent> <Plug>(maque-tmux-kill)     :MaqueTmuxKill<cr>
 nnoremap <silent> <Plug>(maque-tmux-buffer)   :MaqueTmuxBuffer<cr>
 nnoremap <silent> <Plug>(maque-tmux-debuffer) :MaqueTmuxDebuffer<cr>
 nnoremap <silent> <Plug>(maque-tmux-cycle)    :MaqueTmuxCycle<cr>
+"}}}
