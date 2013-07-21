@@ -61,13 +61,13 @@ function! maque#tmux#delete_buffer_pane() "{{{
   endif
 endfunction "}}}
 
-" add a new named pane with optional pane creation command
+" add a new named pane, pass additional args to pane constructor
 function! maque#tmux#add_pane(name, ...) "{{{
-  let splitter = a:0 ? a:1 : g:maque_tmux_split_cmd
   if has_key(g:maque#tmux#panes, a:name)
     call s:warn('maque: pane "'.a:name.'" already created!')
   else
-    let g:maque#tmux#panes[a:name] = maque#tmux#pane#new(a:name, splitter)
+    let g:maque#tmux#panes[a:name] = call('maque#tmux#pane#new', [a:name] +
+          \ a:000)
     let g:maque#tmux#current_pane = a:name
   endif
 endfunction "}}}
