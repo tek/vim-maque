@@ -12,20 +12,20 @@ let g:maque_tmux_split_cmd = 'tmux split-window -h -d'
 let g:maque_tmux_filter_escape_sequences = 1
 let g:maque_tmux_aux_split_cmd = 'tmux split-window -v -d -p 20'
 
-command -nargs=* Maque            call maque#make(<q-args>)
-command -nargs=* MaqueAux         call maque#make_aux(<q-args>)
-command AutoMaque                 call maque#make_auto()
-command MaqueFile                 call maque#ft#common#set_file()<Bar>call maque#make()
-command MaqueLine                 call maque#ft#common#set_line()<Bar>call maque#make()
-command MaqueQuery                call maque#query()<Bar>call maque#make()
-command MaqueParse                call maque#parse()
-command MaqueCycle                call maque#cycle()
-command MaqueToggleTmux           call maque#tmux#toggle_pane()
-command MaqueTmuxKill             call maque#tmux#kill()
-command -nargs=* MaqueTmuxBuffer  call maque#tmux#create_buffer_pane(<q-args>)<Bar>call maque#make_auto()
-command MaqueTmuxDebuffer         call maque#tmux#delete_buffer_pane()
-command MaqueTmuxCycle            call maque#tmux#cycle_panes()
-command -nargs=+ MaqueTmuxAddPane call maque#tmux#add_pane(<f-args>)
+command! -nargs=* Maque            call maque#make(<q-args>)
+command! -nargs=* MaqueAux         call maque#make_aux(<q-args>)
+command! AutoMaque                 call maque#make_auto()
+command! MaqueFile                 call maque#ft#common#set_file()<Bar>call maque#make()
+command! MaqueLine                 call maque#ft#common#set_line()<Bar>call maque#make()
+command! MaqueQuery                call maque#query()<Bar>call maque#make()
+command! MaqueParse                call maque#parse()
+command! MaqueCycle                call maque#cycle()
+command! MaqueToggleTmux           call maque#tmux#toggle_pane()
+command! MaqueTmuxKill             call maque#tmux#kill()
+command! -nargs=* MaqueTmuxBuffer  call maque#tmux#create_buffer_pane(<q-args>)<Bar>call maque#make_auto()
+command! MaqueTmuxDebuffer         call maque#tmux#delete_buffer_pane()
+command! MaqueTmuxCycle            call maque#tmux#cycle_panes()
+command! -nargs=+ MaqueTmuxAddPane call maque#tmux#add_pane(<f-args>)
 
 nnoremap <silent> <Plug>(maque)               :Maque<cr>
 nnoremap <silent> <Plug>(auto-maque)          :AutoMaque<cr>
