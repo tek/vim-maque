@@ -46,7 +46,7 @@ function! maque#tmux#pane#new(name, splitter, ...) "{{{
         call self.send('exit')
       endif
     else
-      s:warn('make called on pane "'.self.name.'" while not open!')
+      call s:warn('make called on pane "'.self.name.'" while not open!')
     endif
   endfunction "}}}
 
