@@ -64,7 +64,7 @@ endfunction "}}}
 " add a new named pane with optional pane creation command
 function! maque#tmux#add_pane(name, ...) "{{{
   let splitter = a:0 ? a:1 : g:maque_tmux_split_cmd
-  if has_key(g:maque#tmux#panes, s:buffer())
+  if has_key(g:maque#tmux#panes, a:name)
     call s:warn('maque: pane "'.a:name.'" already created!')
   else
     let g:maque#tmux#panes[a:name] = maque#tmux#pane#new(a:name, splitter)
