@@ -36,6 +36,10 @@ describe 'autoload function lookup'
     Expect Func == function('maque#make')
   end
 
+end
+
+describe 'buffer path test'
+
   it 'should determine a buffer to be within the current project'
     edit plugin/maque.vim
     Expect maque#util#buffer_is_in_project(1) == 1
