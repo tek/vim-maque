@@ -3,11 +3,11 @@ describe 'tmux pane'
   before
     runtime plugin/maque.vim
 
-    function! s:open_stub() dict "{{{
+    function! Open_stub() dict "{{{
       return s:pane_open
     endfunction "}}}
 
-    function! s:send_keys_stub(cmd) dict "{{{
+    function! Send_keys_stub(cmd) dict "{{{
       let self.command_buffer += [a:cmd]
     endfunction "}}}
 
@@ -15,8 +15,8 @@ describe 'tmux pane'
     let g:pane = maque#tmux#pane#new('foo', 0)
     let g:pane.command_buffer = []
 
-    let g:pane.open = function('s:open_stub')
-    let g:pane.send_keys = function('s:send_keys_stub')
+    let g:pane.open = function('Open_stub')
+    let g:pane.send_keys = function('Send_keys_stub')
   end
 
   it 'should run the command if the pane is open'
