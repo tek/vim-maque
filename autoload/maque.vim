@@ -46,7 +46,7 @@ function! maque#make_auto() "{{{
 endfunction "}}}
 
 function! maque#remove_errorfile() "{{{
-	exe 'silent !'.'rm -f '.&ef
+  exe 'silent !'.'rm -f '.&ef
   redraw!
 endfunction "}}}
 
