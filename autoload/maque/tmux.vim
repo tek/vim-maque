@@ -77,6 +77,14 @@ function! maque#tmux#kill() "{{{
   call s:pane().kill()
 endfunction "}}}
 
+function! maque#tmux#pane(name) "{{{
+  return get(g:maque#tmux#panes, a:name, s:pane())
+endfunction "}}}
+
+function! maque#tmux#current_pane() "{{{
+  return s:pane()
+endfunction "}}}
+
 " internals
 
 if !exists('g:maque#tmux#panes')
