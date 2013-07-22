@@ -1,4 +1,5 @@
 function! s:setup_test_dir() "{{{
+  let g:olddir = getcwd()
   let g:tempdir = getcwd().'/tmp'
   let g:cwd = g:tempdir.'/cwd'
   call mkdir(g:cwd, 'p')
@@ -24,6 +25,7 @@ describe 'error parsing'
   end
 
   after
+    exe 'cd' g:olddir
     call system('rm -rf '.g:tempdir)
   end
 
