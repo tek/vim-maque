@@ -1,9 +1,8 @@
 function! maque#util#buffer_is_in_project(num) "{{{
   let path = fnamemodify(expand('#'.a:num), ':p')
-  try
+  if executable('realpath')
     let path = system('realpath '.path)
-  catch
-  endtry
+  endif
   return path =~ getcwd()
 endfunction "}}}
 
