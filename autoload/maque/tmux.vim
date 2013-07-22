@@ -69,7 +69,6 @@ function! maque#tmux#add_pane(name, ...) "{{{
   else
     let g:maque#tmux#panes[a:name] = call('maque#tmux#pane#new', [a:name] +
           \ a:000)
-    let g:maque#tmux#current_pane = a:name
   endif
 endfunction "}}}
 
