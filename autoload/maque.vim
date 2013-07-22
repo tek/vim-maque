@@ -16,7 +16,7 @@ function! maque#make_aux(cmd) "{{{
   if exists('*'.handler)
     return function(handler)(a:cmd)
   else
-    return maque#make(a:cmd)
+    call maque#util#warn('no handler for aux cmds!')
   endif
 endfunction "}}}
 
