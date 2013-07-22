@@ -5,7 +5,7 @@ function! s:setup_test_dir() "{{{
   call mkdir(g:cwd, 'p')
   let g:inside1 = g:cwd.'/inside1'
   let g:inside2 = g:cwd.'/inside2'
-  let g:outside1 = g:tempdir.'outside1'
+  let g:outside1 = g:tempdir.'/outside1'
   let g:outside2 = '../outside2'
   exe 'edit' g:inside1
   exe 'edit' g:inside2
