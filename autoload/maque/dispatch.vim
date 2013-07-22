@@ -1,5 +1,5 @@
 function! maque#dispatch#make(cmd) "{{{
-  exe g:maque_dispatch_command
+  exe g:maque_dispatch_command.' '.a:cmd
 endfunction "}}}
 
 function! maque#dispatch#focus() "{{{
