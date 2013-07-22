@@ -31,7 +31,7 @@ function! maque#make_auto() "{{{
   elseif exists('*'.default_setter)
     let setter_name = default_setter
   else
-		echohl WarningMsg | echo 'maque: no makeprg setter found!' | echohl None
+    call maque#util#warn('no makeprg setter found!')
     let do_set = 0
   endif
   let do_make = g:maque_makeprg_set
