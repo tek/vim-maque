@@ -115,3 +115,30 @@ endfunction "}}}
 function! maque#set_params(params) "{{{
   let g:maqueprg = &makeprg.' '.maque#args().' '.a:params
 endfunction "}}}
+
+function! maque#dummy_pane(...) "{{{
+  let pane = { 'name': g:maque_handler }
+
+  function! pane.description() dict "{{{
+    return self.name
+  endfunction "}}}
+
+  function! pane.create() dict "{{{
+  endfunction "}}}
+
+  function! pane.make(...) dict "{{{
+    call call('maque#make', a:000)
+  endfunction "}}}
+
+  return pane
+endfunction "}}}
+
+function! maque#pane(name) "{{{
+  let Pane = maque#util#handler_function('pane', 'maque#dummy_pane')
+  return Pane(a:name)
+endfunction "}}}
+
+function! maque#current_pane() "{{{
+  let Pane = maque#util#handler_function('current_pane', 'maque#dummy_pane')
+  return Pane()
+endfunction "}}}
