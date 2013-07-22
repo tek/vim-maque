@@ -116,6 +116,23 @@ function! maque#set_params(params) "{{{
   let g:maqueprg = &makeprg.' '.maque#args().' '.a:params
 endfunction "}}}
 
+function! maque#add_command(name, cmd, ...) "{{{
+  let args = a:0 ? a:1 : {}
+  if has_key(g:maque_commands, a:name)
+    " call maque#util#warn('command "'.a:name.'" already created!')
+  else
+    let g:maque_commands[a:name] = maque#command#new(a:cmd, args)
+  endif
+endfunction "}}}
+
+function! maque#make_command(name) "{{{
+  if !has_key(g:maque_commands, a:name)
+    " call maque#util#warn('no such command: '.a:name)
+  else
+    call g:maque_commands[a:name].make()
+  endif
+endfunction "}}}
+
 function! maque#dummy_pane(...) "{{{
   let pane = { 'name': g:maque_handler }
 
