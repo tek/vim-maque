@@ -17,9 +17,10 @@ function! maque#tmux#make_in(pane, cmd) "{{{
 endfunction "}}}
 
 " parse the active pane's last command's output into the quickfix list
-function! maque#tmux#parse() "{{{
-  if filereadable(s:pane().errorfile)
-    execute 'cgetfile'.s:pane().errorfile
+function! maque#tmux#parse(...) "{{{
+  let pane = a:0 ? g:maque#tmux#panes[a:1] : s:pane()
+  if filereadable(pane.errorfile)
+    execute 'cgetfile'.pane.errorfile
     if empty(getqflist())
       call s:warn('maque: no errors!')
     else
