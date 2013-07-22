@@ -99,6 +99,10 @@ function! maque#tmux#pane#new(name, splitter, ...) "{{{
     return 'pipe-pane -t '.self.id
   endfunction "}}}
 
+  function! pane.description() dict "{{{
+    return 'tmux pane "'.self.name.'"'
+  endfunction "}}}
+
   return pane
 endfunction "}}}
 
