@@ -1,9 +1,13 @@
 function! maque#make(...) "{{{
+  let command = 'main'
   if a:0 && len(a:1)
-    let g:maqueprg = a:1
+    if has_key(g:maque_commands, a:1)
+      let command = a:1
+    else
+      let g:maqueprg = a:1
+    endif
   endif
-  let Maker = function('maque#'.g:maque_handler.'#make')
-  return Maker(maque#prg())
+  return maque#make_command(command)
 endfunction "}}}
 
 function! maque#make_aux(cmd) "{{{
