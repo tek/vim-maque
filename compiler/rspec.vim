@@ -7,7 +7,7 @@ set errorformat=
     \%f:%l:\ parse\ error,
     \%f:%l:\ warning:\ %m,
     \%f:%l:in\ %*[^:]:\ %m,
-    \%[\ #]%#%f:%l:in\ %m,
+    \%.%#\ %f:%l:in\ %m,
     \%f:%l:\ %m,
     \%\\s%#from\ %f:%l:%m,
     \%\\s%#from\ %f:%l,
