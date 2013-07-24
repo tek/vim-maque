@@ -42,7 +42,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
         call self.send('exit')
       endif
     else
-      call s:warn('make called on pane "'.self.name.'" while not open!')
+      call maque#util#warn('make called on pane "'.self.name.'" while not open!')
     endif
   endfunction "}}}
 
