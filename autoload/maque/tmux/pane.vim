@@ -7,7 +7,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
   let pane = {
         \ 'id': -1,
         \ 'errorfile': tempname(),
-        \ '_splitter': 'neww -d',
+        \ '_splitter': 'tmux neww -d',
         \ 'capture': 1,
         \ 'autoclose': 0,
         \ }
