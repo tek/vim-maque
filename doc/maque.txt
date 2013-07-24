@@ -26,9 +26,9 @@ Overview:~
   |maque_set_ft_options|.....Set defaults for some filetypes
 
 tmux:
-  |maque_tmux_split_cmd|...............Command for creating a tmux pane.
+  |maque_tmux_mainsplit_cmd|...........Command for creating the main tmux pane.
   |maque_tmux_filter_escape_sequences|.Remove color codes from output.
-  |maque#tmux#current_pane|............Name of the current target pane.
+  |maque_tmux_current_pane|............Name of the current target pane.
 
 conque:
   |maque_leave_conque|.......Go back to the original window.
@@ -74,9 +74,9 @@ These values are used for |:MaqueCycle|.
   let g:maque_set_ft_options = 0
 <
 
-                                                     *'g:maque_tmux_split_cmd'*
+                                                *'g:maque_tmux_main_split_cmd'*
 >
-  let g:maque_tmux_split_cmd = 'tmux split-window -h -d'
+  let g:maque_tmux_main_split_cmd = 'tmux split-window -h -d'
 <
 
                                        *'g:maque_tmux_filter_escape_sequences'*

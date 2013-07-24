@@ -51,8 +51,8 @@ A mapping `<Plug>(maque-toggle-tmux)` is provided to manually kill or open the t
 pane.
 
 A new pane is created as a horizontal split by default, but you can specify an
-arbitrary system command via `g:maque_tmux_split_cmd`. You can even launch a
-new session in a fresh terminal by setting the variable to `'TMUX= urxvt -e
+arbitrary system command via `g:maque_tmux_main_split_cmd`. You can even launch
+a new session in a fresh terminal by setting the variable to `'TMUX= urxvt -e
 tmux &!'` (note that tmux will not nest, indicated by the `$TMUX` environment
 variable). As long as as the pane is on localhost, it will be found.
 
@@ -62,7 +62,7 @@ There are two commands available to create additional panes:
 receive all following makes and toggle commands. It will become visible after
 executing `<Plug>(maque)` or `<Plug>(maque-toggle-tmux)`.
 To activate a different pane, run `:MaqueTmuxCycle` or assign its name to
-`g:maque#tmux#current_pane`.
+`g:maque_tmux_current_pane`.
 
 `:MaqueTmuxBuffer` and `:MaqueTmuxDebuffer` create and destroy a pane that is
 associated with the current buffer and will receive all makes executed from it.

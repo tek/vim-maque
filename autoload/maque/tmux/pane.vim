@@ -1,27 +1,23 @@
-let g:maque#tmux#pane#escape_filter = "sed -u -e \"s/\r//g\" -e \"s/\e[[0-9;]*m//g\""
-
 function! maque#tmux#pane#all() "{{{
   return split(maque#tmux#command('list-panes -a -F "#{pane_id}"'), "\n")
 endfunction "}}}
 
-function! maque#tmux#pane#new(name, splitter, ...) "{{{
-  let capture = a:0 ? a:1 : 1
-  let autoclose = a:0 >= 2 ? a:2 : 0
+function! maque#tmux#pane#new(name, ...) "{{{
+  let params = a:0 ? a:1 : {}
   let pane = {
         \ 'id': -1,
         \ 'errorfile': tempname(),
-        \ 'name': a:name,
-        \ 'splitter': a:splitter,
-        \ 'capture': capture,
-        \ 'autoclose': autoclose,
+        \ '_splitter': 'neww -d',
+        \ 'capture': 1,
+        \ 'autoclose': 0,
         \ }
+  call extend(pane, params)
+  let pane.name = a:name
 
   function! pane.create() dict "{{{
     if !self.open()
       let panes_before = maque#tmux#pane#all()
-      let splitter = type(self.splitter) == type(0) ? g:maque_tmux_split_cmd :
-            \ self.splitter
-      call system(splitter)
+      call system(self.splitter())
       let matcher = 'index(panes_before, v:val) == -1'
       let matches = filter(maque#tmux#pane#all(), matcher)
       let self.id = len(matches) > 0 ? matches[0] : -1
@@ -90,7 +86,7 @@ function! maque#tmux#pane#new(name, splitter, ...) "{{{
 
   function! pane.pipe_to_file() dict "{{{
     let filter = g:maque_tmux_filter_escape_sequences ?
-          \ g:maque#tmux#pane#escape_filter : 'tee'
+          \ g:maque_tmux_pane_escape_filter : 'tee'
     let redirect = filter . ' > '.self.errorfile
     call maque#tmux#command(self.pipe_cmd().' '.shellescape(redirect))
   endfunction "}}}
@@ -102,6 +98,20 @@ function! maque#tmux#pane#new(name, splitter, ...) "{{{
   function! pane.description() dict "{{{
     return 'tmux pane "'.self.name.'"'
   endfunction "}}}
+
+  if get(params, 'eval_splitter')
+
+    function! pane.splitter() dict "{{{
+      return {self._splitter}
+    endfunction "}}}
+
+  else
+
+    function! pane.splitter() dict "{{{
+      return self._splitter
+    endfunction "}}}
+
+  endif
 
   return pane
 endfunction "}}}

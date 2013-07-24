@@ -1,4 +1,4 @@
-"{{{ variables
+"{{{ options
 let g:maque_leave_conque = 1
 let g:maque_handler = 'tmux'
 let g:maque_conque_horizontal = 1
@@ -9,9 +9,6 @@ let g:maque_handlers = ['tmux', 'dispatch', 'conque', 'native']
 let g:maque_seek_cwd_error = 1
 let g:maque_dispatch_command = 'Dispatch'
 let g:maque_set_ft_options = 0
-let g:maque_tmux_split_cmd = 'tmux split-window -h -d'
-let g:maque_tmux_filter_escape_sequences = 1
-let g:maque_tmux_aux_split_cmd = 'tmux split-window -v -d -p 20'
 "}}}
 
 "{{{ commands

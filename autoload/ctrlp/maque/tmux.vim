@@ -13,14 +13,14 @@ call add(g:ctrlp_ext_vars, {
 let s:id = g:ctrlp_builtins + len(g:ctrlp_ext_vars)
 
 function! s:format(pane) "{{{
-  let active = a:pane.name == g:maque#tmux#current_pane ? '[+]' : ''
+  let active = a:pane.name == g:maque_tmux_current_pane ? '[+]' : ''
   return a:pane.name .' '.active
 endfunction "}}}
 
 function! ctrlp#maque#tmux#init() "{{{
   nnoremap <buffer> <silent> <c-y> :<c-u>call ctrlp#maque#tmux#create_pane()<cr>
   nnoremap <buffer> <silent> <c-e> :<c-u>call ctrlp#maque#tmux#read_errors()<cr>
-  let panes = values(g:maque#tmux#panes)
+  let panes = values(g:maque_tmux_panes)
   return map(panes, 's:format(v:val)')
 endfunction "}}}
 
@@ -28,10 +28,10 @@ function! ctrlp#maque#tmux#accept(mode, str) "{{{
   let matches = matchlist(a:str, '\(\w\+\)', )
   if len(matches)
     let name = matches[1]
-    let pane = g:maque#tmux#panes[name]
+    let pane = g:maque_tmux_panes[name]
     if a:mode == 'e'
       call ctrlp#exit()
-      let g:maque#tmux#current_pane = name
+      let g:maque_tmux_current_pane = name
       echo 'set "'.name.'" as active pane.'
     elseif a:mode == 't'
       call pane.toggle()
