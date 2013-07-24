@@ -11,10 +11,9 @@ function! maque#make(...) "{{{
 endfunction "}}}
 
 function! maque#make_aux(cmd) "{{{
-  exe 'runtime autoload/maque/'.g:maque_handler.'.vim'
-  let handler = 'maque#'.g:maque_handler.'#make_aux'
-  if exists('*'.handler)
-    return function(handler)(a:cmd)
+  let Handler = maque#util#handler_function('make_aux', '')
+  if type(Handler) == 2
+    return Handler(a:cmd)
   else
     call maque#util#warn('no handler for aux cmds!')
   endif
