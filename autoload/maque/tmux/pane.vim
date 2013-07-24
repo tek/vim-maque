@@ -21,7 +21,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
       let matcher = 'index(panes_before, v:val) == -1'
       let matches = filter(maque#tmux#pane#all(), matcher)
       let self.id = len(matches) > 0 ? matches[0] : -1
-      call self.send('cd '.g:pwd)
+      call self.send('cd '.getcwd())
     endif
   endfunction "}}}
 
