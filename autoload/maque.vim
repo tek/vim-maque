@@ -21,7 +21,6 @@ function! maque#make_aux(cmd) "{{{
 endfunction "}}}
 
 function! maque#make_auto() "{{{
-  let do_set = 1
   let default_setter = 'maque#ft#'.maque#filetype().'#set_makeprg'
   exe 'runtime! autoload/maque/ft/'.maque#filetype().'.vim'
   if exists('b:maque_makeprg_setter') && exists('*'.b:maque_makeprg_setter)
@@ -31,15 +30,10 @@ function! maque#make_auto() "{{{
   elseif exists('*'.default_setter)
     let setter_name = default_setter
   else
-    call maque#util#warn('no makeprg setter found!')
-    let do_set = 0
+    call maque#util#warn('no makeprg setter found! Using defaults.')
+    let setter_name = 'maque#set_params'
   endif
-  let do_make = g:maque_makeprg_set
-  if do_set
-    let Setter = function(setter_name)
-    let do_make = Setter() || do_make
-  endif
-  if do_make
+  if call(setter_name, [])
     call maque#dispatch#focus()
     return maque#make()
   endif
@@ -116,8 +110,10 @@ function! maque#prg() "{{{
   return g:maqueprg
 endfunction "}}}
 
-function! maque#set_params(params) "{{{
-  let g:maqueprg = &makeprg.' '.maque#args().' '.a:params
+function! maque#set_params(...) "{{{
+  let params = a:0 ? ' '.a:1 : ''
+  let g:maqueprg = &makeprg.' '.maque#args().params
+  return 1
 endfunction "}}}
 
 function! maque#add_command(name, cmd, ...) "{{{
