@@ -10,6 +10,8 @@ function! maque#tmux#pane#new(name, ...) "{{{
         \ '_splitter': 'tmux neww -d',
         \ 'capture': 1,
         \ 'autoclose': 0,
+        \ '_last_killed': 0,
+        \ '_killed': 0,
         \ }
   call extend(pane, params)
   let pane.name = a:name
@@ -46,13 +48,25 @@ function! maque#tmux#pane#new(name, ...) "{{{
     endif
   endfunction "}}}
 
+  " try to INT the command's process
+  " when called for the second time with the process still alive, switch to
+  " TERM
+  " when called for the third time, switch to KILL
   function! pane.kill() dict "{{{
-    try
-      for key in ["\n~.", 'C-d', 'C-c', 'C-\', 'C-c']
-        call self.send_keys(key)
-      endfor
-    catch /E484/
-    endtry
+    if self.process_alive()
+      let pid = self.command_pid()
+      if pid != self._last_killed
+        let self._killed = 0
+        let self._last_killed = pid
+      endif
+      call self._kill()
+      let self._killed += 1
+      return 1
+    endif
+  endfunction "}}}
+
+  function! pane._kill() dict "{{{
+    call system('kill -'.s:signal(self._killed).' '.self.command_pid())
   endfunction "}}}
 
   " execute a command in the target pane
@@ -113,11 +127,38 @@ function! maque#tmux#pane#new(name, ...) "{{{
 
   endif
 
+  function! pane.shell_pid() dict "{{{
+    if self.open()
+      let cmd = 'list-panes -t '.self.id .' -F "#{pane_id} #{pane_pid}"'
+      let panes = split(maque#tmux#command(cmd), "\n")
+      let mypane = matchlist(panes, self.id .' \zs\d\+$')
+      if len(mypane)
+        return mypane[0]
+      endif
+    endif
+  endfunction "}}}
+
+  function! pane.command_pid() dict "{{{
+    if self.open()
+      let pids = system('ps h -o pid --ppid '.self.shell_pid())
+      let _pids = split(pids, "\n")
+      if len(_pids)
+        let digits = matchlist(_pids[0], '\s*\zs\d\+$')
+        if len(digits)
+          return digits[0]
+        endif
+      endif
+    endif
+  endfunction "}}}
+
+  function! pane.process_alive() dict "{{{
+    return self.command_pid() > 0
+  endfunction "}}}
+
   return pane
 endfunction "}}}
 
-function! s:warn(msg) "{{{
-  echohl WarningMsg
-  echo a:msg
-  echohl None
+function! s:signal(idx) "{{{
+  let sigs = g:maque_tmux_kill_signals
+  return sigs[min([a:idx, len(sigs)-1])]
 endfunction "}}}
