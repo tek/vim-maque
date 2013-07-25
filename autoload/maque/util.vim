@@ -42,6 +42,11 @@ function! maque#util#handler_function(name, default) "{{{
   return maque#util#lookup('maque#'.g:maque_handler.'#'.a:name, a:default)
 endfunction "}}}
 
+function! maque#util#output_lines(cmd) "{{{
+  let output = system(a:cmd)
+  return split(output, "\n")
+endfunction "}}}
+  
 " Find the first defined variable in a precendence sequence:
 " buffer, then global, for each in {name}, {name}_default
 function! maque#util#variable(name, ...) "{{{
