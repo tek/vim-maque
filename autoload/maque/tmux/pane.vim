@@ -12,6 +12,8 @@ function! maque#tmux#pane#new(name, ...) "{{{
         \ 'autoclose': 0,
         \ '_last_killed': 0,
         \ '_killed': 0,
+        \ 'shell_pid': 0,
+        \ 'command_pid': 0,
         \ }
   call extend(pane, params)
   let pane.name = a:name
@@ -23,7 +25,10 @@ function! maque#tmux#pane#new(name, ...) "{{{
       let matcher = 'index(panes_before, v:val) == -1'
       let matches = filter(maque#tmux#pane#all(), matcher)
       let self.id = len(matches) > 0 ? matches[0] : -1
-      call self.send('cd '.getcwd())
+      if self.open()
+        call self.send('cd '.getcwd())
+        call self.set_shell_pid()
+      endif
     endif
   endfunction "}}}
 
@@ -43,6 +48,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
       if autoclose
         call self.send('exit')
       endif
+      call self.set_command_pid()
     else
       call maque#util#warn('make called on pane "'.self.name.'" while not open!')
     endif
@@ -52,21 +58,24 @@ function! maque#tmux#pane#new(name, ...) "{{{
   " when called for the second time with the process still alive, switch to
   " TERM
   " when called for the third time, switch to KILL
-  function! pane.kill() dict "{{{
+  function! pane.kill(...) dict "{{{
     if self.process_alive()
-      let pid = self.command_pid()
-      if pid != self._last_killed
+      if self.command_pid != self._last_killed
         let self._killed = 0
-        let self._last_killed = pid
+        let self._last_killed = self.command_pid
       endif
-      call self._kill()
+      let signal = a:0 ? a:1 : s:signal(self._killed)
+      call self._kill(signal)
       let self._killed += 1
       return 1
+    else
+      call maque#util#warn('no process running!')
     endif
   endfunction "}}}
 
-  function! pane._kill() dict "{{{
-    call system('kill -'.s:signal(self._killed).' '.self.command_pid())
+  function! pane._kill(signal) dict "{{{
+    call system('kill -'.a:signal.' '.self.command_pid)
+    call maque#util#warn('sent SIG'.a:signal." to pane '".self.name."'!")
   endfunction "}}}
 
   " execute a command in the target pane
@@ -88,6 +97,8 @@ function! maque#tmux#pane#new(name, ...) "{{{
     if self.open()
       call maque#tmux#command('kill-pane -t '.self.id)
     endif
+    let self.command_pid = 0
+    let self.shell_pid = 0
   endfunction "}}}
 
   function! pane.toggle() dict "{{{
@@ -127,32 +138,35 @@ function! maque#tmux#pane#new(name, ...) "{{{
 
   endif
 
-  function! pane.shell_pid() dict "{{{
-    if self.open()
-      let cmd = 'list-panes -t '.self.id .' -F "#{pane_id} #{pane_pid}"'
-      let panes = split(maque#tmux#command(cmd), "\n")
-      let mypane = matchlist(panes, self.id .' \zs\d\+$')
-      if len(mypane)
-        return mypane[0]
-      endif
+  function! pane.set_shell_pid() dict "{{{
+    let cmd = 'list-panes -t '.self.id .' -F "#{pane_id} #{pane_pid}"'
+    let panes = split(maque#tmux#command(cmd), "\n")
+    let mypane = matchlist(panes, self.id .' \zs\d\+$')
+    if len(mypane)
+      let self.shell_pid = mypane[0]
     endif
   endfunction "}}}
 
-  function! pane.command_pid() dict "{{{
+  function! pane.set_command_pid() dict "{{{
+    let self.command_pid = 0
     if self.open()
-      let pids = system('ps h -o pid --ppid '.self.shell_pid())
+      " let pids = maque#util#child_pids_of(self.shell_pid)
+      let pids = system('ps h -o pid --ppid '.self.shell_pid)
       let _pids = split(pids, "\n")
       if len(_pids)
         let digits = matchlist(_pids[0], '\s*\zs\d\+$')
         if len(digits)
-          return digits[0]
+          let self.command_pid = digits[0]
         endif
       endif
     endif
   endfunction "}}}
 
   function! pane.process_alive() dict "{{{
-    return self.command_pid() > 0
+    if self.command_pid > 0
+      call self.set_command_pid()
+      return self.command_pid > 0
+    endif
   endfunction "}}}
 
   return pane
