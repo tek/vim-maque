@@ -41,3 +41,18 @@ endfunction "}}}
 function! maque#util#handler_function(name, default) "{{{
   return maque#util#lookup('maque#'.g:maque_handler.'#'.a:name, a:default)
 endfunction "}}}
+
+" Find the first defined variable in a precendence sequence:
+" buffer, then global, for each in {name}, {name}_default
+function! maque#util#variable(name, ...) "{{{
+  let default = a:0 ? a:1 : ''
+  for src in ['', '_default']
+    for scope in ['b', 'g']
+      let var = scope.':'.a:name.src
+      if exists(var)
+        return {var}
+      endif
+    endfor
+  endfor
+  return ''
+endfunction "}}}
