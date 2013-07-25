@@ -16,7 +16,9 @@ function! maque#util#is_autoload(name) "{{{
   if match(a:name, '#') > 0
     let fpath = substitute(a:name, '#', '/', 'g')
     let fpath = fnamemodify(fpath, ':h')
-    exe 'runtime autoload/'.fpath.'.vim'
+    if !exists('*'.a:name)
+      exe 'runtime! autoload/'.fpath.'.vim'
+    endif
     return exists('*'.a:name)
   else
     return 0
@@ -25,9 +27,7 @@ endfunction "}}}
  
 function! maque#util#lookup(...) "{{{
   for name in a:000
-    if maque#util#is_autoload(name)
-      return function(name)
-    elseif exists('*'.name)
+    if exists('*'.name) || maque#util#is_autoload(name)
       return function(name)
     elseif exists(name)
       if exists('*'.{name}) || maque#util#is_autoload({name})
