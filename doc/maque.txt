@@ -4,14 +4,129 @@
 CONTENTS                                                       *maque-contents*
 
     1. Intro........................................|maque-intro|
-    2. Options......................................|maque-options|
-    3. Commands.....................................|maque-commands|
-    4. Mappings.....................................|maque-mappings|
+    2. Commands.....................................|maque-command|
+    3. tmux.........................................|maque-tmux|
+    4. Options......................................|maque-options|
+    5. Commands.....................................|maque-commands|
+    6. Mappings.....................................|maque-mappings|
 
 ===============================================================================
 INTRO                                                             *maque-intro*
 
+WARNING: Anything below chapter 3 (tmux) is outdated.
+
 command assembler and tmux coordinator
+
+maque handles two sets of objects: commands and panes.
+
+Commands are context sensitive executables and arguments that ease behaviour
+driven development, to be dispatched in targets represented by panes.
+Panes are abstractions of shells that can have the following manifestations:
+
+Native:~
+Use vim's |:make|
+
+Conque:~
+use |conque_term#open| to run the command in a conque buffer
+
+Dispatch:~
+use http://github.com/tpope/vim-dispatch to run the command
+
+tmux:~
+use |maque|'s builtin tmux handling
+
+===============================================================================
+COMMANDS                                                        *maque-command*
+
+A command is a data structure consisting of an executable command line, which
+can be dynamicaly evaluated, and a dispatch target with the same property.
+
+The most significant command is the 'main' command, which is assembled upon
+invocation of a maqueprg setter, which defines a command line, mainly
+intended to invoke unit tests like rspec examples, nosetest units or an
+arbitray command running the associated executable to your current test file.
+
+maque provides configurable methods for defining that command, and
+correspondent parameters to parse the output of these for population of the
+quickfix list.
+
+The intention of the plugin is to provide seamless interaction with your
+unit tests to execute and analyse your developed application.
+
+===============================================================================
+TMUX                                                               *maque-tmux*
+
+maque has a sophisticated tmux handling mechanism that goes beyond
+dispatching simple commands to a pane. Each defined command can be associated
+with a highly parameterisable tmux target and each pane interacts very
+flexibly and conveniently with the current situation's parameters.
+
+Pane association:~
+
+The 'main' pane is associated with the 'main' command, which results in every
+unit test assembled through the maque interface being dispatched in a split
+pane, with output capturing for further processing by applying 'errorformat'
+to the output and opening the quickfix list.
+
+Arbitrary panes can be created, to be associated with multiple commands, to
+provide different handling of commands for different purposes.
+
+For example, in the standard configuration, the 'aux' pane is a small pane
+designated for oneshot-commands inspired by the standard dispatch-pane, where
+you can deploy commands like "bundle install" without any output capturing
+and persistence.
+
+Pane interaction:~
+
+There are several features for interaction with tmux panes:
+
+Error parsing is done upon invocation of |:MaqueParse|. This reads the output
+of the most recent command and populates the quickfix list. Some errorformats
+are provided, to be extended.
+
+Killing a pane is a configurable feature that sends signals to the process
+running inside of the shell of a designated pane. In the standard
+configuration, this sends the signals INT, TERM and KILL in successional
+invocation to the command that's been previously executed by |:Maque|.
+
+Arbitrary pane control:~
+
+By using provided API functions, a user can have convenience mechanisms like:
+
+Dispatching a long running process with error capturing like:
+
+Defining a pane and command with these parameters in a project specfic config
+like this:
+>
+  call maque#tmux#add_pane('aux2', { '_splitter': 'tmux neww -d' })
+  call maque#add_command('thin', 'thin start', { 'pane': 'aux2', })
+<
+
+and then invoking it using:
+
+>
+  :Maque thin
+<
+
+which will start your rails webservice in a background tmux window, enabling
+you to parse its errors, when occuring, with:
+
+>
+  :MaqueParse thin
+<
+
+Aux pane:~
+
+maque provides and additional pane by default that opens below your vim
+window with a small height, intended to deploy volatile commands with no
+error output like "bundle install". It can be used by invoking:
+
+>
+  MaqueAux bundle install
+<
+
+but like any command and pane, it can be configured to behave according to
+your needs.
 
 ===============================================================================
 OPTIONS                                                         *maque-options*
