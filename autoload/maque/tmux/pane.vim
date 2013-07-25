@@ -151,15 +151,8 @@ function! maque#tmux#pane#new(name, ...) "{{{
   function! pane.set_command_pid() dict "{{{
     let self.command_pid = 0
     if self.open()
-      " let pids = maque#util#child_pids_of(self.shell_pid)
-      let pids = system('ps h -o pid --ppid '.self.shell_pid)
-      let _pids = split(pids, "\n")
-      if len(_pids)
-        let digits = matchlist(_pids[0], '\s*\zs\d\+$')
-        if len(digits)
-          let self.command_pid = digits[0]
-        endif
-      endif
+      let pids = maque#util#child_pids(self.shell_pid)
+      let self.command_pid = len(pids) ? pids[0] : 0
     endif
   endfunction "}}}
 
