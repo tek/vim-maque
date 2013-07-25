@@ -46,3 +46,16 @@ describe 'buffer path test'
   end
 
 end
+
+describe 'pid listing'
+
+  it 'should filter and strip digit sequences'
+    function! maque#util#output_lines(cmd) "{{{
+      return ['  23', '12', 'hamster', '       ', ' 5']
+    endfunction "}}}
+
+    let pids = maque#util#child_pids('1')
+    Expect pids == ['23', '12', '5']
+  end
+
+end
