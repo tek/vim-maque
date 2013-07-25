@@ -72,8 +72,8 @@ function! maque#tmux#add_pane(name, ...) "{{{
 endfunction "}}}
 
 " kill the process running in the active pane
-function! maque#tmux#kill() "{{{
-  call s:pane().kill()
+function! maque#tmux#kill(...) "{{{
+  call call(s:pane().kill, a:000, s:pane())
 endfunction "}}}
 
 function! maque#tmux#pane(name) "{{{
