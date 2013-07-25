@@ -47,6 +47,13 @@ function! maque#util#output_lines(cmd) "{{{
   return split(output, "\n")
 endfunction "}}}
   
+function! maque#util#child_pids(pid) "{{{
+  let rex = '^\s*\zs\d\+$'
+  let lines = maque#util#output_lines('ps h -o pid --ppid '.a:pid)
+  let lines = filter(lines, 'match(v:val, rex) >= 0')
+  return map(lines, 'matchlist(v:val, rex)[0]')
+endfunction "}}}
+
 " Find the first defined variable in a precendence sequence:
 " buffer, then global, for each in {name}, {name}_default
 function! maque#util#variable(name, ...) "{{{
