@@ -1,7 +1,7 @@
 function! maque#make(...) "{{{
   let command = 'main'
   if a:0 && len(a:1)
-    if has_key(g:maque_commands, a:1)
+    if has_key(maque#commands(), a:1)
       let command = a:1
     else
       let g:maqueprg = a:1
@@ -117,18 +117,19 @@ endfunction "}}}
 
 function! maque#add_command(name, cmd, ...) "{{{
   let args = a:0 ? a:1 : {}
-  if has_key(g:maque_commands, a:name)
+  if has_key(maque#commands(), a:name)
     call maque#util#warn('command "'.a:name.'" already created!')
   else
-    let g:maque_commands[a:name] = maque#command#new(a:cmd, args)
+    let commands = maque#commands()
+    let commands[a:name] = maque#command#new(a:cmd, args)
   endif
 endfunction "}}}
 
 function! maque#make_command(name) "{{{
-  if !has_key(g:maque_commands, a:name)
-    call maque#util#warn('no such command: '.a:name)
+  if has_key(maque#commands(), a:name)
+    call maque#command(a:name).make()
   else
-    call g:maque_commands[a:name].make()
+    call maque#util#warn('no such command: '.a:name)
   endif
 endfunction "}}}
 
@@ -147,6 +148,17 @@ function! maque#dummy_pane(...) "{{{
   endfunction "}}}
 
   return pane
+endfunction "}}}
+
+function! maque#commands() "{{{
+  if !exists('g:maque_commands')
+    let g:maque_commands = {}
+  endif
+  return g:maque_commands
+endfunction "}}}
+
+function! maque#command(name) "{{{
+  return maque#commands()[a:name]
 endfunction "}}}
 
 function! maque#pane(name) "{{{
