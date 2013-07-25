@@ -4,3 +4,4 @@ rvm:
 script: rake ci
 before_install:
   - sudo apt-get install zsh tmux
+  - tmux
