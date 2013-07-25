@@ -59,3 +59,38 @@ describe 'pid listing'
   end
 
 end
+
+describe 'variable lookup'
+
+  function! s:evaluate() "{{{
+    let found = maque#util#variable('maque_stuff')
+    Expect found == 'correct'
+  endfunction "}}}
+
+  it 'should return the global default'
+    let g:maque_stuff_default = 'correct'
+    call s:evaluate()
+  end
+
+  it 'should return the buffer default'
+    let g:maque_stuff_default = 'erroneous!'
+    let b:maque_stuff_default = 'correct'
+    call s:evaluate()
+  end
+
+  it 'should return the global override'
+    let g:maque_stuff_default = 'erroneous!'
+    let b:maque_stuff_default = 'invalid!'
+    let g:maque_stuff = 'correct'
+    call s:evaluate()
+  end
+
+  it 'should return the global override'
+    let g:maque_stuff_default = 'erroneous!'
+    let b:maque_stuff_default = 'invalid!'
+    let g:maque_stuff = 'faulty!'
+    let b:maque_stuff = 'correct'
+    call s:evaluate()
+  end
+
+end
