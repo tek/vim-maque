@@ -20,22 +20,25 @@ function! maque#make_aux(cmd) "{{{
 endfunction "}}}
 
 function! maque#make_auto() "{{{
-  let default_setter = 'maque#ft#'.maque#filetype().'#set_makeprg'
-  exe 'runtime! autoload/maque/ft/'.maque#filetype().'.vim'
-  if exists('b:maque_makeprg_setter') && exists('*'.b:maque_makeprg_setter)
-    let setter_name = b:maque_makeprg_setter
-  elseif exists('g:maque_makeprg_setter') && exists('*'.g:maque_makeprg_setter)
-    let setter_name = g:maque_makeprg_setter
-  elseif exists('*'.default_setter)
-    let setter_name = default_setter
-  else
-    call maque#util#warn('no makeprg setter found! Using defaults.')
-    let setter_name = 'maque#set_params'
-  endif
-  if call(setter_name, [])
+  if maque#set_makeprg()
     call maque#dispatch#focus()
     return maque#make()
   endif
+endfunction "}}}
+
+function! maque#set_makeprg() "{{{
+  let Setter = maque#util#lookup(
+        \ 'b:maque_makeprg_setter',
+        \ 'g:maque_makeprg_setter',
+        \ 'maque#ft#'.maque#filetype().'#set_makeprg',
+        \ 'maque#set_generic_makeprg'
+        \ )
+  return Setter()
+endfunction "}}}
+
+function! maque#set_generic_makeprg() "{{{
+  call maque#util#warn('no makeprg setter found! Using generic settings.')
+  return maque#set_params()
 endfunction "}}}
 
 function! maque#remove_errorfile() "{{{
@@ -46,10 +49,6 @@ endfunction "}}}
 function! maque#query() "{{{
   let fname = input('File name: ', '', 'file')
   call maque#set_params(fname)
-endfunction "}}}
-
-function! maque#filetype() "{{{
-  return exists('b:maque_filetype') ? b:maque_filetype : &filetype
 endfunction "}}}
 
 function! maque#parse() "{{{
@@ -88,13 +87,6 @@ function! maque#jump_to_error() "{{{
     endif
     normal! zv
   endif
-endfunction "}}}
-
-function! maque#prg() "{{{
-  if !exists('g:maqueprg')
-    call maque#set_params('')
-  endif
-  return g:maqueprg
 endfunction "}}}
 
 function! maque#set_params(...) "{{{
@@ -161,4 +153,15 @@ endfunction "}}}
 
 function! maque#args() "{{{
   return maque#util#variable('maque_args_'.&makeprg)
+endfunction "}}}
+
+function! maque#prg() "{{{
+  if !exists('g:maqueprg')
+    call maque#set_params('')
+  endif
+  return g:maqueprg
+endfunction "}}}
+
+function! maque#filetype() "{{{
+  return exists('b:maque_filetype') ? b:maque_filetype : &filetype
 endfunction "}}}
