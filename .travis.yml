@@ -3,5 +3,5 @@ rvm:
   - 2.0.0
 script: rake ci
 before_install:
-  - sudo apt-get install zsh tmux
+  - sudo apt-get install -qq zsh tmux
   - tmux new -d
