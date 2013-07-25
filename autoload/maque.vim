@@ -43,18 +43,6 @@ function! maque#remove_errorfile() "{{{
   redraw!
 endfunction "}}}
 
-function! maque#args() "{{{
-  for src in ['', 'default_']
-    for scope in ['b', 'g']
-      let var = scope.':maque_args_'.src.&makeprg
-      if exists(var)
-        return {var}
-      endif
-    endfor
-  endfor
-  return ''
-endfunction "}}}
-
 function! maque#query() "{{{
   let fname = input('File name: ', '', 'file')
   call maque#set_params(fname)
@@ -169,4 +157,8 @@ endfunction "}}}
 function! maque#current_pane() "{{{
   let Pane = maque#util#handler_function('current_pane', 'maque#dummy_pane')
   return Pane()
+endfunction "}}}
+
+function! maque#args() "{{{
+  return maque#util#variable('maque_args_'.&makeprg)
 endfunction "}}}
