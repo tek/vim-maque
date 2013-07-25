@@ -12,6 +12,12 @@ function! maque#util#warn(msg) "{{{
   echohl None
 endfunction "}}}
 
+" Determine if the argument is an existing function in an autoload/ directory:
+" - It must have a # in it
+" - If it doesn't exist, its runtime path is sourced.
+" Warning: Do not use this from an autoload file with the same path as the
+" target function if you're not sure that the function exists (e.g. as
+" fallback for a lookup list)
 function! maque#util#is_autoload(name) "{{{
   if match(a:name, '#') > 0
     let fpath = substitute(a:name, '#', '/', 'g')
@@ -25,6 +31,12 @@ function! maque#util#is_autoload(name) "{{{
   endif
 endfunction "}}}
  
+" Determine the first argument denoting an existing function and return a
+" funcref, or -1 if unsuccessful.
+" Several resolution methods are employed, a function is returned if:
+" - the string refers to an existing and loaded function
+" - the string refers to an unloaded autoload function
+" - the string refers to an existing variable, which points to a function
 function! maque#util#lookup(...) "{{{
   for name in a:000
     if exists('*'.name) || maque#util#is_autoload(name)
