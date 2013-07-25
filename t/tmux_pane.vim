@@ -75,8 +75,9 @@ describe 'pane process management'
   it 'should kill a simple process with SIGINT'
     let g:maque_tmux_kill_signals = ['INT']
     call g:pane.make('tail -f plugin/maque.vim')
-    sleep 1
+    sleep 200m
     call g:pane.kill()
+    sleep 200m
     Expect g:pane.command_pid() == 0
   end
 
