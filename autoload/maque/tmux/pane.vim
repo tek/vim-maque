@@ -54,10 +54,10 @@ function! maque#tmux#pane#new(name, ...) "{{{
     endif
   endfunction "}}}
 
-  " try to INT the command's process
-  " when called for the second time with the process still alive, switch to
-  " TERM
-  " when called for the third time, switch to KILL
+  " Send a signal to the command.
+  " Iterates g:maque_tmux_kill_signals for subsequent calls until the process
+  " is dead (default INT, TERM, KILL)
+  " Argument overrides the employed signal.
   function! pane.kill(...) dict "{{{
     if self.process_alive()
       if self.command_pid != self._last_killed
@@ -93,6 +93,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
     return self.id >= 0 && index(maque#tmux#pane#all(), self.id) >= 0
   endfunction "}}}
 
+  " Kill the pane if it's open, reset pids in any case
   function! pane.close() dict "{{{
     if self.open()
       call maque#tmux#command('kill-pane -t '.self.id)
