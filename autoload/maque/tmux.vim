@@ -91,9 +91,11 @@ function! maque#tmux#command(cmd) "{{{
 endfunction "}}}
 
 function! maque#tmux#close_all() "{{{
-  for pane in values(g:maque_tmux_panes)
-    call pane.close()
-  endfor
+  if exists('g:maque_tmux_panes')
+    for pane in values(g:maque_tmux_panes)
+      call pane.close()
+    endfor
+  endif
 endfunction "}}}
 
 function! s:pane() "{{{
