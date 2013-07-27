@@ -77,5 +77,5 @@ will run only the example (group) under the cursor.
 
 ## License
 
-Copyright (c) Torsten Schmits. Distributed under the same terms as Vim itself.
-See `:help license`.
+Copyright (c) Torsten Schmits. Distributed under the terms of the
+[MIT License](http://opensource.org/licenses/MIT 'mit license').
