@@ -57,7 +57,8 @@ function! maque#tmux#pane#new(name, ...) "{{{
   " Send a signal to the command.
   " Iterates g:maque_tmux_kill_signals for subsequent calls until the process
   " is dead (default INT, TERM, KILL)
-  " Argument overrides the employed signal.
+  " Argument overrides the employed signal and does not advance the current
+  " signal.
   function! pane.kill(...) dict "{{{
     if self.process_alive()
       if self.command_pid != self._last_killed
@@ -66,7 +67,9 @@ function! maque#tmux#pane#new(name, ...) "{{{
       endif
       let signal = a:0 ? a:1 : s:signal(self._killed)
       call self._kill(signal)
-      let self._killed += 1
+      if !a:0
+        let self._killed += 1
+      endif
       return 1
     else
       call maque#util#warn('no process running!')
