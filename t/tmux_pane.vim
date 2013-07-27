@@ -83,7 +83,7 @@ describe 'pane process management'
     call g:pane.make('tail -f plugin/maque.vim')
     sleep 200m
     call g:pane.kill()
-    sleep 500m
+    sleep 1
     call g:pane.set_command_pid()
     Expect g:pane.command_pid == 0
   end
@@ -93,12 +93,15 @@ describe 'pane process management'
     call g:pane.make('zsh -i')
     sleep 1
     call g:pane.kill()
+    sleep 1
     call g:pane.set_command_pid()
     Expect g:pane.command_pid > '0'
     call g:pane.kill()
+    sleep 1
     call g:pane.set_command_pid()
     Expect g:pane.command_pid > '0'
     call g:pane.kill()
+    sleep 1
     call g:pane.set_command_pid()
     Expect g:pane.command_pid == 0
   end
