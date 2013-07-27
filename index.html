@@ -53,7 +53,7 @@ are currently supported methods.</p>
 <h2>
 <a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
 
-<p>Essential mappings:<br><code>&lt;Plug&gt;Maque</code> executes <code>g:maqueprg</code><br><code>&lt;Plug&gt;AutoMaque</code> calls a <code>g:maqueprg</code> setter function and executes it.<br><code>&lt;Plug&gt;MaqueParse</code> populates the quickfix list using <code>'errorformat'</code></p>
+<p>Essential mappings:<br><code>&lt;Plug&gt;(maque)</code> executes <code>g:maqueprg</code><br><code>&lt;Plug&gt;(auto-maque)</code> calls a <code>g:maqueprg</code> setter function and executes it.<br><code>&lt;Plug&gt;(maque-parse)</code> populates the quickfix list using <code>'errorformat'</code></p>
 
 <h2>
 <a name="customization" class="anchor" href="#customization"><span class="octicon octicon-link"></span></a>Customization</h2>
@@ -80,7 +80,7 @@ functions for an example).</p>
 <p>The default assembly methods uses <code>'makeprg'</code> as executable. If a global or
 buffer-local variable <code>maque_args_{&amp;makeprg}</code> is set, it is appended.</p>
 
-<p>After having executed a test, <code>&lt;Plug&gt;MaqueParse</code> executes <code>:cgetfile</code>, which
+<p>After having executed a test, <code>&lt;Plug&gt;(maque-parse)</code> executes <code>:cgetfile</code>, which
 populates the quickfix list identically to how :make does.</p>
 
 <h2>
@@ -89,12 +89,12 @@ populates the quickfix list identically to how :make does.</p>
 <p>The tmux method is designed to maintain a persistently open pane for
 dispatching. Before and after each test execution, output redirection to a temp
 file is (de)activated.
-A mapping <code>&lt;Plug&gt;MaqueToggleTmux</code> is provided to manually kill or open the tmux
+A mapping <code>&lt;Plug&gt;(maque-toggle-tmux)</code> is provided to manually kill or open the tmux
 pane.</p>
 
 <p>A new pane is created as a horizontal split by default, but you can specify an
-arbitrary system command via <code>g:maque_tmux_split_cmd</code>. You can even launch a
-new session in a fresh terminal by setting the variable to <code>'TMUX= urxvt -e
+arbitrary system command via <code>g:maque_tmux_main_split_cmd</code>. You can even launch
+a new session in a fresh terminal by setting the variable to <code>'TMUX= urxvt -e
 tmux &amp;!'</code> (note that tmux will not nest, indicated by the <code>$TMUX</code> environment
 variable). As long as as the pane is on localhost, it will be found.</p>
 
@@ -102,9 +102,9 @@ variable). As long as as the pane is on localhost, it will be found.</p>
 
 <p><code>:MaqueTmuxAddPane name ['tmux split command']</code> creates a named pane which will
 receive all following makes and toggle commands. It will become visible after
-executing <code>&lt;Plug&gt;Maque</code> or <code>&lt;Plug&gt;MaqueToggleTmux</code>.
+executing <code>&lt;Plug&gt;(maque)</code> or <code>&lt;Plug&gt;(maque-toggle-tmux)</code>.
 To activate a different pane, run <code>:MaqueTmuxCycle</code> or assign its name to
-<code>g:maque#tmux#current_pane</code>.</p>
+<code>g:maque_tmux_current_pane</code>.</p>
 
 <p><code>:MaqueTmuxBuffer</code> and <code>:MaqueTmuxDebuffer</code> create and destroy a pane that is
 associated with the current buffer and will receive all makes executed from it.</p>
@@ -113,7 +113,7 @@ associated with the current buffer and will receive all makes executed from it.<
 <a name="example" class="anchor" href="#example"><span class="octicon octicon-link"></span></a>Example</h2>
 
 <p>When editing an rspec file, the default <code>maque_args</code> are set to <code>--drb</code>. When
-invoking the <code>&lt;Plug&gt;AutoMaque</code> mapping, the default makeprg setter appends
+invoking the <code>&lt;Plug&gt;(auto-maque)</code> mapping, the default makeprg setter appends
 <code>spec/current_file_spec.rb:23</code>, given that the cursor is on line 23. The whole
 command line then becomes <code>rspec --drb spec/current_file_spec.rb:23</code>, which
 will run only the example (group) under the cursor.</p>
@@ -121,8 +121,8 @@ will run only the example (group) under the cursor.</p>
 <h2>
 <a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
 
-<p>Copyright (c) Torsten Schmits. Distributed under the same terms as Vim itself.
-See <code>:help license</code>.</p>
+<p>Copyright (c) Torsten Schmits. Distributed under the terms of the
+<a href="http://opensource.org/licenses/MIT" title="mit license">MIT License</a>.</p>
       </section>
 
     </div>
