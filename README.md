@@ -11,6 +11,10 @@ are currently supported methods.
 
 ## Usage
 
+### Demo
+
+![basic_demo][1]
+
 Essential mappings:  
 `<Plug>(maque)` executes `g:maqueprg`  
 `<Plug>(auto-maque)` calls a `g:maqueprg` setter function and executes it.  
@@ -79,3 +83,5 @@ will run only the example (group) under the cursor.
 
 Copyright (c) Torsten Schmits. Distributed under the terms of the
 [MIT License](http://opensource.org/licenses/MIT 'mit license').
+
+[1]: http://gentoo64.net/maque_basic.gif
