@@ -41,78 +41,130 @@
         <h2>
 <a name="description" class="anchor" href="#description"><span class="octicon octicon-link"></span></a>Description</h2>
 
-<p><strong>maque</strong> executes alternative methods to vim's :make command and assists in
-assembling command lines.</p>
+<p><strong>maque</strong> assists in assembling context-dependent command lines, executing them
+in a shell and capturing error output.</p>
 
-<p>A persistent tmux pane,
-<a href="https://github.com/rson/vim-conque" title="github repo">Conque</a>,
-<a href="https://github.com/tpope/vim-dispatch" title="github repo">dispatch</a> and
-using vim's native <code>:make</code>
-are currently supported methods.</p>
+<p>Maque's most significant component is its tmux integration. With default
+settings, there are two standard panes used by the command handler:</p>
+
+<ul>
+<li>The <strong>main</strong> pane, a persistant horizontal split, is used to execute commands
+via <code>:Maque</code> and the command assembly mechanism.</li>
+<li>The <strong>aux</strong> pane, which is a volatile vertical split used for arbitrary
+commands.</li>
+</ul><p>Assembling commands is done through configurable setter functions. The defaults
+provided mainly use the current file or line to configure the test program
+executable, which is read from <code>'makeprg'</code>.</p>
 
 <h2>
 <a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
 
-<h3>
-<a name="demo" class="anchor" href="#demo"><span class="octicon octicon-link"></span></a>Demo</h3>
+<p>The basic commands for using the default panes are demonstrated in this
+presentation:</p>
 
 <p><img src="http://gentoo64.net/maque_basic.gif" alt="basic_demo"></p>
 
-<p>Essential mappings:<br><code>&lt;Plug&gt;(maque)</code> executes <code>g:maqueprg</code><br><code>&lt;Plug&gt;(auto-maque)</code> calls a <code>g:maqueprg</code> setter function and executes it.<br><code>&lt;Plug&gt;(maque-parse)</code> populates the quickfix list using <code>'errorformat'</code></p>
+<p>The <strong>main</strong> pane command, triggered by invoking <code>:Maque</code>, will execute
+whatever the variable <code>g:maqueprg</code> contains. This variable is the target of
+maque's command assembly functions, which can be used via <code>:AutoMaque</code> to set a
+command line and execute it in the main pane.</p>
 
-<h2>
+<p>After execution, <code>:MaqueParse</code> runs <code>:cgetfile</code> , populating the quickfix list
+identically to how <code>:make</code> does.</p>
+
+<p>Predefined mappings to these commands exist:</p>
+
+<ul>
+<li>
+<code>&lt;Plug&gt;(maque)</code> executes <code>g:maqueprg</code><br>
+</li>
+<li>
+<code>&lt;Plug&gt;(auto-maque)</code> calls a <code>g:maqueprg</code> setter function and executes it.<br>
+</li>
+<li>
+<code>&lt;Plug&gt;(maque-parse)</code> populates the quickfix list using <code>'errorformat'</code>
+</li>
+</ul><h2>
 <a name="customization" class="anchor" href="#customization"><span class="octicon octicon-link"></span></a>Customization</h2>
 
-<p>To add your own <code>make</code> replacement, assign a function name to
-<code>g:maque_handler</code>.</p>
+<p>To employ different command execution methods or add your own, assign its name
+to <code>g:maque_handler</code>. This will use the path prefix <code>maque#{g:maque_handler}#</code>
+for all functions.</p>
 
-<p>To replace the default <code>g:maqueprg</code> assembly methods, assign yours to
+<p>Maque provides support for serveral third-party execution methods aside from
+its built-in tmux target:</p>
+
+<ul>
+<li><a href="https://github.com/rson/vim-conque" title="github repo">conque</a></li>
+<li><a href="https://github.com/tpope/vim-dispatch" title="github repo">dispatch</a></li>
+<li>vim's native <code>:make</code>
+</li>
+</ul><p>To replace the default <code>g:maqueprg</code> assembly methods, assign yours to
 <code>b:maque_makeprg_setter</code> or <code>g:maque_makeprg_setter</code>, or define the function
 <code>maque#ft#{&amp;filetype}#set_makeprg</code>. The function's return value is indicative
-of whether make should be executed subsequently.  If none of these exist, the
-plugin's default setter is used.</p>
+of whether make should be executed subsequently when used via <code>:AutoMaque</code>. If
+none of these exist, the plugin's default setter is used.</p>
 
-<h2>
+<p>There are two functions that make convenient and persistent configuration of
+commands and panes possible, to be used in filetype or project config:</p>
+
+<ul>
+<li>
+<code>maque#add_command('name', 'command', options)</code> can be used to create a command.</li>
+<li>
+<code>maque#tmux#add_pane('name', options)</code> creates a new pane that can be used
+from commands by specifying its name in the options dictionary.</li>
+</ul><h2>
 <a name="details" class="anchor" href="#details"><span class="octicon octicon-link"></span></a>Details</h2>
 
-<p>The main purpose of <strong>maque</strong> is to to assemble test invocation commands for
-various filetypes and manage different test command dispatching methods. The
-first execution of <code>AutoMaque</code> should be done with the cursor on the desired
-unittest. After storing information about the currently selected environment,
-custom mappings can launch different commands in conque or tmux (See the puppet
-functions for an example).</p>
+<p>The default assembly method uses <code>'makeprg'</code> as executable, so <code>:compiler</code> can
+be used to configure maque. If a global or buffer-local variable
+<code>maque_args_{&amp;makeprg}</code> is set, it is always appended to the command line. The
+first execution of <code>:AutoMaque</code> should be done with the cursor on the desired
+unittest.</p>
 
-<p>The default assembly methods uses <code>'makeprg'</code> as executable. If a global or
-buffer-local variable <code>maque_args_{&amp;makeprg}</code> is set, it is appended.</p>
-
-<p>After having executed a test, <code>&lt;Plug&gt;(maque-parse)</code> executes <code>:cgetfile</code>, which
-populates the quickfix list identically to how :make does.</p>
+<p>After storing information about the currently selected environment, custom
+mappings can launch different commands in conque or tmux (See the
+puppet-vagrant functions for an example).</p>
 
 <h2>
 <a name="tmux" class="anchor" href="#tmux"><span class="octicon octicon-link"></span></a>tmux</h2>
 
 <p>The tmux method is designed to maintain a persistently open pane for
-dispatching. Before and after each test execution, output redirection to a temp
-file is (de)activated.
-A mapping <code>&lt;Plug&gt;(maque-toggle-tmux)</code> is provided to manually kill or open the tmux
+maqueprg execution. Before and after each test execution, output redirection to
+a temp file is (de)activated.
+The command <code>:MaqueTmuxToggle</code> is provided to manually kill or open the tmux
 pane.</p>
 
-<p>A new pane is created as a horizontal split by default, but you can specify an
-arbitrary system command via <code>g:maque_tmux_main_split_cmd</code>. You can even launch
-a new session in a fresh terminal by setting the variable to <code>'TMUX= urxvt -e
-tmux &amp;!'</code> (note that tmux will not nest, indicated by the <code>$TMUX</code> environment
-variable). As long as as the pane is on localhost, it will be found.</p>
+<p>The main pane is created as a horizontal split by default, but you can specify
+an arbitrary system command via <code>g:maque_tmux_main_split_cmd</code>. You can even
+launch a new session in a fresh terminal by setting the variable to <code>'TMUX=
+urxvt -e tmux &amp;!'</code> (note that tmux will not nest, indicated by the <code>$TMUX</code>
+environment variable). As long as as the pane is on localhost, it will be
+found.</p>
 
 <p>There are two commands available to create additional panes:</p>
 
-<p><code>:MaqueTmuxAddPane name ['tmux split command']</code> creates a named pane which will
-receive all following makes and toggle commands. It will become visible after
-executing <code>&lt;Plug&gt;(maque)</code> or <code>&lt;Plug&gt;(maque-toggle-tmux)</code>.
-To activate a different pane, run <code>:MaqueTmuxCycle</code> or assign its name to
-<code>g:maque_tmux_current_pane</code>.</p>
+<p><code>:MaqueTmuxAddPane name ['tmux split command']</code> creates a named pane which can
+be used by specifying its name as first argument to <code>:Maque</code>.
+To use a different pane as default execution target, run <code>:MaqueTmuxCycle</code> or
+assign its name to <code>g:maque_tmux_current_pane</code>.</p>
 
 <p><code>:MaqueTmuxBuffer</code> and <code>:MaqueTmuxDebuffer</code> create and destroy a pane that is
 associated with the current buffer and will receive all makes executed from it.</p>
+
+<p><code>:MaqueTmuxKill</code> will successively send the signals in
+<code>g:maque_tmux_kill_signals</code> to the process running in the current pane on each
+invocation, until the process has terminated. The default is INT, TERM, KILL.</p>
+
+<p>You can send a custom signal by specifying it, like <code>:MaqueTmuxKill HUP</code>.</p>
+
+<h2>
+<a name="ctrlp" class="anchor" href="#ctrlp"><span class="octicon octicon-link"></span></a>CtrlP</h2>
+
+<p>Maque provides two CtrlP-menus, <code>:CtrlPMaque</code> for displaying and executing
+available commands, and <code>:CtrlPMaqueTmux</code> for displaying created panes and
+setting the active pane.</p>
 
 <h2>
 <a name="example" class="anchor" href="#example"><span class="octicon octicon-link"></span></a>Example</h2>
