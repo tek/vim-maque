@@ -20,7 +20,7 @@ executable, which is read from `'makeprg'`.
 The basic commands for using the default panes are demonstrated in this
 presentation:
 
-![basic_demo][1]
+![basic demo][1]
 
 The **main** pane command, triggered by invoking `:Maque`, will execute
 whatever the variable `g:maqueprg` contains. This variable is the target of
@@ -45,8 +45,8 @@ for all functions.
 Maque provides support for serveral third-party execution methods aside from
 its built-in tmux target:
 
-- [conque](https://github.com/rson/vim-conque 'github repo')
-- [dispatch](https://github.com/tpope/vim-dispatch 'github repo')
+- [conque][2]
+- [dispatch][3]
 - vim's native `:make`
 
 To replace the default `g:maqueprg` assembly methods, assign yours to
@@ -122,7 +122,10 @@ will run only the example (group) under the cursor.
 
 ## License
 
-Copyright (c) Torsten Schmits. Distributed under the terms of the
-[MIT License](http://opensource.org/licenses/MIT 'mit license').
+Copyright (c) Torsten Schmits. Distributed under the terms of the [MIT
+License][4].
 
-[1]: http://gentoo64.net/maque_basic.gif
+[1]: http://gentoo64.net/maque_basic.gif 'basic demo'
+[2]: https://github.com/rson/vim-conque 'conque github repo'
+[3]: https://github.com/tpope/vim-dispatch 'dispatch github repo'
+[4]: http://opensource.org/licenses/MIT 'mit license'
