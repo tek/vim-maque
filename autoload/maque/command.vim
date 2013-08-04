@@ -21,8 +21,7 @@ function! maque#command#new(command, ...) "{{{
 
   function! command.make() dict "{{{
     let pane = self.pane()
-    call pane.create()
-    return pane.make(self.command())
+    call maque#make_pane(pane, self.command())
   endfunction "}}}
 
   let pane_type = get(params, 'ptype', 'name')
