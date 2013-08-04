@@ -29,25 +29,25 @@ describe 'pane.make'
   it 'should run the command if the pane is open'
     let s:pane_open = 1
     let command_buffer = s:make()
-    Expect index(command_buffer, shellescape(g:cmd)) >= 0
+    Expect match(command_buffer, g:cmd) >= 0
   end
 
   it 'should not run the command if the pane is closed'
     let s:pane_open = 0
     let command_buffer = s:make()
-    Expect index(command_buffer, shellescape(g:cmd)) == -1
+    Expect match(command_buffer, g:cmd) == -1
   end
 
   it 'should exit if autoclose is 1'
     let g:pane.autoclose = 1
     let command_buffer = s:make()
-    Expect index(command_buffer, shellescape('exit')) >= 0
+    Expect match(command_buffer, 'exit') >= 0
   end
 
   it 'should not exit if autoclose is 0'
     let g:pane.autoclose = 0
     let command_buffer = s:make()
-    Expect index(command_buffer, shellescape('exit')) == -1
+    Expect match(command_buffer, 'exit') == -1
   end
 
 end
