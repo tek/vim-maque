@@ -93,10 +93,14 @@ endfunction "}}}
 function! maque#tmux#command(cmd, ...) "{{{
   let blocking = get(a:000, 0)
   if blocking || !s:want_async()
-    return system('tmux '.a:cmd)
+    return maque#tmux#command_output(a:cmd)
   else
     call vimproc#system_bg('tmux '.a:cmd)
   endif
+endfunction "}}}
+
+function! maque#tmux#command_output(cmd) "{{{
+  return system('tmux '.a:cmd)
 endfunction "}}}
 
 function! maque#tmux#close_all() "{{{

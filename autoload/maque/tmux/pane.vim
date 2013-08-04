@@ -14,7 +14,7 @@ function! maque#tmux#pane#all(...) "{{{
   let force = get(a:000, 0)
   if !s:use_cache || force
     let cmd = 'list-panes -a -F "#{pane_id}"'
-    let s:cached_panes = split(maque#tmux#command(cmd, 1), "\n")
+    let s:cached_panes = split(maque#tmux#command_output(cmd), "\n")
   endif
   return s:cached_panes
 endfunction "}}}
@@ -161,7 +161,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
 
   function! pane.set_shell_pid() dict "{{{
     let cmd = 'list-panes -t '.self.id .' -F "#{pane_id} #{pane_pid}"'
-    let panes = split(maque#tmux#command(cmd), "\n")
+    let panes = split(maque#tmux#command_output(cmd), "\n")
     let mypane = matchlist(panes, self.id .' \zs\d\+$')
     if len(mypane)
       let self.shell_pid = mypane[0]
