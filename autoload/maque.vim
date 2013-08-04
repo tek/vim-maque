@@ -26,6 +26,15 @@ function! maque#make_auto() "{{{
   endif
 endfunction "}}}
 
+function! maque#make_pane(pane, cmd) "{{{
+  let Handler = maque#util#handler_function('make_pane', '')
+  if type(Handler) == 2
+    return Handler(a:pane, a:cmd)
+  else
+    call maque#util#warn('no handler for executing commands in a pane!')
+  endif
+endfunction "}}}
+
 function! maque#set_makeprg() "{{{
   let Setter = maque#util#lookup(
         \ 'b:maque_makeprg_setter',
