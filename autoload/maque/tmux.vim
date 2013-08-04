@@ -2,18 +2,22 @@
 
 " execute a command in the active pane, creating it if necessary
 function! maque#tmux#make(cmd) "{{{
-  call s:pane().create()
-  call s:pane().make(a:cmd)
+  call maque#tmux#make_pane(s:pane(), a:cmd)
 endfunction "}}}
 
 function! maque#tmux#make_aux(cmd) "{{{
-  call s:aux_pane().create()
-  call s:aux_pane().make(a:cmd)
+  call maque#tmux#make_pane(s:aux_pane(), a:cmd)
 endfunction "}}}
 
 function! maque#tmux#make_in(pane, cmd) "{{{
-  call g:maque_tmux_panes[a:pane].create()
-  call g:maque_tmux_panes[a:pane].make(a:cmd)
+  call maque#tmux#make_pane(g:maque_tmux_panes[a:pane], a:cmd)
+endfunction "}}}
+
+function! maque#tmux#make_pane(pane, cmd) "{{{
+  call maque#tmux#pane#enable_cache()
+  call a:pane.create()
+  call a:pane.make(a:cmd)
+  call maque#tmux#pane#disable_cache()
 endfunction "}}}
 
 " parse the active pane's last command's output into the quickfix list
