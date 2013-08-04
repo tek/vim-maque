@@ -83,8 +83,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
 
   " execute a command in the target pane
   function! pane.send(cmd) dict "{{{
-    call self.send_keys("'".a:cmd."'")
-    call self.send_keys('ENTER')
+    call self.send_keys("'".a:cmd."' 'ENTER'")
   endfunction "}}}
 
   " send input to the target pane
