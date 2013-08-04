@@ -174,13 +174,11 @@ function! maque#tmux#pane#new(name, ...) "{{{
       let pids = maque#util#child_pids(self.shell_pid)
       let self.command_pid = len(pids) ? pids[0] : 0
     endif
+    return self.command_pid
   endfunction "}}}
 
   function! pane.process_alive() dict "{{{
-    if self.command_pid > 0
-      call self.set_command_pid()
-      return self.command_pid > 0
-    endif
+    return self.set_command_pid() > 0
   endfunction "}}}
 
   return pane
