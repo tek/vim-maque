@@ -1,5 +1,22 @@
-function! maque#tmux#pane#all() "{{{
-  return split(maque#tmux#command('list-panes -a -F "#{pane_id}"'), "\n")
+let s:use_cache = 0
+let s:cached_panes = []
+
+function! maque#tmux#pane#enable_cache() "{{{
+  call maque#tmux#pane#all()
+  let s:use_cache = 1
+endfunction "}}}
+
+function! maque#tmux#pane#disable_cache() "{{{
+  let s:use_cache = 0
+endfunction "}}}
+
+function! maque#tmux#pane#all(...) "{{{
+  let force = get(a:000, 0)
+  if !s:use_cache || force
+    let cmd = 'list-panes -a -F "#{pane_id}"'
+    let s:cached_panes = split(maque#tmux#command(cmd, 1), "\n")
+  endif
+  return s:cached_panes
 endfunction "}}}
 
 function! maque#tmux#pane#new(name, ...) "{{{
@@ -23,7 +40,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
       let panes_before = maque#tmux#pane#all()
       call system(self.splitter())
       let matcher = 'index(panes_before, v:val) == -1'
-      let matches = filter(maque#tmux#pane#all(), matcher)
+      let matches = filter(maque#tmux#pane#all(1), matcher)
       let self.id = len(matches) > 0 ? matches[0] : -1
       if self.open()
         call self.send('cd '.getcwd())
