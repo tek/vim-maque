@@ -31,6 +31,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
         \ '_killed': 0,
         \ 'shell_pid': 0,
         \ 'command_pid': 0,
+        \ 'wait_before_autoclose': 2,
         \ }
   call extend(pane, params)
   let pane.name = a:name
@@ -43,7 +44,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
       let matches = filter(maque#tmux#pane#all(1), matcher)
       let self.id = len(matches) > 0 ? matches[0] : -1
       if self.open()
-        call self.send('cd '.getcwd())
+        call self.send(' cd '.getcwd())
         call self.set_shell_pid()
       endif
     endif
@@ -63,7 +64,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
         call self.pipe_to_file()
       endif
       if autoclose
-        call self.send('exit')
+        call self.send(' sleep '.self.wait_before_autoclose.'; exit')
       endif
       call self.set_command_pid()
     else
