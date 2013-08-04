@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/tek/vim-maque.png)](https://travis-ci.org/tek/vim-maque)
+
 ## Description
 
 **maque** assists in assembling context-dependent command lines, executing them
