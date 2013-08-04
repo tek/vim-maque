@@ -86,8 +86,13 @@ endfunction "}}}
 
 " internals
 
-function! maque#tmux#command(cmd) "{{{
-  return system('tmux '.a:cmd)
+function! maque#tmux#command(cmd, ...) "{{{
+  let blocking = get(a:000, 0)
+  if blocking || !s:want_async()
+    return system('tmux '.a:cmd)
+  else
+    call vimproc#system_bg('tmux '.a:cmd)
+  endif
 endfunction "}}}
 
 function! maque#tmux#close_all() "{{{
@@ -112,6 +117,10 @@ endfunction "}}}
 
 function! s:buffer() "{{{
   return 'buffer'.bufnr('%')
+endfunction "}}}
+
+function! s:want_async() "{{{
+  return exists(':VimProcRead') && g:maque_tmux_async
 endfunction "}}}
 
 augroup maque_tmux "{{{
