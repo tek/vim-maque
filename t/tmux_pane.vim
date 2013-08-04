@@ -12,7 +12,7 @@ describe 'pane.make'
     endfunction "}}}
 
     let s:pane_open = 1
-    let g:pane = maque#tmux#pane#new('foo')
+    let g:pane = maque#tmux#pane#new('foo', {'capture': 0})
     let g:pane.command_buffer = []
 
     let g:pane.open = function('Open_stub')
@@ -29,7 +29,7 @@ describe 'pane.make'
   it 'should run the command if the pane is open'
     let s:pane_open = 1
     let command_buffer = s:make()
-    Expect match(command_buffer, g:cmd) >= 0
+    Expect match(command_buffer, g:cmd) == 0
   end
 
   it 'should not run the command if the pane is closed'
@@ -41,7 +41,7 @@ describe 'pane.make'
   it 'should exit if autoclose is 1'
     let g:pane.autoclose = 1
     let command_buffer = s:make()
-    Expect match(command_buffer, 'exit') >= 0
+    Expect match(command_buffer, 'exit') == 1
   end
 
   it 'should not exit if autoclose is 0'
@@ -54,16 +54,24 @@ end
 
 describe 'pane process management'
 
+  function! s:wait_until(predicate) "{{{
+    let counter = 0
+    let timeout = 50
+    while !eval(a:predicate) && counter < timeout
+      sleep 200m
+      let counter += 1
+    endwhile
+  endfunction "}}}
+
   before
-    let g:maque_tmux_panes = {}
-    call maque#tmux#add_pane('foo')
-    let g:pane = maque#tmux#pane('foo')
+    let g:pane = maque#tmux#pane#new('foo', {'capture': 0})
     call g:pane.create()
   end
 
   after
     call g:pane.kill('KILL')
     call g:pane.close()
+    unlet g:pane
   end
 
   it 'should determine the pid of its shell'
@@ -72,37 +80,32 @@ describe 'pane process management'
 
   it 'should determine the pid of a running command'
     call g:pane.make('tail -f plugin/maque.vim')
-    sleep 1
+    call s:wait_until('g:pane.process_alive()')
     call g:pane.set_command_pid()
     Expect g:pane.command_pid > '0'
     Expect g:pane.process_alive() to_be_true
   end
 
   it 'should kill a simple process with SIGINT'
+    let max_tries = 1
     let g:maque_tmux_kill_signals = ['INT']
     call g:pane.make('tail -f plugin/maque.vim')
-    sleep 200m
+    call s:wait_until('g:pane.process_alive()')
     call g:pane.kill()
-    sleep 1
-    call g:pane.set_command_pid()
+    call s:wait_until('!g:pane.process_alive()')
     Expect g:pane.command_pid == 0
   end
 
   it 'should kill a subshell with SIGKILL'
     let g:maque_tmux_kill_signals = ['INT', 'TERM', 'KILL']
     call g:pane.make('zsh -i')
-    sleep 1
+    call s:wait_until('g:pane.process_alive()')
     call g:pane.kill()
-    sleep 1
-    call g:pane.set_command_pid()
-    Expect g:pane.command_pid > '0'
+    Expect g:pane.process_alive() > 0
     call g:pane.kill()
-    sleep 1
-    call g:pane.set_command_pid()
-    Expect g:pane.command_pid > '0'
+    Expect g:pane.process_alive() > 0
     call g:pane.kill()
-    sleep 1
-    call g:pane.set_command_pid()
+    call s:wait_until('!g:pane.process_alive()')
     Expect g:pane.command_pid == 0
   end
 
