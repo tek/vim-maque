@@ -9,6 +9,7 @@ let g:maque_handlers = ['tmux', 'dispatch', 'conque', 'native']
 let g:maque_seek_cwd_error = 1
 let g:maque_dispatch_command = 'Dispatch'
 let g:maque_set_ft_options = 0
+let g:maque_loaded = 1
 "}}}
 
 "{{{ commands
