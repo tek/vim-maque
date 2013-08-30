@@ -4,11 +4,12 @@ endif
 let current_compiler = 'rspec'
 
 set errorformat=
+    \%.%#Error:\ %f:%l:\ %m,
     \%f:%l:\ parse\ error,
     \%f:%l:\ warning:\ %m,
     \%f:%l:in\ %*[^:]:\ %m,
     \%.%#\ %f:%l:in\ %m,
-    \%f:%l:\ %m,
+    \%f:%l:%m,
     \%\\s%#from\ %f:%l:%m,
     \%\\s%#from\ %f:%l,
     \%-G%.%#
