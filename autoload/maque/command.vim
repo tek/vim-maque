@@ -44,5 +44,15 @@ function! maque#command#new(command, ...) "{{{
 
   endif
 
+  function! command.restart() dict "{{{
+    if self.pane().kill_wait()
+      call self.make()
+    endif
+  endfunction "}}}
+
+  function! command.kill() dict "{{{
+    call self.pane().kill()
+  endfunction "}}}
+
   return command
 endfunction "}}}

@@ -99,6 +99,20 @@ function! maque#tmux#pane#new(name, ...) "{{{
     call maque#util#warn('sent SIG'.a:signal." to pane '".self.name."'!")
   endfunction "}}}
 
+  function! pane.kill_wait() dict "{{{
+    for index in range(len(g:maque_tmux_kill_signals))
+      call self.kill()
+      if !self.process_alive()
+        return 1
+      endif
+      sleep 1
+      if !self.process_alive()
+        return 1
+      endif
+    endfor
+    return !self.process_alive()
+  endfunction "}}}
+
   " execute a command in the target pane
   function! pane.send(cmd) dict "{{{
     call self.send_keys("'".a:cmd."' 'ENTER'")
