@@ -112,6 +112,7 @@ function! maque#add_command(name, cmd, ...) "{{{
     let commands = maque#commands()
     let commands[a:name] = maque#command#new(a:cmd, args)
   endif
+  return maque#command(a:name)
 endfunction "}}}
 
 function! maque#make_command(name) "{{{

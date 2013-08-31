@@ -73,6 +73,7 @@ function! maque#tmux#add_pane(name, ...) "{{{
     let params = a:0 ? a:1 : {}
     let g:maque_tmux_panes[a:name] = maque#tmux#pane#new(a:name, params)
   endif
+  return maque#pane(a:name)
 endfunction "}}}
 
 " kill the process running in the active pane
