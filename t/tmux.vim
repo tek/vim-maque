@@ -3,6 +3,7 @@ describe 'create_buffer_pane'
     let g:maque_tmux_panes = {}
     let g:maque_tmux_current_pane = 0
     let g:test_splitter = 'splittttt'
+    let g:maque_handler = 'tmux'
   end
 
   it 'should create a pane associated with the current buffer'
