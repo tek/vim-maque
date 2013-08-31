@@ -55,9 +55,9 @@ function! ctrlp#maque#tmux#exit() "{{{
 endfunction "}}}
 
 function! ctrlp#maque#tmux#create_pane() "{{{
-  let params = split(ctrlp#call('<SID>getinput'))
-  call insert(params, 0, 1)
-  call call('maque#tmux#add_pane', params)
+  let tokens = split(ctrlp#call('<SID>getinput'))
+  let params = {}
+  call call('maque#tmux#add_pane', [tokens[0], params])
   call ctrlp#exit()
   call ctrlp#init(ctrlp#maque#tmux#id())
 endfunction "}}}
