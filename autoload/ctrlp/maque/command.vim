@@ -19,6 +19,8 @@ function! s:format(name) "{{{
 endfunction "}}}
 
 function! ctrlp#maque#command#init() "{{{
+  nnoremap <buffer> <silent> <c-r> :<c-u>call ctrlp#maque#command#restart()<cr>
+  nnoremap <buffer> <silent> <c-d> :<c-u>call ctrlp#maque#command#kill()<cr>
   return map(keys(g:maque_commands), 's:format(v:val)')
 endfunction "}}}
 
@@ -28,7 +30,12 @@ function! ctrlp#maque#command#accept(mode, str) "{{{
     let name = matches[1]
     if a:mode == 'e'
       call ctrlp#exit()
-      call g:maque_commands[name].make()
+      call maque#make_command(name)
+    elseif a:mode == 'r'
+      call ctrlp#exit()
+      call maque#async('maque#restart_command', name)
+    elseif a:mode == 'd'
+      call maque#kill_command(name)
     endif
   endif
 endfunction "}}}
@@ -41,4 +48,8 @@ function! ctrlp#maque#command#enter() "{{{
 endfunction "}}}
 
 function! ctrlp#maque#command#exit() "{{{
+endfunction "}}}
+
+function! ctrlp#maque#command#restart() "{{{
+  call ctrlp#call('<SID>AcceptSelection', ['r'])
 endfunction "}}}

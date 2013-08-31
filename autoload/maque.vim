@@ -175,3 +175,24 @@ endfunction "}}}
 function! maque#filetype() "{{{
   return exists('b:maque_filetype') ? b:maque_filetype : &filetype
 endfunction "}}}
+
+function! maque#restart_command(name) "{{{
+  if has_key(maque#commands(), a:name)
+    call maque#command(a:name).restart()
+  else
+    call maque#util#warn('no such command: '.a:name)
+  endif
+endfunction "}}}
+
+function! maque#kill_command(name) "{{{
+  if has_key(maque#commands(), a:name)
+    call maque#command(a:name).kill()
+  else
+    call maque#util#warn('no such command: '.a:name)
+  endif
+endfunction "}}}
+
+function! maque#async(func, ...) "{{{
+  let Caller = maque#util#lookup('seizure#async_call', 'call')
+  return Caller(a:func, a:000)
+endfunction "}}}
