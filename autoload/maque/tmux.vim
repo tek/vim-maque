@@ -133,6 +133,7 @@ function! s:want_async() "{{{
 endfunction "}}}
 
 augroup maque_tmux "{{{
+  let g:maque_tmux_async = 0
   autocmd!
   autocmd VimLeave * call maque#tmux#close_all()
 augroup END "}}}
