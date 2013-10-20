@@ -81,8 +81,9 @@ describe 'pane process management'
   it 'should determine the pid of a running command'
     call g:pane.make('tail -f plugin/maque.vim')
     call s:wait_until('g:pane.process_alive()')
+    Expect g:pane.process_alive() > 0
     call g:pane.set_command_pid()
-    Expect g:pane.command_pid > 0
+    Expect g:pane.command_pid > '0'
     Expect g:pane.process_alive() to_be_true
   end
 
