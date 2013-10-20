@@ -19,6 +19,17 @@ function! maque#tmux#pane#all(...) "{{{
   return s:cached_panes
 endfunction "}}}
 
+function! maque#tmux#pane#size(id) "{{{
+  let cmd = 'list-panes -t '.a:id .' -F "#{pane_id} #{pane_width} #{pane_height}"'
+  let panes = split(maque#tmux#command_output(cmd), "\n")
+  let mypane = matchlist(panes, a:id .' \zs\d\+ \d\+$')
+  if len(mypane)
+    return split(mypane[0])
+  else
+    return [0, 0]
+  endif
+endfunction "}}}
+
 function! maque#tmux#pane#new(name, ...) "{{{
   let params = a:0 ? a:1 : {}
   let pane = {
@@ -32,6 +43,10 @@ function! maque#tmux#pane#new(name, ...) "{{{
         \ 'shell_pid': 0,
         \ 'command_pid': 0,
         \ 'wait_before_autoclose': 2,
+        \ 'minimize_on_toggle': get(g:, 'maque_tmux_minimize_on_toggle', 0),
+        \ 'vertical': 1,
+        \ 'minimized': 0,
+        \ '_original_size': [0, 0],
         \ }
   call extend(pane, params)
   let pane.name = a:name
@@ -113,7 +128,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
     return !self.process_alive()
   endfunction "}}}
 
-  " execute a command in the target pane
+  " execute a shell command in the target pane
   function! pane.send(cmd) dict "{{{
     call self.send_keys("'".a:cmd."' 'ENTER'")
   endfunction "}}}
@@ -138,10 +153,42 @@ function! maque#tmux#pane#new(name, ...) "{{{
 
   function! pane.toggle() dict "{{{
     if self.open()
-      call self.close()
+      if self.minimize_on_toggle
+        call self.toggle_minimized()
+      else
+        call self.close()
+      endif
     else
       call self.create()
     endif
+  endfunction "}}}
+
+  function! pane.toggle_minimized() dict "{{{
+    if self.minimized
+      call self.restore()
+    else
+      call self.minimize()
+    endif
+  endfunction "}}}
+
+  function! pane.minimize() dict "{{{
+    let self._original_size = maque#tmux#pane#size(self.id)
+    if self.vertical
+      call self.resize(2, self._original_size[1])
+    else
+      call self.resize(self._original_size[0], 2)
+    endif
+    let self.minimized = 1
+  endfunction "}}}
+
+  function! pane.restore() dict "{{{
+    call call(self.resize, self._original_size, self)
+    let self.minimized = 0
+  endfunction "}}}
+
+  function! pane.resize(width, height) dict "{{{
+    let cmd = 'resize-pane -t '.self.id.' -x '.a:width.' -y '.a:height
+    call maque#tmux#command(cmd)
   endfunction "}}}
 
   function! pane.pipe_to_file() dict "{{{
