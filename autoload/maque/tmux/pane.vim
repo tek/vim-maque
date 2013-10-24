@@ -47,6 +47,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
         \ 'vertical': 1,
         \ 'minimized': 0,
         \ '_original_size': [0, 0],
+        \ 'kill_running_on_make': 1,
         \ }
   call extend(pane, params)
   let pane.name = a:name
@@ -68,7 +69,10 @@ function! maque#tmux#pane#new(name, ...) "{{{
   function! pane.make(cmd, ...) dict "{{{
     let capture = a:0 ? a:1 : self.capture
     let autoclose = a:0 >= 2 ? a:2 : self.autoclose
-    if self.open()
+    if self.ready_for_make()
+      if self.minimized
+        call self.restore()
+      endif
       call self.send(a:cmd)
       if capture
         " send the pipe canceling command now, so that it executes as soon as the
@@ -240,6 +244,22 @@ function! maque#tmux#pane#new(name, ...) "{{{
 
   function! pane.process_alive() dict "{{{
     return self.set_command_pid() > 0
+  endfunction "}}}
+
+  function! pane.ready_for_make() dict "{{{
+    return self.open() && (!self.process_alive() || self._handle_running_process())
+  endfunction "}}}
+
+  function! pane._handle_running_process() dict "{{{
+    if self.kill_running_on_make
+      if self.kill_wait()
+        return 1
+      else
+        call maque#util#warn('Failed to kill running process!')
+      endif
+    else
+      call maque#util#warn('Refusing to kill running process!')
+    endif
   endfunction "}}}
 
   return pane

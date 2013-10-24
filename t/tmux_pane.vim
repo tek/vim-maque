@@ -58,7 +58,6 @@ describe 'pane.make'
     let command_buffer = s:make()
     Expect match(command_buffer, 'exit') == -1
   end
-
 end
 
 describe 'pane process management'
@@ -145,4 +144,35 @@ describe 'minimize'
     Expect size == original_size
   end
 
+end
+
+describe 'pane.kill_running_on_make'
+  before
+    let g:maque_tmux_kill_signals = ['KILL']
+    let g:pane = maque#tmux#pane#new('foo', {'capture': 0})
+    call g:pane.create()
+    call g:pane.make('tail -f plugin/maque.vim')
+    call s:wait_until('g:pane.process_alive()')
+  end
+
+  after
+    call g:pane.kill('KILL')
+    call g:pane.close()
+    unlet g:pane
+  end
+
+  it 'should kill a running command when the option is set'
+    let g:pane.kill_running_on_make = 1
+    let pid = g:pane.command_pid
+    call g:pane.make('tail -f plugin/maque.vim')
+    call s:wait_until('g:pane.process_alive()')
+    Expect g:pane.command_pid != pid
+  end
+
+  it 'should abort make when the option is unset'
+    let g:pane.kill_running_on_make = 0
+    let pid = g:pane.command_pid
+    call g:pane.make('tail -f plugin/maque.vim')
+    Expect g:pane.command_pid == pid
+  end
 end
