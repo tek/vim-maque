@@ -27,6 +27,7 @@ command! -nargs=* MaqueTmuxBuffer  call maque#tmux#create_buffer_pane(<q-args>)<
 command! MaqueTmuxDebuffer         call maque#tmux#delete_buffer_pane()
 command! MaqueTmuxCycle            call maque#tmux#cycle_panes()
 command! -nargs=+ MaqueTmuxAddPane call maque#tmux#add_pane(<f-args>)
+command! MaqueTmuxClose            call maque#tmux#close_pane()
 "}}}
 
 "{{{ mappings
@@ -42,4 +43,5 @@ nnoremap <silent> <Plug>(maque-tmux-kill)     :MaqueTmuxKill<cr>
 nnoremap <silent> <Plug>(maque-tmux-buffer)   :MaqueTmuxBuffer<cr>
 nnoremap <silent> <Plug>(maque-tmux-debuffer) :MaqueTmuxDebuffer<cr>
 nnoremap <silent> <Plug>(maque-tmux-cycle)    :MaqueTmuxCycle<cr>
+nnoremap <silent> <Plug>(maque-tmux-close)    :MaqueTmuxClose<cr>
 "}}}

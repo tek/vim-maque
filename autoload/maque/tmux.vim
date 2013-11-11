@@ -39,6 +39,11 @@ function! maque#tmux#toggle_pane() "{{{
   call s:pane().toggle()
 endfunction "}}}
 
+" destroy the active pane
+function! maque#tmux#close_pane() "{{{
+  call s:pane().close()
+endfunction "}}}
+
 " activate the next pane, alphabetically
 function! maque#tmux#cycle_panes() "{{{
   let names = sort(keys(g:maque_tmux_panes))
