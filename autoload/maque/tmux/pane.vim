@@ -46,6 +46,9 @@ function! maque#tmux#pane#new(name, ...) "{{{
         \ 'minimize_on_toggle': get(g:, 'maque_tmux_minimize_on_toggle', 0),
         \ 'vertical': 1,
         \ 'minimized': 0,
+        \ 'minimized_size': 2,
+        \ 'create_minimized': 0,
+        \ 'restore_on_make': 1,
         \ '_original_size': [0, 0],
         \ 'kill_running_on_make': 1,
         \ }
@@ -54,12 +57,16 @@ function! maque#tmux#pane#new(name, ...) "{{{
 
   function! pane.create() dict "{{{
     if !self.open()
+      let self.minimized = 0
       let panes_before = maque#tmux#pane#all()
       call system(self.splitter())
       let matcher = 'index(panes_before, v:val) == -1'
       let matches = filter(maque#tmux#pane#all(1), matcher)
       let self.id = len(matches) > 0 ? matches[0] : -1
       if self.open()
+        if self.create_minimized
+          call self.toggle()
+        endif
         call self.send(' cd '.getcwd())
         call self.set_shell_pid()
       endif
@@ -70,7 +77,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
     let capture = a:0 ? a:1 : self.capture
     let autoclose = a:0 >= 2 ? a:2 : self.autoclose
     if self.ready_for_make()
-      if self.minimized
+      if self.minimized && self.restore_on_make
         call self.restore()
       endif
       call self.send(a:cmd)
@@ -178,9 +185,9 @@ function! maque#tmux#pane#new(name, ...) "{{{
   function! pane.minimize() dict "{{{
     let self._original_size = maque#tmux#pane#size(self.id)
     if self.vertical
-      call self.resize(2, self._original_size[1])
+      call self.resize(self.minimized_size, self._original_size[1])
     else
-      call self.resize(self._original_size[0], 2)
+      call self.resize(self._original_size[0], self.minimized_size)
     endif
     let self.minimized = 1
   endfunction "}}}

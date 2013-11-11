@@ -23,6 +23,7 @@ call maque#tmux#add_pane('aux', {
       \ '_splitter': 'g:maque_tmux_aux_split_cmd', 
       \ 'capture': 0,
       \ 'autoclose': 1,
+      \ 'vertical': 0,
       \ }
       \ )
 call maque#tmux#add_pane('bg', {
