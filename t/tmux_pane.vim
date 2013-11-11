@@ -120,12 +120,13 @@ describe 'minimize'
 
   it 'minimize the pane when toggling'
     let g:master_pane = maque#tmux#pane#new('master')
-    let splitter = 'tmux split-window -v -d'
+    let splitter = 'tmux split-window -h -d'
     let g:pane = maque#tmux#pane#new('toggle test', {
           \ '_splitter': splitter,
           \ 'capture': 0,
           \ 'minimize_on_toggle': 1,
           \ 'vertical': 0,
+          \ 'minimized_size': 20,
           \ })
     call g:pane.create()
     call s:wait_until('g:pane.open()')
@@ -135,7 +136,7 @@ describe 'minimize'
     Expect g:pane.open() == 1
     Expect g:pane.minimized == 1
     let size = maque#tmux#pane#size(g:pane.id)
-    Expect size[1] == '2'
+    Expect size[0] == '20'
     call g:pane.toggle()
     call s:wait_until('!g:pane.minimized')
     Expect g:pane.open() == 1
