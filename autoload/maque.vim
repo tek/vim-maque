@@ -123,6 +123,14 @@ function! maque#make_command(name) "{{{
   endif
 endfunction "}}}
 
+function! maque#set_main_command(name) "{{{
+  if has_key(maque#commands(), a:name)
+    let g:maqueprg = maque#commands()[a:name].command()
+  else
+    call maque#util#warn('no such command: '.a:name)
+  endif
+endfunction "}}}
+
 function! maque#dummy_pane(...) "{{{
   let pane = { 'name': g:maque_handler }
 
