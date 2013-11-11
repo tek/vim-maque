@@ -86,6 +86,13 @@ function! maque#tmux#kill(...) "{{{
   call call(s:pane().kill, a:000, s:pane())
 endfunction "}}}
 
+" toggle the specified pane, default to active
+function! maque#tmux#toggle(...) "{{{
+  let name = a:0 ? a:1 : ''
+  let pane = get(g:maque_tmux_panes, name, s:pane())
+  call pane.toggle()
+endfunction "}}}
+
 function! maque#tmux#pane(name) "{{{
   return get(g:maque_tmux_panes, a:name)
 endfunction "}}}

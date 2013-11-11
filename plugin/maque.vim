@@ -21,7 +21,7 @@ command! MaqueLine                 call maque#ft#common#set_line()<Bar>call maqu
 command! MaqueQuery                call maque#query()<Bar>call maque#make()
 command! MaqueParse                call maque#parse()
 command! MaqueCycle                call maque#cycle()
-command! MaqueToggleTmux           call maque#tmux#toggle_pane()
+command! -nargs=? MaqueToggleTmux  call maque#tmux#toggle(<f-args>)
 command! -nargs=? MaqueTmuxKill    call maque#tmux#kill(<f-args>)
 command! -nargs=* MaqueTmuxBuffer  call maque#tmux#create_buffer_pane(<q-args>)<Bar>call maque#make_auto()
 command! MaqueTmuxDebuffer         call maque#tmux#delete_buffer_pane()
