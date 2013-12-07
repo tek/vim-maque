@@ -1,6 +1,4 @@
 function! maque#ft#tex#set_makeprg() "{{{
-  let origin = bufnr('%')
-  bufdo let b:main_tex_file = expand('%')
-  exe 'buffer '.origin
+  let g:maque_main_tex_file = expand('%')
   return 1
 endfunction "}}}
