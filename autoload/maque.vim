@@ -60,9 +60,8 @@ function! maque#query() "{{{
   call maque#set_params(fname)
 endfunction "}}}
 
-function! maque#parse() "{{{
-  let Parser = function('maque#'.g:maque_handler.'#parse')
-  return Parser()
+function! maque#parse(...) "{{{
+  return call('maque#'.g:maque_handler.'#parse', a:000)
 endfunction "}}}
 
 function! maque#cycle() "{{{
