@@ -54,6 +54,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
         \ }
   call extend(pane, params)
   let pane.name = a:name
+  let pane.minimized_size = max([pane.minimized_size, 2])
 
   function! pane.create() dict "{{{
     if !self.open()
