@@ -20,6 +20,7 @@ endfunction "}}}
 function! ctrlp#maque#tmux#init() "{{{
   nnoremap <buffer> <silent> <c-y> :<c-u>call ctrlp#maque#tmux#create_pane()<cr>
   nnoremap <buffer> <silent> <c-e> :<c-u>call ctrlp#maque#tmux#read_errors()<cr>
+  nnoremap <buffer> <silent> <c-d> :<c-u>call ctrlp#maque#tmux#destroy()<cr>
   let panes = values(g:maque_tmux_panes)
   return map(panes, 's:format(v:val)')
 endfunction "}}}
@@ -40,6 +41,9 @@ function! ctrlp#maque#tmux#accept(mode, str) "{{{
     elseif a:mode == 'r'
       call ctrlp#exit()
       call maque#tmux#parse(name)
+    elseif a:mode == 'd'
+      call ctrlp#exit()
+      call pane.close()
     end
   endif
 endfunction "}}}
@@ -64,4 +68,8 @@ endfunction "}}}
 
 function! ctrlp#maque#tmux#read_errors() "{{{
   call ctrlp#call('<SID>AcceptSelection', ['r'])
+endfunction "}}}
+
+function! ctrlp#maque#tmux#destroy() "{{{
+  call ctrlp#call('<SID>AcceptSelection', ['d'])
 endfunction "}}}
