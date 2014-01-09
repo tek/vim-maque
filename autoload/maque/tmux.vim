@@ -22,7 +22,7 @@ endfunction "}}}
 
 " parse the active pane's last command's output into the quickfix list
 function! maque#tmux#parse(...) "{{{
-  let pane = a:0 ? g:maque_tmux_panes[a:1] : s:pane()
+  let pane = a:0 ? g:maque_tmux_panes[a:1] : maque#tmux#error_pane()
   if filereadable(pane.errorfile)
     execute 'cgetfile'.pane.errorfile
     if empty(getqflist())
@@ -122,6 +122,10 @@ function! maque#tmux#close_all() "{{{
       call pane.close()
     endfor
   endif
+endfunction "}}}
+
+function! maque#tmux#error_pane() "{{{
+  return g:maque_tmux_error_pane == 'main' ? s:pane() : maque#tmux#pane(g:maque_tmux_error_pane)
 endfunction "}}}
 
 function! s:pane() "{{{
