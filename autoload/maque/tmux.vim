@@ -26,7 +26,7 @@ function! maque#tmux#parse(...) "{{{
   if filereadable(pane.errorfile)
     execute 'cgetfile'.pane.errorfile
     if empty(getqflist())
-      call maque#util#warn('maque: no errors!')
+      call maque#util#warn('no errors!')
     else
       copen
       call maque#jump_to_error()
@@ -56,7 +56,7 @@ endfunction "}}}
 " create a pane and restrict interaction from the current buffer to it
 function! maque#tmux#create_buffer_pane(...) "{{{
   if has_key(g:maque_tmux_panes, s:buffer())
-    call maque#util#warn('maque: buffer pane already created!')
+    call maque#util#warn('buffer pane already created!')
   else
     let params = a:0 ? a:1 : {}
     call maque#tmux#add_pane(s:buffer(), params)
@@ -73,7 +73,7 @@ endfunction "}}}
 " add a new named pane, pass additional args to pane constructor
 function! maque#tmux#add_pane(name, ...) "{{{
   if has_key(g:maque_tmux_panes, a:name)
-    call maque#util#warn('maque: pane "'.a:name.'" already created!')
+    call maque#util#warn('pane "'.a:name.'" already created!')
   else
     let params = a:0 ? a:1 : {}
     let g:maque_tmux_panes[a:name] = maque#tmux#pane#new(a:name, params)
