@@ -80,3 +80,16 @@ function! maque#util#variable(name, ...) "{{{
   endfor
   return ''
 endfunction "}}}
+
+function! maque#util#want_async() "{{{
+  return exists(':VimProcRead') && g:maque_async
+endfunction "}}}
+
+function! maque#util#system(cmd, ...) abort "{{{
+  let blocking = get(a:000, 0)
+  if blocking || !maque#util#want_async()
+    return system(a:cmd)
+  else
+    call vimproc#system_bg(a:cmd)
+  endif
+endfunction "}}}

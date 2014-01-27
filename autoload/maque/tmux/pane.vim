@@ -60,21 +60,39 @@ function! maque#tmux#pane#new(name, ...) "{{{
   let pane.name = a:name
   let pane.minimized_size = max([pane.minimized_size, 2])
 
-  function! pane.create() dict "{{{
+  function! pane.create() abort dict "{{{
     if !self.open()
-      let self.minimized = 0
+      if self.in_layout()
+        call self.layout.create_pane(self)
+      else
+        call self.create_free()
+      endif
+    endif
+  endfunction "}}}
+
+  function! pane.create_free() dict "{{{
+    if !self.open()
       let panes_before = maque#tmux#pane#all()
       call system(self.splitter())
-      let matcher = 'index(panes_before, v:val) == -1'
+      call self.determine_id(panes_before)
+      call self.post_create()
+    endif
+  endfunction "}}}
+
+  function! pane.determine_id(panes_before) abort dict "{{{
+      let matcher = 'index(a:panes_before, v:val) == -1'
       let matches = filter(maque#tmux#pane#all(1), matcher)
       let self.id = len(matches) > 0 ? matches[0] : -1
-      if self.open()
-        if self.create_minimized
-          call self.toggle()
-        endif
-        call self.send(' cd '.getcwd())
-        call self.set_shell_pid()
+  endfunction "}}}
+
+  function! pane.post_create() abort dict "{{{
+    if self.open()
+      let self.minimized = 0
+      if self.create_minimized
+        call self.toggle()
       endif
+      call self.send(' cd '.getcwd())
+      call self.set_shell_pid()
     endif
   endfunction "}}}
 
@@ -249,13 +267,21 @@ function! maque#tmux#pane#new(name, ...) "{{{
   if get(params, 'eval_splitter')
 
     function! pane.splitter() dict "{{{
-      return {self._splitter}
+      if self.in_layout()
+        return {self._splitter}
+      else
+        return self.layout.splitter()
+      endif
     endfunction "}}}
 
   else
 
     function! pane.splitter() dict "{{{
-      return self._splitter
+      if self.in_layout()
+        return self.layout.splitter()
+      else
+        return self._splitter
+      endif
     endfunction "}}}
 
   endif
@@ -284,6 +310,10 @@ function! maque#tmux#pane#new(name, ...) "{{{
 
   function! pane.ready_for_make() dict "{{{
     return self.open() && (!self.process_alive() || self._handle_running_process())
+  endfunction "}}}
+
+  function! pane.in_layout() abort dict "{{{
+    return type(self.layout) != type(0)
   endfunction "}}}
 
   function! pane._handle_running_process() dict "{{{

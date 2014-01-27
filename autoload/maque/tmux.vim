@@ -1,5 +1,8 @@
 " public functions
 
+" TODO always call determine_target_pane(a:000), refactor
+" use abort
+
 " execute a command in the active pane, creating it if necessary
 function! maque#tmux#make(cmd) "{{{
   call maque#tmux#make_pane(s:pane(), a:cmd)
@@ -81,6 +84,16 @@ function! maque#tmux#add_pane(name, ...) "{{{
   return maque#pane(a:name)
 endfunction "}}}
 
+function! maque#tmux#add_layout(name, ...) "{{{
+  if has_key(g:maque_tmux_layouts, a:name)
+    call maque#util#warn('layout "'.a:name.'" already created!')
+  else
+    let params = a:0 ? a:1 : {}
+    let g:maque_tmux_layouts[a:name] = maque#tmux#layout#new(a:name, params)
+  endif
+  return maque#layout(a:name)
+endfunction "}}}
+
 " kill the process running in the active pane
 function! maque#tmux#kill(...) "{{{
   call call(s:pane().kill, a:000, s:pane())
@@ -104,6 +117,10 @@ function! maque#tmux#pane(name) "{{{
   return get(g:maque_tmux_panes, a:name)
 endfunction "}}}
 
+function! maque#tmux#layout(name) "{{{
+  return get(g:maque_tmux_layouts, a:name)
+endfunction "}}}
+
 function! maque#tmux#current_pane() "{{{
   return s:pane()
 endfunction "}}}
@@ -112,14 +129,7 @@ endfunction "}}}
 
 function! maque#tmux#command(cmd, ...) "{{{
   let blocking = get(a:000, 0)
-  if blocking || !s:want_async()
-" reset the capture buffer for the specified pane, default to active
-function! maque#tmux#reset_capture(...) "{{{
-  let name = a:0 ? a:1 : ''
-  let pane = get(g:maque_tmux_panes, name, s:pane())
-  call pane.reset_capture()
-endfunction "}}}
-
+  if blocking || !maque#util#want_async()
     return maque#tmux#command_output(a:cmd)
   else
     call vimproc#system_bg('tmux '.a:cmd)
@@ -131,9 +141,12 @@ function! maque#tmux#command_output(cmd) "{{{
 endfunction "}}}
 
 function! maque#tmux#close_all() "{{{
+  let g:maque_async = 0
   if exists('g:maque_tmux_panes')
     for pane in values(g:maque_tmux_panes)
-      call pane.close()
+      if pane.name != 'vim'
+        call pane.close()
+      endif
     endfor
   endif
 endfunction "}}}
@@ -142,13 +155,25 @@ function! maque#tmux#error_pane() "{{{
   return g:maque_tmux_error_pane == 'main' ? s:pane() : maque#tmux#pane(g:maque_tmux_error_pane)
 endfunction "}}}
 
+function! maque#tmux#vim_id() abort "{{{
+  let cmd = 'list-panes -F "#{pane_pid} #{pane_id}"'
+  let panes = split(maque#tmux#command_output(cmd), "\n")
+  let data = map(panes, 'split(v:val)')
+  let pid = getpid()
+  for item in data
+    let children = maque#util#child_pids(item[0])
+    if len(children) && children[0] == pid
+      return item[1]
+    endif
+  endfor
+endfunction "}}}
+
 function! s:pane() "{{{
   let name = g:maque_tmux_current_pane
   if has_key(g:maque_tmux_panes, s:buffer())
     let name = s:buffer()
   endif
-  return get(g:maque_tmux_panes, name)
-  let g:maque_tmux_async = 0
+  return get(g:maque_tmux_panes, name, maque#dummy_pane())
 endfunction "}}}
 
 function! s:aux_pane() "{{{
@@ -158,12 +183,3 @@ endfunction "}}}
 function! s:buffer() "{{{
   return 'buffer'.bufnr('%')
 endfunction "}}}
-
-function! s:want_async() "{{{
-  return exists(':VimProcRead') && g:maque_tmux_async
-endfunction "}}}
-
-augroup maque_tmux "{{{
-  autocmd!
-  autocmd VimLeave * call maque#tmux#close_all()
-augroup END "}}}

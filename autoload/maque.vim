@@ -166,6 +166,12 @@ function! maque#pane(name) "{{{
   return Pane(a:name)
 endfunction "}}}
 
+" TODO dummy_layout
+function! maque#layout(name) "{{{
+  let Layout = maque#util#handler_function('layout', 'maque#dummy_layout')
+  return Layout(a:name)
+endfunction "}}}
+
 function! maque#current_pane() "{{{
   let Pane = maque#util#handler_function('current_pane', 'maque#dummy_pane')
   return Pane()
