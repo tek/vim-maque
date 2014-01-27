@@ -144,6 +144,9 @@ function! maque#dummy_pane(...) "{{{
     call call('maque#make', a:000)
   endfunction "}}}
 
+  function! pane.toggle(...) abort dict "{{{
+  endfunction "}}}
+
   return pane
 endfunction "}}}
 
