@@ -148,6 +148,7 @@ function! s:pane() "{{{
     let name = s:buffer()
   endif
   return get(g:maque_tmux_panes, name)
+  let g:maque_tmux_async = 0
 endfunction "}}}
 
 function! s:aux_pane() "{{{
@@ -163,7 +164,6 @@ function! s:want_async() "{{{
 endfunction "}}}
 
 augroup maque_tmux "{{{
-  let g:maque_tmux_async = 0
   autocmd!
   autocmd VimLeave * call maque#tmux#close_all()
 augroup END "}}}
