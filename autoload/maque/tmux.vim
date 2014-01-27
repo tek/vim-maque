@@ -93,6 +93,13 @@ function! maque#tmux#toggle(...) "{{{
   call pane.toggle()
 endfunction "}}}
 
+" reset the capture buffer for the specified pane, default to active
+function! maque#tmux#reset_capture(...) "{{{
+  let name = a:0 ? a:1 : ''
+  let pane = get(g:maque_tmux_panes, name, s:pane())
+  call pane.reset_capture()
+endfunction "}}}
+
 function! maque#tmux#pane(name) "{{{
   return get(g:maque_tmux_panes, a:name)
 endfunction "}}}
@@ -106,6 +113,13 @@ endfunction "}}}
 function! maque#tmux#command(cmd, ...) "{{{
   let blocking = get(a:000, 0)
   if blocking || !s:want_async()
+" reset the capture buffer for the specified pane, default to active
+function! maque#tmux#reset_capture(...) "{{{
+  let name = a:0 ? a:1 : ''
+  let pane = get(g:maque_tmux_panes, name, s:pane())
+  call pane.reset_capture()
+endfunction "}}}
+
     return maque#tmux#command_output(a:cmd)
   else
     call vimproc#system_bg('tmux '.a:cmd)

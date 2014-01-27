@@ -7,6 +7,8 @@ let g:maque_tmux_pane_escape_filter = "sed -u -e \"s/\r//g\" -e \"s/\e[[0-9;]*m/
 let g:maque_tmux_kill_signals = ['INT', 'TERM', 'KILL']
 let g:maque_tmux_async = 0
 let g:maque_tmux_minimize_on_toggle = 1
+let g:maque_tmux_map_focus_vim = 1
+let g:maque_tmux_focus_vim_key = 'f12'
 let g:maque_tmux_error_pane = 'main'
 "}}}
 

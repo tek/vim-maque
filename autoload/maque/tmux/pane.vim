@@ -51,6 +51,10 @@ function! maque#tmux#pane#new(name, ...) "{{{
         \ 'restore_on_make': 1,
         \ '_original_size': [0, 0],
         \ 'kill_running_on_make': 1,
+        \ 'focus_on_restore': 0,
+        \ 'focus_on_make': 0,
+        \ 'manual_termination': 0,
+        \ 'layout': 0,
         \ }
   call extend(pane, params)
   let pane.name = a:name
@@ -83,9 +87,13 @@ function! maque#tmux#pane#new(name, ...) "{{{
       endif
       call self.send(a:cmd)
       if capture
-        " send the pipe canceling command now, so that it executes as soon as the
-        " make command is finished
-        call self.send(' tmux '.self.pipe_cmd())
+        if !self.manual_termination
+          " send the pipe canceling command now, so that it executes as soon as the
+          " make command is finished
+          " omit this if manual_termination is set, i.e. the program is
+          " interactive or just doesn't terminate automatically (guard, log)
+          call self.send(' tmux '.self.pipe_cmd())
+        endif
         " initiate the pipe to the errorfile after starting the command, so that it
         " doesn't contain the command line
         call self.pipe_to_file()
@@ -94,6 +102,9 @@ function! maque#tmux#pane#new(name, ...) "{{{
         call self.send(' sleep '.self.wait_before_autoclose.'; exit')
       endif
       call self.set_command_pid()
+      if self.focus_on_make
+        call self.focus()
+      endif
     else
       call maque#util#warn('make called on pane "'.self.name.'" while not open!')
     endif
@@ -196,6 +207,17 @@ function! maque#tmux#pane#new(name, ...) "{{{
   function! pane.restore() dict "{{{
     call call(self.resize, self._original_size, self)
     let self.minimized = 0
+    if self.focus_on_restore
+      call self.focus()
+    endif
+  endfunction "}}}
+
+  function! pane.focus() dict "{{{
+    call maque#tmux#command('select-pane -t '.self.id)
+    if g:maque_tmux_map_focus_vim
+      let cmd = 'run "tmux last-pane; tmux unbind-key -n '.g:maque_tmux_focus_vim_key .'"'
+      call maque#tmux#command('bind-key -n '.g:maque_tmux_focus_vim_key .' '.cmd)
+    endif
   endfunction "}}}
 
   function! pane.resize(width, height) dict "{{{
@@ -212,6 +234,12 @@ function! maque#tmux#pane#new(name, ...) "{{{
 
   function! pane.pipe_cmd() dict "{{{
     return 'pipe-pane -t '.self.id
+  endfunction "}}}
+
+  function! pane.reset_capture() dict "{{{
+    call maque#tmux#command(self.pipe_cmd())
+    call delete(self.errorfile)
+    call self.pipe_to_file()
   endfunction "}}}
 
   function! pane.description() dict "{{{
