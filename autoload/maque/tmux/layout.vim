@@ -35,12 +35,10 @@ endfunction
 function! <SID>s:Layout_create_pane(pane) dict
   let panes_before = maque#tmux#pane#all()
   if self.open()
-    echom 'open'
     call self.focus()
     call maque#tmux#command_output(self.splitter())
     call maque#tmux#pane('vim').focus()
   else
-    echom 'creating'
     call self.create()
   endif
   call a:pane.determine_id(panes_before)

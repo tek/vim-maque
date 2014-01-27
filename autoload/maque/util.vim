@@ -93,3 +93,19 @@ function! maque#util#system(cmd, ...) abort "{{{
     call vimproc#system_bg(a:cmd)
   endif
 endfunction "}}}
+
+function! maque#util#server_alive(name) abort "{{{
+  try
+    return remote_expr(a:name, '1')
+  catch
+  endtry
+endfunction "}}}
+
+function! maque#util#wait_until(predicate, ...) "{{{
+  let counter = 0
+  let timeout = get(a:000, 0, 10)
+  while !eval(a:predicate) && counter < timeout
+    sleep 200m
+    let counter += 1
+  endwhile
+endfunction "}}}

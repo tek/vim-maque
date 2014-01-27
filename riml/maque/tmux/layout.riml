@@ -26,12 +26,10 @@ class Layout
   defm create_pane(pane)
     panes_before = maque#tmux#pane#all()
     if self.open()
-      :echom 'open'
       self.focus()
       maque#tmux#command_output(self.splitter())
       maque#tmux#pane('vim').focus()
     else
-      :echom 'creating'
       self.create()
     end
     pane.determine_id(panes_before)

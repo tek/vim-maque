@@ -1,5 +1,4 @@
-function! maque#tmux#setup#create_default_panes() abort "{{{
-  echom 'create_default'
+if g:maque_tmux_default_panes
   let vim = maque#tmux#add_pane('vim', {
         \ '_splitter': '',
         \ 'capture': 0,
@@ -54,6 +53,4 @@ function! maque#tmux#setup#create_default_panes() abort "{{{
   call vim_layout.add(aux)
   call make_layout.add(main)
   call make_layout.add(status)
-
-  let vim.id = maque#tmux#vim_id()
-endfunction "}}}
+endif

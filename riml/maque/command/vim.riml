@@ -1,0 +1,55 @@
+function! s:SID()
+  if exists('s:SID_VALUE')
+    return s:SID_VALUE
+  endif
+  let s:SID_VALUE = matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$')
+  return s:SID_VALUE
+endfunction
+
+class RemoteVim
+
+  def initialize(name, command, params)
+    remoteVimObj = maque#command#new('', params)
+    self.name = name
+  end
+
+  defm command
+    return "vim --servername #{self.server_name()}"
+  end
+
+  defm execute(cmdline)
+    self.remote('send', ":#{cmdline}<cr>")
+  end
+
+  defm eval(expr)
+    self.remote('expr', expr)
+  end
+
+  defm remote(method, args)
+    self.launch_vim()
+    esc = escape(args, "'".'"')
+    cmd = "#{self.command()} --remote-#{method} ".'"'."#{esc}".'"'
+    maque#util#system(cmd)
+  end
+
+  defm launch_vim
+    pane = self.pane()
+    if type(pane) == type({}) && !pane.process_alive()
+      echo 'maque: launching remote vim.'
+      self.make()
+      maque#util#wait_until("maque#util#server_alive('#{self.server_name()}')", 25)
+    end
+  end
+
+  defm server_name
+    unless has_key(self, '_server_name')
+      id = maque#tmux#vim_id()
+      self._server_name = "maque_#{id}_#{self.name}"
+    endif
+    return self._server_name
+  end
+end
+
+def maque#command#vim#new(name, command, args)
+  return new RemoteVim(name, command, args)
+end
