@@ -1,17 +1,11 @@
-function! s:SID()
-  if exists('s:SID_VALUE')
-    return s:SID_VALUE
-  endif
-  let s:SID_VALUE = matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$')
-  return s:SID_VALUE
-endfunction
-
 class Layout
 
   def initialize(name, args)
     self.name = name
     self.panes = []
     self.direction = get(a:args, 'direction', 'vertical')
+    self.layout = 0
+    self.size = get(a:args, 'size')
   end
 
   defm add(pane)
@@ -20,10 +14,14 @@ class Layout
   end
 
   defm create
-    maque#tmux#command_output(self.creator())
+    if self.in_layout()
+      self.layout.create_pane(self)
+    else
+      maque#tmux#command_output(self.creator())
+    end
   end
  
-  defm create_pane(pane)
+  defm create_pane(pane) abort
     panes_before = maque#tmux#pane#all()
     if self.open()
       self.focus()
@@ -34,22 +32,27 @@ class Layout
     end
     pane.determine_id(panes_before)
     pane.post_create()
-    panes = self._open_panes()
+    self.pack()
   end
  
-  " TODO sort by some order attribute of pane, set height if desired "
   defm pack
+    for pane in self.panes
+      pane.set_size()
+    end
   end
  
   defm open
-    return len(self._open_panes()) > 0
+    return !empty(self.open_panes())
   end
  
   defm focus
     if self.open()
-      pane = self._open_panes()[0]
+      pane = self.open_panes()[0]
       pane.focus()
     end
+  end
+
+  defm set_size()
   end
  
   defm splitter
@@ -59,8 +62,18 @@ class Layout
   defm creator
     return self.direction == 'vertical' ? 'splitw -h -d' : 'splitw -v -d'
   end
+
+  defm in_layout
+    return type(self.layout) != type(0)
+  end
+
+  defm determine_id(*args)
+  end
+
+  defm post_create
+  end
  
-  defm _open_panes
+  def open_panes
     panes = []
     for pane in self.panes
       add(panes, pane) if pane.open()
