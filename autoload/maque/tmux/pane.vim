@@ -57,6 +57,7 @@ function! s:PaneConstructor(name, ...)
   call extend(attrs, params)
   let attrs.inimized_size = max([attrs.minimized_size, 2])
   let paneObj.name = a:name
+  let paneObj.command_executable = ''
   call extend(paneObj, attrs)
   let paneObj.create = function('<SNR>' . s:SID() . '_s:Pane_create')
   let paneObj.create_free = function('<SNR>' . s:SID() . '_s:Pane_create_free')
@@ -85,6 +86,7 @@ function! s:PaneConstructor(name, ...)
   let paneObj.splitter = function('<SNR>' . s:SID() . '_s:Pane_splitter')
   let paneObj.set_shell_pid = function('<SNR>' . s:SID() . '_s:Pane_set_shell_pid')
   let paneObj.set_command_pid = function('<SNR>' . s:SID() . '_s:Pane_set_command_pid')
+  let paneObj.set_command_executable = function('<SNR>' . s:SID() . '_s:Pane_set_command_executable')
   let paneObj.process_alive = function('<SNR>' . s:SID() . '_s:Pane_process_alive')
   let paneObj.ready_for_make = function('<SNR>' . s:SID() . '_s:Pane_ready_for_make')
   let paneObj.in_layout = function('<SNR>' . s:SID() . '_s:Pane_in_layout')
@@ -146,7 +148,6 @@ function! <SID>s:Pane_make(cmd, ...) dict
     if autoclose
       call self.send(' sleep ' . self.wait_before_autoclose . '; exit')
     endif
-    call self.set_command_pid()
     if self.focus_on_make
       call self.focus()
     endif
@@ -157,15 +158,17 @@ endfunction
 
 function! <SID>s:Pane_kill(...) dict
   let signal = get(a:000, 0)
-  let advance = signal ==# 0
+  let force_signal = signal !=# '0'
   if self.process_alive()
     if self.command_pid !=# self._last_killed
       let self._killed = 0
       let self._last_killed = self.command_pid
     endif
-    let signal = s:next_signal(self._killed)
+    if !(force_signal)
+      let signal = s:next_signal(self._killed)
+    endif
     call self._kill(signal)
-    if advance
+    if !(force_signal)
       let self._killed += 1
     endif
     return 1
@@ -321,9 +324,16 @@ function! <SID>s:Pane_set_command_pid() dict
   let self.command_pid = 0
   if self.open()
     let pids = maque#util#child_pids(self.shell_pid)
-    let self.command_pid = len(pids) ? pids[0] : 0
+    let [pid, comm] = empty(pids) ? [0, ''] : pids[0]
+    let self.command_pid = pid
+    let self.command_executable = comm
   endif
   return self.command_pid
+endfunction
+
+function! <SID>s:Pane_set_command_executable() dict
+  call self.set_command_pid()
+  return self.command_executable
 endfunction
 
 function! <SID>s:Pane_process_alive() dict

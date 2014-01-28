@@ -155,15 +155,15 @@ class Pane
   " signal. "
   defm kill(*args)
     signal = get(args, 0)
-    advance = signal == 0
+    force_signal = signal != '0'
     if self.process_alive()
       if self.command_pid != self._last_killed
         self._killed = 0
         self._last_killed = self.command_pid
       end
-      signal = next_signal(self._killed)
+      signal = next_signal(self._killed) unless force_signal
       self._kill(signal)
-      self._killed += 1 if advance
+      self._killed += 1 unless force_signal
       return 1
     else
       maque#util#warn('no process running!')
