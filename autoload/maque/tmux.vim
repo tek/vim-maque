@@ -111,9 +111,11 @@ endfunction "}}}
 
 " toggle the specified pane, default to active
 function! maque#tmux#toggle(...) "{{{
+  call maque#tmux#pane#enable_cache()
   let name = a:0 ? a:1 : ''
   let pane = get(g:maque_tmux_panes, name, s:pane())
   call pane.toggle()
+  call maque#tmux#pane#disable_cache()
 endfunction "}}}
 
 " reset the capture buffer for the specified pane, default to active
