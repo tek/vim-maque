@@ -89,7 +89,7 @@ function! maque#tmux#add_vim_pane(...) "{{{
   let name = 'vim'
   if !has_key(g:maque_tmux_panes, name)
     let params = a:0 ? a:1 : {}
-    let g:maque_tmux_panes[name] = maque#tmux#pane#vim#new(params)
+    let g:maque_tmux_panes[name] = maque#tmux#pane#new_vim(params)
   endif
   return maque#pane(name)
 endfunction "}}}
