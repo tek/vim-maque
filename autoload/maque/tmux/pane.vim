@@ -69,6 +69,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
         \ 'focus_on_make': 0,
         \ 'manual_termination': 0,
         \ 'layout': 0,
+        \ 'size': 0,
         \ }
   call extend(pane, params)
   let pane.name = a:name
@@ -226,13 +227,12 @@ function! maque#tmux#pane#new(name, ...) "{{{
     endif
   endfunction "}}}
 
-  function! pane.minimize() dict "{{{
+  " Store the current size and set the minimized_size.
+  " Do not use the 'size' parameter for restoring, as the pane could have been
+  " altered purposefully.
+  function! pane.minimize() abort dict "{{{
     let self._original_size = maque#tmux#pane#size(self.id)
-    if self.vertical
-      call self.resize(self.minimized_size, self._original_size[1])
-    else
-      call self.resize(self._original_size[0], self.minimized_size)
-    endif
+    call self._apply_size(self.minimized_size)
     let self.minimized = 1
   endfunction "}}}
 
@@ -244,11 +244,30 @@ function! maque#tmux#pane#new(name, ...) "{{{
     endif
   endfunction "}}}
 
-  function! pane.focus() dict "{{{
+  " Apply the size given by the constructor parameters 'size' or
+  " 'minimized_size', whichever is appropriate
+  function! pane.set_size() abort dict "{{{
+    if self.minimized
+      call self._apply_size(self.minimized_size)
+    elseif self.size
+      let self._original_size = maque#tmux#pane#size(self.id)
+      call self._apply_size(self.size)
+    endif
+  endfunction "}}}
+
+  function! pane.focus() abort dict "{{{
     call maque#tmux#command('select-pane -t '.self.id)
     if g:maque_tmux_map_focus_vim
       let cmd = 'run "tmux last-pane; tmux unbind-key -n '.g:maque_tmux_focus_vim_key .'"'
       call maque#tmux#command('bind-key -n '.g:maque_tmux_focus_vim_key .' '.cmd)
+    endif
+  endfunction "}}}
+
+  function! pane._apply_size(size) abort dict "{{{
+    if self.vertical
+      call self.resize(a:size, self._original_size[1])
+    else
+      call self.resize(self._original_size[0], a:size)
     endif
   endfunction "}}}
 
