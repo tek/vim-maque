@@ -127,14 +127,14 @@ class Pane
       self.send(cmd)
       if capture
         if !self.manual_termination
-          " send the pipe canceling command now, so that it executes as soon as the "
-          " make command is finished "
-          " omit this if manual_termination is set, i.e. the program is "
-          " interactive or just doesn't terminate automatically (guard, log) "
+          " send the pipe canceling command now, so that it executes as soon as the
+          " make command is finished
+          " omit this if manual_termination is set, i.e. the program is
+          " interactive or just doesn't terminate automatically (guard, log)
           self.send(' tmux '.self.pipe_cmd())
         end
-        " initiate the pipe to the errorfile after starting the command, so that it "
-        " doesn't contain the command line "
+        " initiate the pipe to the errorfile after starting the command, so that it
+        " doesn't contain the command line
         self.pipe_to_file()
       end
       if autoclose
@@ -148,11 +148,11 @@ class Pane
     end
   end
 
-  " Send a signal to the command. "
-  " Iterates g:maque_tmux_kill_signals for subsequent calls until the process "
-  " is dead (default INT, TERM, KILL) "
-  " Argument overrides the employed signal and does not advance the current "
-  " signal. "
+  " Send a signal to the command.
+  " Iterates g:maque_tmux_kill_signals for subsequent calls until the process
+  " is dead (default INT, TERM, KILL)
+  " Argument overrides the employed signal and does not advance the current
+  " signal.
   defm kill(*args)
     signal = get(args, 0)
     force_signal = signal != '0'
@@ -185,12 +185,12 @@ class Pane
     return !self.process_alive()
   end
 
-  " execute a shell command in the target pane "
+  " execute a shell command in the target pane
   defm send(cmd)
     self.send_keys("'".cmd."' 'ENTER'")
   end
 
-  " send input to the target pane "
+  " send input to the target pane
   defm send_keys(cmd)
     maque#tmux#command('send-keys -t '.self.id .' '.cmd)
   end
@@ -199,7 +199,7 @@ class Pane
     return has_key(maque#tmux#pane#all(), self.id)
   end
 
-  " Kill the pane if it's open, reset pids in any case "
+  " Kill the pane if it's open, reset pids in any case
   defm close
     if self.open()
       maque#tmux#command('kill-pane -t '.self.id)
@@ -228,9 +228,9 @@ class Pane
     end
   end
 
-  " Store the current size and set the minimized_size. "
-  " Do not use the 'size' parameter for restoring, as the pane could have been "
-  " altered purposefully. "
+  " Store the current size and set the minimized_size.
+  " Do not use the 'size' parameter for restoring, as the pane could have been
+  " altered purposefully.
   defm minimize
     self._original_size = maque#tmux#pane#size(self.id)
     self._apply_size(self.minimized_size)
@@ -243,8 +243,8 @@ class Pane
     self.focus() if self.focus_on_restore
   end
 
-  " Apply the size given by the constructor parameters 'size' or "
-  " 'minimized_size', whichever is appropriate "
+  " Apply the size given by the constructor parameters 'size' or
+  " 'minimized_size', whichever is appropriate
   defm set_size
     return
     if self.minimized
@@ -255,8 +255,8 @@ class Pane
     end
   end
 
-  " FIXME need to discern between minimizing and setting the stacking size in "
-  " the layout's direction. "
+  " FIXME need to discern between minimizing and setting the stacking size in
+  " the layout's direction.
   defm _apply_size(size)
     if self._vertical()
       self.resize(size, self._original_size[1])
