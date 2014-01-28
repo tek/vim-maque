@@ -168,7 +168,7 @@ function! maque#tmux#vim_id() abort "{{{
   let panes = maque#tmux#pane#all()
   for pane in values(panes)
     let children = maque#util#child_pids(pane.pid)
-    if len(children) && children[0] == pid
+    if len(children) && children[0][0] == pid
       return pane.id
     endif
   endfor

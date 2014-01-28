@@ -60,10 +60,10 @@ function! maque#util#output_lines(cmd) "{{{
 endfunction "}}}
   
 function! maque#util#child_pids(pid) "{{{
-  let rex = '^\s*\zs\d\+$'
-  let lines = maque#util#output_lines('ps h -o pid --ppid '.a:pid)
+  let rex = '^\s*\(\d\+\) \(\w\+\)\s*$'
+  let lines = maque#util#output_lines('ps h -o pid,comm --ppid '.a:pid)
   let lines = filter(lines, 'match(v:val, rex) >= 0')
-  return map(lines, 'matchlist(v:val, rex)[0]')
+  return map(lines, 'matchlist(v:val, rex)[1:2]')
 endfunction "}}}
 
 " Find the first defined variable in a precendence sequence:

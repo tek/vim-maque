@@ -77,6 +77,7 @@ class Pane
     extend(attrs, params)
     attrs.inimized_size = max([attrs.minimized_size, 2])
     self.name = name
+    self.command_executable = ''
     extend(paneObj, attrs)
   end
 
@@ -322,9 +323,16 @@ class Pane
     self.command_pid = 0
     if self.open()
       pids = maque#util#child_pids(self.shell_pid)
-      self.command_pid = len(pids) ? pids[0] : 0
+      [pid, comm] = empty(pids) ? [0, ''] : pids[0]
+      self.command_pid = pid
+      self.command_executable = comm
     end
     return self.command_pid
+  end
+
+  defm set_command_executable
+    self.set_command_pid()
+    return self.command_executable
   end
 
   defm process_alive
