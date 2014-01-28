@@ -84,6 +84,16 @@ function! maque#tmux#add_pane(name, ...) "{{{
   return maque#pane(a:name)
 endfunction "}}}
 
+" add a pane for the main vim
+function! maque#tmux#add_vim_pane(...) "{{{
+  let name = 'vim'
+  if !has_key(g:maque_tmux_panes, name)
+    let params = a:0 ? a:1 : {}
+    let g:maque_tmux_panes[name] = maque#tmux#pane#vim#new(params)
+  endif
+  return maque#pane(name)
+endfunction "}}}
+
 function! maque#tmux#add_layout(name, ...) "{{{
   if has_key(g:maque_tmux_layouts, a:name)
     call maque#util#warn('layout "'.a:name.'" already created!')

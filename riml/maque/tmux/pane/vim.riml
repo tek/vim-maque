@@ -1,0 +1,16 @@
+class VimPane
+
+  def initialize(params)
+    vimPaneObj = maque#tmux#pane#new('vim', params)
+  end
+
+  defm open
+    self.id = maque#tmux#vim_id() if self.id == -1
+    return self.id >= 0 && has_key(maque#tmux#pane#all(), self.id)
+  end
+
+end
+
+def maque#tmux#pane#vim#new(params)
+  return new VimPane(params)
+end
