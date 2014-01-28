@@ -164,14 +164,12 @@ function! maque#tmux#error_pane() "{{{
 endfunction "}}}
 
 function! maque#tmux#vim_id() abort "{{{
-  let cmd = 'list-panes -F "#{pane_pid} #{pane_id}"'
-  let panes = split(maque#tmux#command_output(cmd), "\n")
-  let data = map(panes, 'split(v:val)')
   let pid = getpid()
-  for item in data
-    let children = maque#util#child_pids(item[0])
+  let panes = maque#tmux#pane#all()
+  for pane in values(panes)
+    let children = maque#util#child_pids(pane.pid)
     if len(children) && children[0] == pid
-      return item[1]
+      return pane.id
     endif
   endfor
 endfunction "}}}

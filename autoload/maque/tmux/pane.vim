@@ -1,5 +1,5 @@
 let s:use_cache = 0
-let s:cached_panes = []
+let s:cached_panes = {}
 
 function! maque#tmux#pane#enable_cache() "{{{
   call maque#tmux#pane#all()
@@ -10,21 +10,35 @@ function! maque#tmux#pane#disable_cache() "{{{
   let s:use_cache = 0
 endfunction "}}}
 
-function! maque#tmux#pane#all(...) "{{{
+function! s:parse_tmux_output(line) abort "{{{
+  let values = split(a:line)
+  return {
+        \ 'id': values[0],
+        \ 'pid': values[1],
+        \ 'width': values[2],
+        \ 'height': values[3],
+        \ }
+endfunction "}}}
+
+function! maque#tmux#pane#all(...) abort "{{{
   let force = get(a:000, 0)
   if !s:use_cache || force
-    let cmd = 'list-panes -a -F "#{pane_id}"'
-    let s:cached_panes = split(maque#tmux#command_output(cmd), "\n")
+    let cmd = 'list-panes -a -F "#{pane_id} #{pane_pid} #{pane_width} #{pane_height}"'
+    let lines = split(maque#tmux#command_output(cmd), "\n")
+    let s:cached_panes = {}
+    for line in lines
+      let data = s:parse_tmux_output(line)
+      let s:cached_panes[data.id] = data
+    endfor
   endif
   return s:cached_panes
 endfunction "}}}
 
-function! maque#tmux#pane#size(id) "{{{
-  let cmd = 'list-panes -t '.a:id .' -F "#{pane_id} #{pane_width} #{pane_height}"'
-  let panes = split(maque#tmux#command_output(cmd), "\n")
-  let mypane = matchlist(panes, a:id .' \zs\d\+ \d\+$')
-  if len(mypane)
-    return split(mypane[0])
+function! maque#tmux#pane#size(id) abort "{{{
+  let panes = maque#tmux#pane#all()
+  if has_key(panes, a:id)
+    let pane = panes[a:id]
+    return [pane.width, pane.height]
   else
     return [0, 0]
   endif
@@ -80,9 +94,9 @@ function! maque#tmux#pane#new(name, ...) "{{{
   endfunction "}}}
 
   function! pane.determine_id(panes_before) abort dict "{{{
-      let matcher = 'index(a:panes_before, v:val) == -1'
-      let matches = filter(maque#tmux#pane#all(1), matcher)
-      let self.id = len(matches) > 0 ? matches[0] : -1
+    let matcher = 'index(keys(a:panes_before), v:val) == -1'
+    let matches = filter(keys(maque#tmux#pane#all(1)), matcher)
+    let self.id = len(matches) > 0 ? matches[0] : -1
   endfunction "}}}
 
   function! pane.post_create() abort dict "{{{
@@ -179,8 +193,8 @@ function! maque#tmux#pane#new(name, ...) "{{{
     call maque#tmux#command('send-keys -t '.self.id.' '.a:cmd)
   endfunction "}}}
 
-  function! pane.open() dict "{{{
-    return self.id >= 0 && index(maque#tmux#pane#all(), self.id) >= 0
+  function! pane.open() abort dict "{{{
+    return self.id >= 0 && has_key(maque#tmux#pane#all(), self.id)
   endfunction "}}}
 
   " Kill the pane if it's open, reset pids in any case
@@ -286,12 +300,10 @@ function! maque#tmux#pane#new(name, ...) "{{{
 
   endif
 
-  function! pane.set_shell_pid() dict "{{{
-    let cmd = 'list-panes -t '.self.id .' -F "#{pane_id} #{pane_pid}"'
-    let panes = split(maque#tmux#command_output(cmd), "\n")
-    let mypane = matchlist(panes, self.id .' \zs\d\+$')
-    if len(mypane)
-      let self.shell_pid = mypane[0]
+  function! pane.set_shell_pid() abort dict "{{{
+    let panes = maque#tmux#pane#all()
+    if has_key(panes, self.id)
+      let self.shell_pid = panes[self.id].pid
     endif
   endfunction "}}}
 
