@@ -1,12 +1,12 @@
 let s:use_cache = 0
 let s:cached_panes = {}
 
-function! maque#tmux#pane#enable_cache() "{{{
+function! maque#tmux#pane#enable_cache() abort "{{{
   call maque#tmux#pane#all()
   let s:use_cache = 1
 endfunction "}}}
 
-function! maque#tmux#pane#disable_cache() "{{{
+function! maque#tmux#pane#disable_cache() abort "{{{
   let s:use_cache = 0
 endfunction "}}}
 
@@ -44,7 +44,7 @@ function! maque#tmux#pane#size(id) abort "{{{
   endif
 endfunction "}}}
 
-function! maque#tmux#pane#new(name, ...) "{{{
+function! maque#tmux#pane#new(name, ...) abort "{{{
   let params = a:0 ? a:1 : {}
   let pane = {
         \ 'id': -1,
@@ -85,7 +85,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
     endif
   endfunction "}}}
 
-  function! pane.create_free() dict "{{{
+  function! pane.create_free() abort dict "{{{
     if !self.open()
       let panes_before = maque#tmux#pane#all()
       call maque#util#system(self.splitter(), 1)
@@ -111,7 +111,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
     endif
   endfunction "}}}
 
-  function! pane.make(cmd, ...) dict "{{{
+  function! pane.make(cmd, ...) abort dict "{{{
     let capture = a:0 ? a:1 : self.capture
     let autoclose = a:0 >= 2 ? a:2 : self.autoclose
     if self.ready_for_make()
@@ -148,7 +148,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
   " is dead (default INT, TERM, KILL)
   " Argument overrides the employed signal and does not advance the current
   " signal.
-  function! pane.kill(...) dict "{{{
+  function! pane.kill(...) abort dict "{{{
     if self.process_alive()
       if self.command_pid != self._last_killed
         let self._killed = 0
@@ -170,7 +170,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
     call maque#util#warn('sent SIG'.a:signal." to pane '".self.name."'!")
   endfunction "}}}
 
-  function! pane.kill_wait() dict "{{{
+  function! pane.kill_wait() abort dict "{{{
     for index in range(len(g:maque_tmux_kill_signals))
       call self.kill()
       if !self.process_alive()
@@ -185,12 +185,12 @@ function! maque#tmux#pane#new(name, ...) "{{{
   endfunction "}}}
 
   " execute a shell command in the target pane
-  function! pane.send(cmd) dict "{{{
+  function! pane.send(cmd) abort dict "{{{
     call self.send_keys("'".a:cmd."' 'ENTER'")
   endfunction "}}}
 
   " send input to the target pane
-  function! pane.send_keys(cmd) dict "{{{
+  function! pane.send_keys(cmd) abort dict "{{{
     call maque#tmux#command('send-keys -t '.self.id.' '.a:cmd)
   endfunction "}}}
 
@@ -199,7 +199,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
   endfunction "}}}
 
   " Kill the pane if it's open, reset pids in any case
-  function! pane.close() dict "{{{
+  function! pane.close() abort dict "{{{
     if self.open()
       call maque#tmux#command('kill-pane -t '.self.id)
     endif
@@ -207,7 +207,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
     let self.shell_pid = 0
   endfunction "}}}
 
-  function! pane.toggle() dict "{{{
+  function! pane.toggle() abort dict "{{{
     if self.open()
       if self.minimize_on_toggle
         call self.toggle_minimized()
@@ -219,7 +219,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
     endif
   endfunction "}}}
 
-  function! pane.toggle_minimized() dict "{{{
+  function! pane.toggle_minimized() abort dict "{{{
     if self.minimized
       call self.restore()
     else
@@ -236,7 +236,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
     let self.minimized = 1
   endfunction "}}}
 
-  function! pane.restore() dict "{{{
+  function! pane.restore() abort dict "{{{
     call call(self.resize, self._original_size, self)
     let self.minimized = 0
     if self.focus_on_restore
@@ -271,35 +271,35 @@ function! maque#tmux#pane#new(name, ...) "{{{
     endif
   endfunction "}}}
 
-  function! pane.resize(width, height) dict "{{{
+  function! pane.resize(width, height) abort dict "{{{
     let cmd = 'resize-pane -t '.self.id.' -x '.a:width.' -y '.a:height
     call maque#tmux#command(cmd)
   endfunction "}}}
 
-  function! pane.pipe_to_file() dict "{{{
+  function! pane.pipe_to_file() abort dict "{{{
     let filter = g:maque_tmux_filter_escape_sequences ?
           \ g:maque_tmux_pane_escape_filter : 'tee'
     let redirect = filter . ' > '.self.errorfile
     call maque#tmux#command(self.pipe_cmd().' '.shellescape(redirect))
   endfunction "}}}
 
-  function! pane.pipe_cmd() dict "{{{
+  function! pane.pipe_cmd() abort dict "{{{
     return 'pipe-pane -t '.self.id
   endfunction "}}}
 
-  function! pane.reset_capture() dict "{{{
+  function! pane.reset_capture() abort dict "{{{
     call maque#tmux#command(self.pipe_cmd())
     call delete(self.errorfile)
     call self.pipe_to_file()
   endfunction "}}}
 
-  function! pane.description() dict "{{{
+  function! pane.description() abort dict "{{{
     return 'tmux pane "'.self.name.'"'
   endfunction "}}}
 
   if get(params, 'eval_splitter')
 
-    function! pane.splitter() dict "{{{
+    function! pane.splitter() abort dict "{{{
       if self.in_layout()
         return {self._splitter}
       else
@@ -309,7 +309,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
 
   else
 
-    function! pane.splitter() dict "{{{
+    function! pane.splitter() abort dict "{{{
       if self.in_layout()
         return self.layout.splitter()
       else
@@ -326,7 +326,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
     endif
   endfunction "}}}
 
-  function! pane.set_command_pid() dict "{{{
+  function! pane.set_command_pid() abort dict "{{{
     let self.command_pid = 0
     if self.open()
       let pids = maque#util#child_pids(self.shell_pid)
@@ -335,11 +335,11 @@ function! maque#tmux#pane#new(name, ...) "{{{
     return self.command_pid
   endfunction "}}}
 
-  function! pane.process_alive() dict "{{{
+  function! pane.process_alive() abort dict "{{{
     return self.set_command_pid() > 0
   endfunction "}}}
 
-  function! pane.ready_for_make() dict "{{{
+  function! pane.ready_for_make() abort dict "{{{
     return self.open() && (!self.process_alive() || self._handle_running_process())
   endfunction "}}}
 
@@ -347,7 +347,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
     return type(self.layout) != type(0)
   endfunction "}}}
 
-  function! pane._handle_running_process() dict "{{{
+  function! pane._handle_running_process() abort dict "{{{
     if self.kill_running_on_make
       if self.kill_wait()
         return 1
@@ -362,7 +362,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
   return pane
 endfunction "}}}
 
-function! s:signal(idx) "{{{
+function! s:signal(idx) abort "{{{
   let sigs = g:maque_tmux_kill_signals
   return sigs[min([a:idx, len(sigs)-1])]
 endfunction "}}}
