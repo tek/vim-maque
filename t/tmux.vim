@@ -14,7 +14,8 @@ describe 'create_buffer_pane'
     let splitter = maque#tmux#current_pane().splitter()
     Expect splitter == g:test_splitter
     bnext
-    Expect maque#tmux#current_pane() == 0
+    let description = maque#tmux#current_pane().description()
+    Expect description == 'dummy pane (tmux)'
   end
 end
 

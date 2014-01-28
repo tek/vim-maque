@@ -1,6 +1,5 @@
 describe 'makeprg setter'
   before
-    redir >> log
     set filetype=rspec
   end
 

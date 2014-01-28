@@ -134,7 +134,7 @@ function! maque#dummy_pane(...) "{{{
   let pane = { 'name': g:maque_handler }
 
   function! pane.description() dict "{{{
-    return self.name
+    return 'dummy pane ('.self.name .')'
   endfunction "}}}
 
   function! pane.create() dict "{{{
