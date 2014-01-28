@@ -1,4 +1,4 @@
-if g:maque_tmux_default_panes
+if g:maque_tmux_default_panes && !exists('g:maque_remote')
   let vim = maque#tmux#add_pane('vim', {
         \ '_splitter': '',
         \ 'capture': 0,

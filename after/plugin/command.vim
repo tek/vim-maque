@@ -1,4 +1,4 @@
-if g:maque_add_default_commands
+if g:maque_add_default_commands && !exists('g:maque_remote')
   let g:maque_main_vim = maque#command#vim#new('main_vim', '', {
         \ 'pane': 'vim',
         \ 'server_name': v:servername,
