@@ -140,7 +140,6 @@ class Pane
       if autoclose
         self.send(' sleep '.self.wait_before_autoclose .'; exit')
       end
-      self.set_command_pid()
       if self.focus_on_make
         self.focus()
       end
