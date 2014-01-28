@@ -1,7 +1,7 @@
 function! maque#util#buffer_is_in_project(num) "{{{
   let path = fnamemodify(expand('#'.a:num), ':p')
   if executable('realpath')
-    let path = system('realpath '.path)
+    let path = maque#util#system('realpath '.path, 1)
   endif
   return path =~ getcwd()
 endfunction "}}}
@@ -55,7 +55,7 @@ function! maque#util#handler_function(name, default) "{{{
 endfunction "}}}
 
 function! maque#util#output_lines(cmd) "{{{
-  let output = system(a:cmd)
+  let output = maque#util#system(a:cmd, 1)
   return split(output, "\n")
 endfunction "}}}
   

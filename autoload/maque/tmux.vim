@@ -141,15 +141,11 @@ endfunction "}}}
 
 function! maque#tmux#command(cmd, ...) "{{{
   let blocking = get(a:000, 0)
-  if blocking || !maque#util#want_async()
-    return maque#tmux#command_output(a:cmd)
-  else
-    call vimproc#system_bg('tmux '.a:cmd)
-  endif
+  return maque#util#system('tmux '.a:cmd, blocking)
 endfunction "}}}
 
 function! maque#tmux#command_output(cmd) "{{{
-  return system('tmux '.a:cmd)
+  return maque#tmux#command(a:cmd, 1)
 endfunction "}}}
 
 function! maque#tmux#close_all() "{{{

@@ -73,7 +73,7 @@ function! maque#tmux#pane#new(name, ...) "{{{
   function! pane.create_free() dict "{{{
     if !self.open()
       let panes_before = maque#tmux#pane#all()
-      call system(self.splitter())
+      call maque#util#system(self.splitter(), 1)
       call self.determine_id(panes_before)
       call self.post_create()
     endif
@@ -150,8 +150,8 @@ function! maque#tmux#pane#new(name, ...) "{{{
     endif
   endfunction "}}}
 
-  function! pane._kill(signal) dict "{{{
-    call system('kill -'.a:signal.' '.self.command_pid)
+  function! pane._kill(signal) abort dict "{{{
+    call maque#util#system('kill -'.a:signal.' '.self.command_pid, 1)
     call maque#util#warn('sent SIG'.a:signal." to pane '".self.name."'!")
   endfunction "}}}
 
