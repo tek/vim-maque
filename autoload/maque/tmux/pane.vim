@@ -255,25 +255,27 @@ function! maque#tmux#pane#new(name, ...) abort "{{{
     endif
   endfunction "}}}
 
-  function! pane.focus() abort dict "{{{
-    call maque#tmux#command('select-pane -t '.self.id)
-    if g:maque_tmux_map_focus_vim
-      let cmd = 'run "tmux last-pane; tmux unbind-key -n '.g:maque_tmux_focus_vim_key .'"'
-      call maque#tmux#command('bind-key -n '.g:maque_tmux_focus_vim_key .' '.cmd)
-    endif
-  endfunction "}}}
-
+  " FIXME need to discern between minimizing and setting the stacking size in
+  " the layout's direction.
   function! pane._apply_size(size) abort dict "{{{
-    if self.vertical
-      call self.resize(a:size, self._original_size[1])
-    else
+    if self._vertical()
       call self.resize(self._original_size[0], a:size)
+    else
+      call self.resize(a:size, self._original_size[1])
     endif
   endfunction "}}}
 
   function! pane.resize(width, height) abort dict "{{{
     let cmd = 'resize-pane -t '.self.id.' -x '.a:width.' -y '.a:height
     call maque#tmux#command(cmd)
+  endfunction "}}}
+
+  function! pane.focus() abort dict "{{{
+    call maque#tmux#command('select-pane -t '.self.id)
+    if g:maque_tmux_map_focus_vim
+      let cmd = 'run "tmux last-pane; tmux unbind-key -n '.g:maque_tmux_focus_vim_key .'"'
+      call maque#tmux#command('bind-key -n '.g:maque_tmux_focus_vim_key .' '.cmd)
+    endif
   endfunction "}}}
 
   function! pane.pipe_to_file() abort dict "{{{
@@ -356,6 +358,14 @@ function! maque#tmux#pane#new(name, ...) abort "{{{
       endif
     else
       call maque#util#warn('Refusing to kill running process!')
+    endif
+  endfunction "}}}
+
+  function! pane._vertical() abort dict "{{{
+    if self.in_layout()
+      return self.layout.direction == 'vertical'
+    else
+      return self.vertical
     endif
   endfunction "}}}
 
