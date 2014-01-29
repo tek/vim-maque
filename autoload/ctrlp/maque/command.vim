@@ -26,7 +26,7 @@ function! ctrlp#maque#command#init() "{{{
 endfunction "}}}
 
 function! ctrlp#maque#command#accept(mode, str) "{{{
-  let matches = matchlist(a:str, '\s*\(\w\+\)')
+  let matches = matchlist(a:str, '\[\([^\]]\+\)')
   if len(matches)
     let name = matches[1]
     if a:mode == 'e'
