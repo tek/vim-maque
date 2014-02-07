@@ -1,3 +1,9 @@
+"{{{ dependencies
+if exists(':NeoBundleDepends')
+  NeoBundleDepends 'Shougo/vimproc.vim'
+endif
+"}}}
+
 "{{{ options
 let g:maque_leave_conque = 1
 let g:maque_handler = 'tmux'
