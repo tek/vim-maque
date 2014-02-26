@@ -168,10 +168,22 @@ function! <SID>s:Pane_kill(...) dict
   else
     let signal = '0'
   endif
-  if signal !=# '0'
-    let force_signal = 1
+  let force_signal = (signal !=# '0')
+  if self.process_alive()
+    if self.command_pid !=# self._last_killed
+      let self._killed = 0
+      let self._last_killed = self.command_pid
+    endif
+    if !(force_signal)
+      let signal = s:next_signal(self._killed)
+    endif
+    call self._kill(signal)
+    if !(force_signal)
+      let self._killed += 1
+    endif
+    return 1
   else
-    let force_signal = 0
+    call maque#util#warn('no process running!')
   endif
 endfunction
 

@@ -153,7 +153,7 @@ class Pane
   " Argument overrides the employed signal and does not advance the current
   " signal.
   defm kill(signal='0')
-    force_signal = signal != '0'
+    force_signal = (signal != '0')
     if self.process_alive()
       if self.command_pid != self._last_killed
         self._killed = 0
