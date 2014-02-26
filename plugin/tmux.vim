@@ -19,6 +19,4 @@ let g:maque_tmux_current_pane = ''
 augroup maque_tmux "{{{
   autocmd!
   autocmd VimLeave * call maque#tmux#close_all()
-  autocmd VimLeave * call maque#save_maqueprg()
-  autocmd VimEnter * call maque#load_maqueprg()
 augroup END "}}}

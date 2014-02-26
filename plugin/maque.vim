@@ -54,3 +54,9 @@ nnoremap <silent> <Plug>(maque-tmux-debuffer) :MaqueTmuxDebuffer<cr>
 nnoremap <silent> <Plug>(maque-tmux-cycle)    :MaqueTmuxCycle<cr>
 nnoremap <silent> <Plug>(maque-tmux-close)    :MaqueTmuxClose<cr>
 "}}}
+
+augroup maque "{{{
+  autocmd!
+  autocmd VimLeavePre * call maque#save_maqueprg()
+  autocmd VimEnter * call maque#load_maqueprg()
+augroup END "}}}

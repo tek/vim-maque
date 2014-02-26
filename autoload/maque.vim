@@ -218,6 +218,7 @@ function! maque#save_maqueprg() abort "{{{
   if exists('g:maqueprg')
     let g:Maque_maqueprg_save = g:maqueprg
   endif
+  silent! doautocmd VimLeavePre obsession
 endfunction "}}}
 
 function! maque#load_maqueprg() abort "{{{
