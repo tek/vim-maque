@@ -46,8 +46,7 @@ end
 
 class Pane
 
-  def initialize(name, *args)
-    params = get(args, 0, {})
+  def initialize(name, params={})
     attrs = {
           \ 'id': -1,
           \ 'errorfile': tempname(),
@@ -153,8 +152,7 @@ class Pane
   " is dead (default INT, TERM, KILL)
   " Argument overrides the employed signal and does not advance the current
   " signal.
-  defm kill(*args)
-    signal = get(args, 0)
+  defm kill(signal='0')
     force_signal = signal != '0'
     if self.process_alive()
       if self.command_pid != self._last_killed
@@ -372,14 +370,14 @@ def next_signal(idx)
   return sigs[min([idx, len(sigs)-1])]
 end
 
-def maque#tmux#pane#new(name, *params)
-  return new Pane(name, *params)
+def maque#tmux#pane#new(name, params={})
+  return new Pane(name, params)
 end
 
 class VimPane < Pane
 
-  def initialize(*args)
-    super('vim', *args)
+  def initialize(params={})
+    super('vim', params)
   end
 
   defm open
@@ -388,6 +386,6 @@ class VimPane < Pane
   end
 end
 
-def maque#tmux#pane#new_vim(*params)
-  return new VimPane(*params)
+def maque#tmux#pane#new_vim(params={})
+  return new VimPane(params)
 end
