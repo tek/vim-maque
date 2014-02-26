@@ -50,4 +50,5 @@ if g:maque_tmux_default_panes && !exists('g:maque_remote')
   call vim_layout.add(aux)
   call make_layout.add(main)
   call make_layout.add(status)
+  silent doautocmd User MaqueTmuxPanesCreated
 endif

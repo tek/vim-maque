@@ -13,4 +13,5 @@ if g:maque_add_default_commands && !exists('g:maque_remote')
   let g:maque_status = maque#command#vim#new('status', '', {'pane': 'status'})
   let commands = maque#commands()
   let commands['status'] = g:maque_status
+  silent doautocmd User MaqueCommandsCreated
 endif
