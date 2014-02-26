@@ -10,8 +10,9 @@ function! maque#make(...) "{{{
   return maque#make_command(command)
 endfunction "}}}
 
-function! maque#make_aux(cmd) "{{{
-  let Handler = maque#util#handler_function('make_aux', '')
+function! maque#make_aux(cmd, ...) "{{{
+  let handler = get(a:000, 0, g:maque_handler)
+  let Handler = maque#util#handler_function('make_aux', '', handler)
   if type(Handler) == 2
     return Handler(a:cmd)
   else
@@ -26,10 +27,11 @@ function! maque#make_auto() "{{{
   endif
 endfunction "}}}
 
-function! maque#make_pane(pane, cmd) "{{{
-  let Handler = maque#util#handler_function('make_pane', '')
+function! maque#make_pane(pane, cmd, ...) "{{{
+  let handler = get(a:000, 0, g:maque_handler)
+  let Handler = maque#util#handler_function('make_pane', '', handler)
   if type(Handler) == 2
-    return Handler(a:pane, a:cmd)
+    call Handler(a:pane, a:cmd)
   else
     call maque#util#warn('no handler for executing commands in a pane!')
   endif
@@ -161,19 +163,23 @@ function! maque#command(name) "{{{
   return maque#commands()[a:name]
 endfunction "}}}
 
-function! maque#pane(name) "{{{
-  let Pane = maque#util#handler_function('pane', 'maque#dummy_pane')
+function! maque#pane(name, ...) "{{{
+  let handler = get(a:000, 0, g:maque_handler)
+  let Pane = maque#util#handler_function('pane', 'maque#dummy_pane', handler)
   return Pane(a:name)
 endfunction "}}}
 
 " TODO dummy_layout
-function! maque#layout(name) "{{{
-  let Layout = maque#util#handler_function('layout', 'maque#dummy_layout')
+function! maque#layout(name, ...) "{{{
+  let handler = get(a:000, 0, g:maque_handler)
+  let Layout = maque#util#handler_function('layout', 'maque#dummy_layout',
+        \ handler)
   return Layout(a:name)
 endfunction "}}}
 
-function! maque#current_pane() "{{{
-  let Pane = maque#util#handler_function('current_pane', 'maque#dummy_pane')
+function! maque#current_pane(...) "{{{
+  let handler = get(a:000, 0, g:maque_handler)
+  let Pane = maque#util#handler_function('current_pane', 'maque#dummy_pane', handler)
   return Pane()
 endfunction "}}}
 
