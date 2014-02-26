@@ -2,7 +2,8 @@ function! maque#command#new(command, ...) "{{{
   let params = a:0 ? a:1 : {}
   let command = {
         \ '_command': a:command,
-        \ '_pane': get(params, 'pane', 'main')
+        \ '_pane': get(params, 'pane', 'main'),
+        \ 'handler': g:maque_handler,
         \ }
   let cmd_type = get(params, 'type', 'shell')
   if cmd_type == 'eval'
@@ -21,7 +22,7 @@ function! maque#command#new(command, ...) "{{{
 
   function! command.make() dict "{{{
     let pane = self.pane()
-    call maque#make_pane(pane, self.command())
+    call maque#make_pane(pane, self.command(), self.handler)
   endfunction "}}}
 
   let pane_type = get(params, 'ptype', 'name')
