@@ -92,15 +92,19 @@ endfunction "}}}
 
 function! maque#util#system(cmd, ...) abort "{{{
   let blocking = get(a:000, 0)
-  if maque#util#has_vimproc()
-    if blocking || !g:maque_async
-      return vimproc#system(a:cmd)
+  try
+    if maque#util#has_vimproc()
+      if blocking || !g:maque_async
+        return vimproc#system(a:cmd)
+      else
+        call vimproc#system_bg(a:cmd)
+      endif
     else
-      call vimproc#system_bg(a:cmd)
+      return system(a:cmd)
     endif
-  else
-    return system(a:cmd)
-  endif
+  catch
+    return 'error'
+  endtry
 endfunction "}}}
 
 function! maque#util#server_alive(name) abort "{{{
