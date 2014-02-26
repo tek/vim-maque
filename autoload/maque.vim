@@ -214,7 +214,17 @@ function! maque#kill_command(name) "{{{
   endif
 endfunction "}}}
 
-function! maque#async(func, ...) "{{{
-  let Caller = maque#util#lookup('seizure#async_call', 'call')
-  return Caller(a:func, a:000)
+function! maque#save_maqueprg() abort "{{{
+  if exists('g:maqueprg')
+    let g:Maque_maqueprg_save = g:maqueprg
+  endif
+endfunction "}}}
+
+function! maque#load_maqueprg() abort "{{{
+  if exists('g:Maque_maqueprg_save')
+    if !exists('g:maqueprg')
+      let g:maqueprg = g:Maque_maqueprg_save
+    endif
+    unlet g:Maque_maqueprg_save
+  endif
 endfunction "}}}
