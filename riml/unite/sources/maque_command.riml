@@ -1,0 +1,55 @@
+riml_include 'unite.riml'
+
+def unite#sources#maque_command#define
+  return g:unite_source_maque_command
+end
+
+actions = ['make', 'set_main']
+
+class CommandSource < g:MaqueUniteSource
+
+  def initialize
+    super('command', 'maque commands', s:actions)
+    self.syntax = 'uniteSource__MaqueCommand'
+  end
+
+  defm gather_candidates(args, context)
+    longest_name = max(map(keys(g:maque_commands), 'len(v:val)'))
+    longest_command = max(map(values(g:maque_commands), 'len(v:val.cmd_compact())'))
+    return map(keys(g:maque_commands),
+          \ 'self.format_candidate(v:val, longest_name, longest_command)')
+  end
+
+  defm format_candidate(name, longest_name, longest_command)
+    cmd = maque#command(name)
+    pane = cmd.pane()
+    pad_name = repeat(' ', longest_name - len(name))
+    pad_cmd = repeat(' ', longest_command - len(cmd.cmd_compact()))
+    line = '['. name .']  '. pad_name . cmd.cmd_compact() . pad_cmd . 
+          \ '  ['.pane.description() .']'
+    return {
+          \ 'word': line,
+          \ 'action__name': name,
+          \ }
+  end
+
+  defm init_syntax
+    :syntax match uniteSource__MaqueCommand_name /\%(^\s*\[\)\@<=[^\]]\+/ 
+          :\ containedin=uniteSource__MaqueCommand contained
+    :syntax match uniteSource__MaqueCommand_bracket /[\[\]]/ 
+          :\ containedin=uniteSource__MaqueCommand contained
+    :highlight link uniteSource__MaqueCommand_name Type
+    :highlight link uniteSource__MaqueCommand_bracket Identifier
+  end
+end
+
+g:unite_source_maque_command = new CommandSource()
+
+def unite#sources#maque_command#init(args, context)
+  g:unite_source_maque_command.init()
+  g:unite_source_maque_command.init_syntax()
+end
+
+def unite#sources#maque_command#close(args, context)
+  g:unite_source_maque_command.close()
+end

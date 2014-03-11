@@ -1,0 +1,47 @@
+def key(action, source)
+  return eval('g:maque_unite_' . source . '_mapping_' . action)
+end
+
+def maque#unite#unmap(actions, source)
+  if eval('g:maque_unite_' . source . '_mappings')
+    for action in actions
+      execute 'nunmap <buffer> ' . key(action, source)
+    end
+  end
+end
+
+def map_key(action, source)
+  comm = 'nmap <expr><silent><buffer> ' . key(action, source) . ' unite#do_action("' . action . '")'
+  execute comm
+end
+
+def maque#unite#map(actions, source)
+  if eval('g:maque_unite_' . source . '_mappings')
+    for action in actions
+      map_key(action, source)
+    end
+  end
+end
+
+class g:MaqueUniteSource
+
+  def initialize(source, description, actions)
+    self.source = source
+    self.description = description
+    self.actions = actions
+    self.name = 'maque_' . source
+    self.default_kind = self.name
+    self.hooks = {
+          \ 'on_syntax': 'unite#sources#' . self.name . '#init',
+          \ 'on_close': 'unite#sources#' . self.name . '#close',
+          \ }
+  end
+
+  defm init
+    maque#unite#map(self.actions, self.source)
+  end
+
+  defm close
+    maque#unite#unmap(self.actions, self.source)
+  end
+end

@@ -60,7 +60,7 @@ function! s:PaneConstructor(name, ...)
   let paneObj = {}
   let attrs = {'id': -1, 'errorfile': tempname(), '_splitter': 'tmux neww -d', 'eval_splitter': 0, 'capture': 1, 'autoclose': 0, '_last_killed': 0, '_killed': 0, 'shell_pid': 0, 'command_pid': 0, 'wait_before_autoclose': 2, 'minimize_on_toggle': get(g:, 'maque_tmux_minimize_on_toggle', 0), 'vertical': 1, 'minimized': 0, 'minimized_size': 2, 'create_minimized': 0, 'restore_on_make': 1, '_original_size': [0, 0], 'kill_running_on_make': 1, 'focus_on_restore': 0, 'focus_on_make': 0, 'manual_termination': 0, 'layout': 0, 'size': 0}
   call extend(attrs, params)
-  let attrs.inimized_size = max([attrs.minimized_size, 2])
+  let attrs.minimized_size = max([attrs.minimized_size, 2])
   let paneObj.name = a:name
   let paneObj.command_executable = ''
   call extend(paneObj, attrs)

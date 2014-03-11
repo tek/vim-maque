@@ -1,0 +1,41 @@
+riml_include 'unite.riml'
+
+def unite#sources#maque_tmux_pane#define()
+  return g:unite_source_maque_tmux_pane
+end
+
+actions = ['kill', 'toggle', 'close', 'activate', 'parse']
+
+class TmuxPaneSource < g:MaqueUniteSource
+
+  def initialize
+    super('tmux_pane', 'tmux panes managed by maque', s:actions)
+  end
+
+  defm gather_candidates(args, context)
+    longest = max(map(values(g:maque_tmux_panes), 'len(v:val.name)'))
+    return map(values(g:maque_tmux_panes),
+          \ 'self.format_candidate(v:val, longest)')
+  end
+
+  defm format_candidate(pane, longest)
+    name = pane.name
+    active = name == g:maque_tmux_current_pane ? ' [+]' : ''
+    pad = repeat(' ', longest - len(name))
+    line = '['. name . ']' . pad . '  ['. pane.description() . ']' . active
+    return {
+          \ 'word': line,
+          \ 'action__name': name,
+          \ }
+  end
+end
+
+g:unite_source_maque_tmux_pane = new TmuxPaneSource()
+
+def unite#sources#maque_tmux_pane#init(args, context)
+  g:unite_source_maque_tmux_pane.init()
+end
+
+def unite#sources#maque_tmux_pane#close(args, context)
+  g:unite_source_maque_tmux_pane.close()
+end

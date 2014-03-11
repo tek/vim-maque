@@ -27,7 +27,7 @@ endfunction "}}}
 function! maque#tmux#parse(...) "{{{
   let pane = a:0 ? g:maque_tmux_panes[a:1] : maque#tmux#error_pane()
   if filereadable(pane.errorfile)
-    execute 'cgetfile'.pane.errorfile
+    execute 'cgetfile '.pane.errorfile
     if empty(getqflist())
       call maque#util#warn('no errors!')
     else
@@ -104,18 +104,33 @@ function! maque#tmux#add_layout(name, ...) "{{{
   return maque#layout(a:name)
 endfunction "}}}
 
+function! maque#tmux#pane_action(action, ...) abort "{{{
+  call maque#tmux#pane#enable_cache()
+  let name = get(a:000, 0, '')
+  let pane = get(g:maque_tmux_panes, name, s:pane())
+  call call(pane[a:action], [], pane)
+  call maque#tmux#pane#disable_cache()
+endfunction "}}}
+
 " kill the process running in the active pane
 function! maque#tmux#kill(...) "{{{
-  call call(s:pane().kill, a:000, s:pane())
+  return call('maque#tmux#pane_action', ['kill'] + a:000)
+endfunction "}}}
+
+" kill the process running in the active pane with all available signals until
+" it is dead
+function! maque#tmux#kill_all(...) "{{{
+  return call('maque#tmux#pane_action', ['kill_wait'] + a:000)
 endfunction "}}}
 
 " toggle the specified pane, default to active
 function! maque#tmux#toggle(...) "{{{
-  call maque#tmux#pane#enable_cache()
-  let name = a:0 ? a:1 : ''
-  let pane = get(g:maque_tmux_panes, name, s:pane())
-  call pane.toggle()
-  call maque#tmux#pane#disable_cache()
+  return call('maque#tmux#pane_action', ['toggle'] + a:000)
+endfunction "}}}
+
+" close the specified pane, default to active
+function! maque#tmux#close(...) "{{{
+  return call('maque#tmux#pane_action', ['close'] + a:000)
 endfunction "}}}
 
 " reset the capture buffer for the specified pane, default to active

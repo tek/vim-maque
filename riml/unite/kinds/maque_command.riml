@@ -1,0 +1,29 @@
+def unite#kinds#maque_command#define()
+  return g:unite_kind_maque_command
+end
+
+def unite#kinds#maque_command#make(candidate)
+  maque#make_command(candidate.action__name)
+end
+
+def unite#kinds#maque_command#set_main(candidate)
+  maque#set_main_command(candidate.action__name)
+end
+
+s:actions = {
+      \ 'make': {
+      \   'func': function('unite#kinds#maque_command#make'),
+      \   'description': 'execute the command in its pane',
+      \ },
+      \ 'set_main': {
+      \   'func': function('unite#kinds#maque_command#set_main'),
+      \   'description': 'set g:maqueprg to this command line',
+      \ },
+      \ }
+
+g:unite_kind_maque_command = {
+      \ 'name': 'maque_command',
+      \ 'default_action': 'make',
+      \ 'action_table': s:actions,
+      \ 'parents': [],
+      \ }

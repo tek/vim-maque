@@ -1,0 +1,129 @@
+class Command
+
+  def initialize(command, params={})
+    if has_key(params, 'pane')
+      params['pane_name'] = remove(params, 'pane')
+    end
+    attrs = {
+          \ '_command': a:command,
+          \ 'pane_name': 'main',
+          \ 'handler': g:maque_handler,
+          \ 'cmd_type': 'shell',
+          \ 'pane_type': 'name',
+          \ }
+    extend(commandObj, attrs)
+    extend(commandObj, params)
+  end
+
+  defm command
+    return call(get(self, '_command_' . self.cmd_type), [], self)
+  end
+
+  defm _command_eval
+    return eval(self._command)
+  end
+
+  defm _command_shell
+    return self._command
+  end
+
+  defm cmd_compact
+    return self.command()
+  end
+
+  defm make
+    pane = self.pane()
+    maque#make_pane(pane, self.command(), self.handler)
+  end
+
+  defm pane
+    return call(get(self, '_pane_' . self.pane_type), [], self)
+  end
+
+  defm _pane_eval
+    try
+      return eval(self.pane_name)
+    catch
+      echo v:exception
+      return self._pane_name
+    end
+  end
+
+  defm _pane_name
+    return maque#pane(self.pane_name)
+  end
+
+  " kill the process running in the target pane, and, if this succeeds or there
+  " was none running, run the command.
+  defm restart
+    if self.kill()
+      call self.make()
+    endif
+  end
+
+  defm kill
+    return self.pane().kill_wait()
+  end
+end
+
+def maque#command#new(*args)
+  return new Command(*args)
+end
+
+class RemoteVim < Command
+
+  def initialize(name, command, params)
+    super('', params)
+    self.name = name
+  end
+
+  defm command
+    arg = 'let g:maque_remote = 1'
+    cmd = "#{self.base_command()} --cmd ".'"'."#{arg}".'"'
+    return cmd
+  end
+
+  def base_command
+    return "vim --servername #{self.server_name()}"
+  end
+
+  defm cmd_compact
+    return "remote vim #{self.server_name()}"
+  end
+
+  defm execute(cmdline)
+    self.remote('send', ":#{cmdline}<cr>")
+  end
+
+  defm eval(expr)
+    self.remote('expr', expr)
+  end
+
+  defm remote(method, args)
+    self.launch_vim()
+    esc = escape(args, "'".'"')
+    cmd = "#{self.base_command()} --remote-#{method} ".'"'."#{esc}".'"'
+    maque#util#system(cmd)
+  end
+
+  defm launch_vim
+    pane = self.pane()
+    if type(pane) == type({}) && !pane.process_alive()
+      echo 'maque: launching remote vim.'
+      self.make()
+      maque#util#wait_until("maque#util#server_alive('#{self.server_name()}')", 25)
+    end
+  end
+
+  defm server_name
+    unless has_key(self, '_server_name')
+      id = maque#tmux#vim_id()
+      self._server_name = "maque_#{id}_#{self.name}"
+    endif
+    return self._server_name
+  end
+end
+
+def maque#command#new_vim(name, command, args)
+  return new RemoteVim(name, command, args)
+end

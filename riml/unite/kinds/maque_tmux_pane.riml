@@ -1,0 +1,56 @@
+def unite#kinds#maque_tmux_pane#define()
+  return g:unite_kind_maque_tmux_pane
+end
+
+def unite#kinds#maque_tmux_pane#toggle(candidate)
+  maque#tmux#toggle(candidate.action__name)
+end
+
+def unite#kinds#maque_tmux_pane#close(candidate)
+  maque#tmux#close(candidate.action__name)
+end
+
+def unite#kinds#maque_tmux_pane#parse(candidate)
+  maque#tmux#parse(candidate.action__name)
+end
+
+def unite#kinds#maque_tmux_pane#kill(candidate)
+  maque#tmux#kill_all(candidate.action__name)
+end
+
+def unite#kinds#maque_tmux_pane#activate(candidate)
+  name = candidate.action__name
+  g:maque_tmux_current_pane = name
+  echo 'set "'.name.'" as active pane.'
+end
+
+s:actions = {
+      \ 'toggle': {
+      \   'func': function('unite#kinds#maque_tmux_pane#toggle'),
+      \   'description': 'open or close/minimize',
+      \ },
+      \ 'close': {
+      \   'func': function('unite#kinds#maque_tmux_pane#close'),
+      \   'description': 'close',
+      \ },
+      \ 'parse': {
+      \   'func': function('unite#kinds#maque_tmux_pane#parse'),
+      \   'description': 'parse output as errorfile',
+      \ },
+      \ 'kill': {
+      \   'func': function('unite#kinds#maque_tmux_pane#kill'),
+      \   'description': 'kill the running process',
+      \ },
+      \ 'activate': {
+      \   'func': function('unite#kinds#maque_tmux_pane#activate'),
+      \   'description': 'set as active pane',
+      \ },
+      \ }
+
+g:unite_kind_maque_tmux_pane = {
+      \ 'name': 'maque_tmux_pane',
+      \ 'default_action': 'toggle',
+      \ 'action_table': s:actions,
+      \ 'parents': [],
+      \ }
+
