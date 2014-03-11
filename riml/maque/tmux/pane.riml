@@ -74,7 +74,7 @@ class Pane
           \ 'size': 0,
           \ }
     extend(attrs, params)
-    attrs.inimized_size = max([attrs.minimized_size, 2])
+    attrs.minimized_size = max([attrs.minimized_size, 2])
     self.name = name
     self.command_executable = ''
     extend(paneObj, attrs)
