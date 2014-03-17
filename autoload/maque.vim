@@ -48,8 +48,12 @@ function! maque#set_makeprg() "{{{
 endfunction "}}}
 
 function! maque#set_generic_makeprg() "{{{
-  call maque#util#warn('no makeprg setter found! Using generic settings.')
-  return maque#set_params()
+  if &makeprg != 'make' || g:maque_use_make_fallback
+    call maque#util#warn('no makeprg setter found! Using generic settings.')
+    return maque#set_params()
+  else
+    call maque#util#warn('no makeprg setter found! Aborting.')
+  end
 endfunction "}}}
 
 function! maque#remove_errorfile() "{{{
