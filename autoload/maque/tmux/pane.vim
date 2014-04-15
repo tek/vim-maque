@@ -69,6 +69,7 @@ function! s:PaneConstructor(name, ...)
   let paneObj.create_free = function('<SNR>' . s:SID() . '_s:Pane_create_free')
   let paneObj.determine_id = function('<SNR>' . s:SID() . '_s:Pane_determine_id')
   let paneObj.post_create = function('<SNR>' . s:SID() . '_s:Pane_post_create')
+  let paneObj.create_and_wait = function('<SNR>' . s:SID() . '_s:Pane_create_and_wait')
   let paneObj.make = function('<SNR>' . s:SID() . '_s:Pane_make')
   let paneObj.create_and_make = function('<SNR>' . s:SID() . '_s:Pane_create_and_make')
   let paneObj.kill = function('<SNR>' . s:SID() . '_s:Pane_kill')
@@ -138,9 +139,24 @@ function! <SID>s:Pane_post_create() dict
   endif
 endfunction
 
+function! <SID>s:Pane_create_and_wait(...) dict
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let timeout = remove(__splat_var_cpy, 0)
+  else
+    let timeout = 1
+  endif
+  call self.create()
+  let counter = 0
+  while (!self.open()) && (counter <# timeout * 10)
+    sleep 100m
+    let counter += 1
+  endwhile
+endfunction
+
 function! <SID>s:Pane_make(cmd, ...) dict
   let capture = get(a:000, 0, self.capture)
-  let autoclose = get(a:000, 0, self.autoclose)
+  let autoclose = get(a:000, 1, self.autoclose)
   if self.ready_for_make()
     if self.minimized && self.restore_on_make
       call self.restore()
@@ -272,17 +288,23 @@ function! <SID>s:Pane_restore() dict
 endfunction
 
 function! <SID>s:Pane_set_size() dict
-  return
   if self.minimized
     call self._apply_size(self.minimized_size)
   elseif self.size
     let self._original_size = maque#tmux#pane#size(self.id)
-    call self._apply_size(self.size)
+    call self._apply_size(self.size, 1)
   endif
 endfunction
 
-function! <SID>s:Pane__apply_size(size) dict
-  if self._vertical()
+function! <SID>s:Pane__apply_size(size, ...) dict
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let stack = remove(__splat_var_cpy, 0)
+  else
+    let stack = 0
+  endif
+  let vertical = xor(self._vertical(), stack)
+  if vertical
     call self.resize(a:size, self._original_size[1])
   else
     call self.resize(self._original_size[0], a:size)

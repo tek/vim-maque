@@ -29,6 +29,8 @@ function! s:LayoutConstructor(name, args)
   let layoutObj.in_layout = function('<SNR>' . s:SID() . '_s:Layout_in_layout')
   let layoutObj.determine_id = function('<SNR>' . s:SID() . '_s:Layout_determine_id')
   let layoutObj.post_create = function('<SNR>' . s:SID() . '_s:Layout_post_create')
+  let layoutObj.create_kids = function('<SNR>' . s:SID() . '_s:Layout_create_kids')
+  let layoutObj.create_and_wait = function('<SNR>' . s:SID() . '_s:Layout_create_and_wait')
   return layoutObj
 endfunction
 
@@ -48,25 +50,32 @@ function! <SID>s:Layout_add(pane) dict
 endfunction
 
 function! <SID>s:Layout_create() dict
-  if self.in_layout()
-    call self.layout.create_pane(self)
-  else
-    call maque#tmux#command_output(self.creator())
+  if !(self.open())
+    if self.in_layout() && len(self.panes) ># 0
+      call self.layout.create_pane(self.panes[0])
+    else
+      call maque#tmux#command_output(self.creator())
+    endif
   endif
 endfunction
 
 function! <SID>s:Layout_create_pane(pane) dict
-  let panes_before = maque#tmux#pane#all()
-  if self.open()
-    call self.focus()
-    call maque#tmux#command_output(self.splitter())
-    call maque#tmux#pane('vim').focus()
-  else
-    call self.create()
+  if self.in_layout()
+    call self.layout.create_kids()
   endif
-  call a:pane.determine_id(panes_before)
-  call a:pane.post_create()
-  call self.pack()
+  let panes_before = maque#tmux#pane#all()
+  if !(a:pane.open())
+    if self.open()
+      call self.focus()
+      call maque#tmux#command_output(self.splitter())
+      call maque#tmux#pane('vim').focus()
+    else
+      call self.create()
+    endif
+    call a:pane.determine_id(panes_before)
+    call a:pane.post_create()
+    call self.pack()
+  endif
 endfunction
 
 function! <SID>s:Layout_pack() dict
@@ -105,6 +114,29 @@ function! <SID>s:Layout_determine_id(...) dict
 endfunction
 
 function! <SID>s:Layout_post_create() dict
+endfunction
+
+function! <SID>s:Layout_create_kids() dict
+  for pane in self.panes
+    if !(pane.open())
+      call pane.create_and_wait()
+    endif
+  endfor
+endfunction
+
+function! <SID>s:Layout_create_and_wait(...) dict
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let timeout = remove(__splat_var_cpy, 0)
+  else
+    let timeout = 5
+  endif
+  call self.create()
+  let counter = 0
+  while (!self.open()) && (counter <# timeout * 10)
+    sleep 100m
+    let counter += 1
+  endwhile
 endfunction
 
 function! maque#tmux#layout#new(name, args)

@@ -117,6 +117,15 @@ class Pane
     end
   end
 
+  defm create_and_wait(timeout=1)
+    self.create()
+    counter = 0
+    while (!self.open()) && (counter < timeout * 10)
+      :sleep 100m
+      counter += 1
+    end
+  end
+
   defm make(cmd, *args)
     capture = get(args, 0, self.capture)
     autoclose = get(args, 1, self.autoclose)
@@ -249,22 +258,22 @@ class Pane
     self.focus() if self.focus_on_restore
   end
 
-  " Apply the size given by the constructor parameters 'size' or
+  " Restore the size given by the constructor parameters 'size' or
   " 'minimized_size', whichever is appropriate
   defm set_size
-    return
     if self.minimized
       self._apply_size(self.minimized_size)
     elseif self.size
       self._original_size = maque#tmux#pane#size(self.id)
-      self._apply_size(self.size)
+      self._apply_size(self.size, 1)
     end
   end
 
   " FIXME need to discern between minimizing and setting the stacking size in
   " the layout's direction.
-  defm _apply_size(size)
-    if self._vertical()
+  defm _apply_size(size, stack=0)
+    :let vertical = xor(self._vertical(), stack)
+    if vertical
       self.resize(size, self._original_size[1])
     else
       self.resize(self._original_size[0], size)

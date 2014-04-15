@@ -87,6 +87,14 @@ function! maque#tmux#add_pane(name, ...) "{{{
   return maque#pane(a:name)
 endfunction "}}}
 
+" add new pane and attach to layout
+function! maque#tmux#add_pane_in_layout(name, layout, ...) "{{{
+  let params = a:0 ? a:1 : {}
+  let pane = maque#tmux#add_pane(a:name, params)
+  call maque#tmux#add_pane_to_layout(a:layout, pane)
+  return pane
+endfunction "}}}
+
 " add a pane for the main vim
 function! maque#tmux#add_vim_pane(...) "{{{
   let name = 'vim'
@@ -107,6 +115,14 @@ function! maque#tmux#add_layout(name, ...) "{{{
   return maque#layout(a:name)
 endfunction "}}}
 
+function! maque#tmux#add_pane_to_layout(name, pane) abort "{{{
+  if !has_key(g:maque_tmux_layouts, a:name)
+    call maque#util#warn('layout "'.a:name.'" doesn''t exist!')
+  else
+    call g:maque_tmux_layouts[a:name].add(a:pane)
+  endif
+endfunction "}}}
+
 function! maque#tmux#pane_action(action, ...) abort "{{{
   call maque#tmux#pane#enable_cache()
   let name = get(a:000, 0, '')
@@ -118,6 +134,11 @@ endfunction "}}}
 " kill the running process
 function! maque#tmux#kill(...) "{{{
   return call('maque#tmux#pane_action', ['kill'] + a:000)
+endfunction "}}}
+
+" minimize a pane
+function! maque#tmux#minimize(...) "{{{
+  return call('maque#tmux#pane_action', ['minimize'] + a:000)
 endfunction "}}}
 
 " kill the process running in the active pane with all available signals until
