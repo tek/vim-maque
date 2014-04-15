@@ -12,10 +12,14 @@ function! maque#tmux#make_aux(cmd) "{{{
   call maque#tmux#make_pane(s:aux_pane(), a:cmd)
 endfunction "}}}
 
+" run the commandline 'a:cmd' in the pane named 'a:pane'
 function! maque#tmux#make_in(pane, cmd) "{{{
   call maque#tmux#make_pane(g:maque_tmux_panes[a:pane], a:cmd)
 endfunction "}}}
 
+" run the commandline 'a:cmd' in the pane object 'a:pane'
+" uses the tmux pane cache to avoid multiple invocations of `tmux list-panes`
+" with identical results
 function! maque#tmux#make_pane(pane, cmd) "{{{
   call maque#tmux#pane#enable_cache()
   call a:pane.create()
@@ -112,7 +116,7 @@ function! maque#tmux#pane_action(action, ...) abort "{{{
   call maque#tmux#pane#disable_cache()
 endfunction "}}}
 
-" kill the process running in the active pane
+" kill the running process
 function! maque#tmux#kill(...) "{{{
   return call('maque#tmux#pane_action', ['kill'] + a:000)
 endfunction "}}}
