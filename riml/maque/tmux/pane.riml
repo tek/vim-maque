@@ -119,7 +119,7 @@ class Pane
 
   defm make(cmd, *args)
     capture = get(args, 0, self.capture)
-    autoclose = get(args, 0, self.autoclose)
+    autoclose = get(args, 1, self.autoclose)
     if self.ready_for_make()
       if self.minimized && self.restore_on_make
         self.restore()
