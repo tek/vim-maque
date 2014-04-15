@@ -77,6 +77,7 @@ class Pane
     attrs.minimized_size = max([attrs.minimized_size, 2])
     self.name = name
     self.command_executable = ''
+    self.spawning_make = 0
     extend(paneObj, attrs)
   end
 
@@ -145,6 +146,13 @@ class Pane
     else
       maque#util#warn('make called on pane "'.self.name .'" while not open!')
     end
+    self.spawning_make = 0
+  end
+
+  defm create_and_make(cmd, *args)
+    self.spawning_make = 1 unless self.open()
+    self.create()
+    :call call(self.make, [a:cmd] + a:000, self)
   end
 
   " Send a signal to the command.
@@ -337,7 +345,9 @@ class Pane
   end
 
   defm ready_for_make
-    return self.open() && (!self.process_alive() || self._handle_running_process())
+    return self.open() && (self.spawning_make ||
+          \ !self.process_alive() ||
+          \ self._handle_running_process())
   end
 
   defm in_layout

@@ -63,12 +63,14 @@ function! s:PaneConstructor(name, ...)
   let attrs.minimized_size = max([attrs.minimized_size, 2])
   let paneObj.name = a:name
   let paneObj.command_executable = ''
+  let paneObj.spawning_make = 0
   call extend(paneObj, attrs)
   let paneObj.create = function('<SNR>' . s:SID() . '_s:Pane_create')
   let paneObj.create_free = function('<SNR>' . s:SID() . '_s:Pane_create_free')
   let paneObj.determine_id = function('<SNR>' . s:SID() . '_s:Pane_determine_id')
   let paneObj.post_create = function('<SNR>' . s:SID() . '_s:Pane_post_create')
   let paneObj.make = function('<SNR>' . s:SID() . '_s:Pane_make')
+  let paneObj.create_and_make = function('<SNR>' . s:SID() . '_s:Pane_create_and_make')
   let paneObj.kill = function('<SNR>' . s:SID() . '_s:Pane_kill')
   let paneObj._kill = function('<SNR>' . s:SID() . '_s:Pane__kill')
   let paneObj.kill_wait = function('<SNR>' . s:SID() . '_s:Pane_kill_wait')
@@ -159,6 +161,15 @@ function! <SID>s:Pane_make(cmd, ...) dict
   else
     call maque#util#warn('make called on pane "' . self.name . '" while not open!')
   endif
+  let self.spawning_make = 0
+endfunction
+
+function! <SID>s:Pane_create_and_make(cmd, ...) dict
+  if !(self.open())
+    let self.spawning_make = 1
+  endif
+  call self.create()
+  call call(self.make, [a:cmd] + a:000, self)
 endfunction
 
 function! <SID>s:Pane_kill(...) dict
@@ -351,7 +362,7 @@ function! <SID>s:Pane_process_alive() dict
 endfunction
 
 function! <SID>s:Pane_ready_for_make() dict
-  return self.open() && (!self.process_alive() || self._handle_running_process())
+  return self.open() && (self.spawning_make || !self.process_alive() || self._handle_running_process())
 endfunction
 
 function! <SID>s:Pane_in_layout() dict

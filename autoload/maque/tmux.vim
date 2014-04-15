@@ -22,8 +22,7 @@ endfunction "}}}
 " with identical results
 function! maque#tmux#make_pane(pane, cmd) "{{{
   call maque#tmux#pane#enable_cache()
-  call a:pane.create()
-  call a:pane.make(a:cmd)
+  call a:pane.create_and_make(a:cmd)
   call maque#tmux#pane#disable_cache()
 endfunction "}}}
 
