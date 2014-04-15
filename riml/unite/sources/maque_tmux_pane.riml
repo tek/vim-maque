@@ -10,6 +10,7 @@ class TmuxPaneSource < g:MaqueUniteSource
 
   def initialize
     super('tmux_pane', 'tmux panes managed by maque', s:actions)
+    self.syntax = 'uniteSource__MaqueTmuxPane'
   end
 
   defm gather_candidates(args, context)
@@ -28,12 +29,22 @@ class TmuxPaneSource < g:MaqueUniteSource
           \ 'action__name': name,
           \ }
   end
+
+  defm init_syntax
+    :syntax match uniteSource__MaqueTmuxPane_name /\%(^\s*\[\)\@<=[^\]]\+/ 
+          :\ containedin=uniteSource__MaqueTmuxPane contained
+    :syntax match uniteSource__MaqueTmuxPane_bracket /[\[\]]/ 
+          :\ containedin=uniteSource__MaqueTmuxPane contained
+    :highlight link uniteSource__MaqueTmuxPane_name Type
+    :highlight link uniteSource__MaqueTmuxPane_bracket Identifier
+  end
 end
 
 g:unite_source_maque_tmux_pane = new TmuxPaneSource()
 
 def unite#sources#maque_tmux_pane#init(args, context)
   g:unite_source_maque_tmux_pane.init()
+  g:unite_source_maque_tmux_pane.init_syntax()
 end
 
 def unite#sources#maque_tmux_pane#close(args, context)

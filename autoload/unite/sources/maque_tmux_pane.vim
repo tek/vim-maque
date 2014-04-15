@@ -66,8 +66,10 @@ function! s:TmuxPaneSourceConstructor()
   let tmuxPaneSourceObj = {}
   let maqueUniteSourceObj = g:MaqueUniteSourceConstructor('tmux_pane', 'tmux panes managed by maque', s:actions)
   call extend(tmuxPaneSourceObj, maqueUniteSourceObj)
+  let tmuxPaneSourceObj.syntax = 'uniteSource__MaqueTmuxPane'
   let tmuxPaneSourceObj.gather_candidates = function('<SNR>' . s:SID() . '_s:TmuxPaneSource_gather_candidates')
   let tmuxPaneSourceObj.format_candidate = function('<SNR>' . s:SID() . '_s:TmuxPaneSource_format_candidate')
+  let tmuxPaneSourceObj.init_syntax = function('<SNR>' . s:SID() . '_s:TmuxPaneSource_init_syntax')
   return tmuxPaneSourceObj
 endfunction
 
@@ -84,9 +86,19 @@ function! <SID>s:TmuxPaneSource_format_candidate(pane, longest) dict
   return {'word': line, 'action__name': name}
 endfunction
 
+function! <SID>s:TmuxPaneSource_init_syntax() dict
+  syntax match uniteSource__MaqueTmuxPane_name /\%(^\s*\[\)\@<=[^\]]\+/ 
+  \ containedin=uniteSource__MaqueTmuxPane contained
+  syntax match uniteSource__MaqueTmuxPane_bracket /[\[\]]/ 
+  \ containedin=uniteSource__MaqueTmuxPane contained
+  highlight link uniteSource__MaqueTmuxPane_name Type
+  highlight link uniteSource__MaqueTmuxPane_bracket Identifier
+endfunction
+
 let g:unite_source_maque_tmux_pane = s:TmuxPaneSourceConstructor()
 function! unite#sources#maque_tmux_pane#init(args, context)
   call g:unite_source_maque_tmux_pane.init()
+  call g:unite_source_maque_tmux_pane.init_syntax()
 endfunction
 
 function! unite#sources#maque_tmux_pane#close(args, context)
