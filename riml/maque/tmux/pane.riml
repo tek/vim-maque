@@ -247,15 +247,19 @@ class Pane
   " Do not use the 'size' parameter for restoring, as the pane could have been
   " altered purposefully.
   defm minimize
-    self._original_size = maque#tmux#pane#size(self.id)
-    self._apply_size(self.minimized_size)
-    self.minimized = 1
+    if self.open() && !self.minimized
+      self._original_size = maque#tmux#pane#size(self.id)
+      self._apply_size(self.minimized_size)
+      self.minimized = 1
+    end
   end
 
   defm restore
-    self.resize(self._original_size[0], self._original_size[1])
-    self.minimized = 0
-    self.focus() if self.focus_on_restore
+    if self.open() && self.minimized
+      self.resize(self._original_size[0], self._original_size[1])
+      self.minimized = 0
+      self.focus() if self.focus_on_restore
+    end
   end
 
   " Restore the size given by the constructor parameters 'size' or
