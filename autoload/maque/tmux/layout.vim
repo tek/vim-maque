@@ -10,9 +10,87 @@ function! s:SID()
   return s:SID_VALUE
 endfunction
 
+" included: 'view.riml'
+function! g:ViewConstructor(name, ...)
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let params = remove(__splat_var_cpy, 0)
+  else
+    let params = {}
+  endif
+  let viewObj = {}
+  let viewObj.name = a:name
+  let attrs = {'_original_size': [0, 0], 'minimized': 0, 'minimized_size': 2, 'minimize_on_toggle': get(g:, 'maque_tmux_minimize_on_toggle', 0), 'focus_on_restore': 0, 'vertical': 1}
+  call extend(attrs, params)
+  let attrs.minimized_size = max([attrs.minimized_size, 2])
+  call extend(viewObj, attrs)
+  let viewObj.toggle = function('<SNR>' . s:SID() . '_s:View_toggle')
+  let viewObj.toggle_minimized = function('<SNR>' . s:SID() . '_s:View_toggle_minimized')
+  let viewObj.minimize = function('<SNR>' . s:SID() . '_s:View_minimize')
+  let viewObj.restore = function('<SNR>' . s:SID() . '_s:View_restore')
+  let viewObj._apply_size = function('<SNR>' . s:SID() . '_s:View__apply_size')
+  let viewObj._vertical = function('<SNR>' . s:SID() . '_s:View__vertical')
+  return viewObj
+endfunction
+
+function! <SID>s:View_toggle() dict
+  if self.open()
+    if self.minimize_on_toggle
+      call self.toggle_minimized()
+    else
+      call self.close()
+    endif
+  else
+    call self.create()
+  endif
+endfunction
+
+function! <SID>s:View_toggle_minimized() dict
+  if self.minimized
+    call self.restore()
+  else
+    call self.minimize()
+  endif
+endfunction
+
+function! <SID>s:View_minimize() dict
+  if self.open() && !self.minimized
+    let self._original_size = self.current_size()
+    call self._apply_size(self.minimized_size)
+    let self.minimized = 1
+  endif
+endfunction
+
+function! <SID>s:View_restore() dict
+  if self.open() && self.minimized
+    call self.resize(self._original_size[0], self._original_size[1])
+    let self.minimized = 0
+    if self.focus_on_restore
+      call self.focus()
+    endif
+  endif
+endfunction
+
+function! <SID>s:View__apply_size(size) dict
+  if self._vertical()
+    call self.resize(self._original_size[0], a:size)
+  else
+    call self.resize(a:size, self._original_size[1])
+  endif
+endfunction
+
+function! <SID>s:View__vertical() dict
+  if self.in_layout()
+    return self.layout.direction ==# 'vertical'
+  else
+    return self.vertical
+  endif
+endfunction
+
 function! s:LayoutConstructor(name, args)
   let layoutObj = {}
-  let layoutObj.name = a:name
+  let viewObj = g:ViewConstructor(a:name)
+  call extend(layoutObj, viewObj)
   let layoutObj.panes = []
   let layoutObj.direction = get(a:args, 'direction', 'vertical')
   let layoutObj.layout = 0
@@ -24,6 +102,8 @@ function! s:LayoutConstructor(name, args)
   let layoutObj.open = function('<SNR>' . s:SID() . '_s:Layout_open')
   let layoutObj.focus = function('<SNR>' . s:SID() . '_s:Layout_focus')
   let layoutObj.set_size = function('<SNR>' . s:SID() . '_s:Layout_set_size')
+  let layoutObj.current_size = function('<SNR>' . s:SID() . '_s:Layout_current_size')
+  let layoutObj.resize = function('<SNR>' . s:SID() . '_s:Layout_resize')
   let layoutObj.splitter = function('<SNR>' . s:SID() . '_s:Layout_splitter')
   let layoutObj.creator = function('<SNR>' . s:SID() . '_s:Layout_creator')
   let layoutObj.in_layout = function('<SNR>' . s:SID() . '_s:Layout_in_layout')
@@ -31,6 +111,7 @@ function! s:LayoutConstructor(name, args)
   let layoutObj.post_create = function('<SNR>' . s:SID() . '_s:Layout_post_create')
   let layoutObj.create_kids = function('<SNR>' . s:SID() . '_s:Layout_create_kids')
   let layoutObj.create_and_wait = function('<SNR>' . s:SID() . '_s:Layout_create_and_wait')
+  let layoutObj.ref_pane = function('<SNR>' . s:SID() . '_s:Layout_ref_pane')
   return layoutObj
 endfunction
 
@@ -96,6 +177,23 @@ function! <SID>s:Layout_focus() dict
 endfunction
 
 function! <SID>s:Layout_set_size() dict
+  if self.open()
+    call self.ref_pane().set_size()
+  endif
+endfunction
+
+function! <SID>s:Layout_current_size() dict
+  if self.open()
+    return self.ref_pane().current_size()
+  else
+    return [0, 0]
+  endif
+endfunction
+
+function! <SID>s:Layout_resize(width, height) dict
+  if self.open()
+    call self.ref_pane().resize(a:width, a:height)
+  endif
 endfunction
 
 function! <SID>s:Layout_splitter() dict
@@ -137,6 +235,10 @@ function! <SID>s:Layout_create_and_wait(...) dict
     sleep 100m
     let counter += 1
   endwhile
+endfunction
+
+function! <SID>s:Layout_ref_pane() dict
+  return self.panes[0]
 endfunction
 
 function! maque#tmux#layout#new(name, args)

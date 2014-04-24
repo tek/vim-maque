@@ -131,6 +131,18 @@ function! maque#tmux#pane_action(action, ...) abort "{{{
   call maque#tmux#pane#disable_cache()
 endfunction "}}}
 
+function! maque#tmux#layout_action(action, ...) abort "{{{
+  call maque#tmux#pane#enable_cache()
+  let name = get(a:000, 0, '')
+  let layout = get(g:maque_tmux_layouts, name, s:layout())
+  call call(layout[a:action], [], layout)
+  call maque#tmux#pane#disable_cache()
+endfunction "}}}
+
+function! maque#tmux#toggle_layout(...) abort "{{{
+  return call('maque#tmux#layout_action', ['toggle'] + a:000)
+endfunction "}}}
+
 " kill the running process
 function! maque#tmux#kill(...) "{{{
   return call('maque#tmux#pane_action', ['kill'] + a:000)
@@ -219,6 +231,10 @@ function! s:pane() "{{{
     let name = s:buffer()
   endif
   return get(g:maque_tmux_panes, name, maque#dummy_pane())
+endfunction "}}}
+
+function! s:layout() abort "{{{
+  return get(g:maque_tmux_layouts, 'make')
 endfunction "}}}
 
 function! s:aux_pane() "{{{

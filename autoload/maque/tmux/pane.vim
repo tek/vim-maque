@@ -10,6 +10,83 @@ function! s:SID()
   return s:SID_VALUE
 endfunction
 
+" included: 'view.riml'
+function! g:ViewConstructor(name, ...)
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let params = remove(__splat_var_cpy, 0)
+  else
+    let params = {}
+  endif
+  let viewObj = {}
+  let viewObj.name = a:name
+  let attrs = {'_original_size': [0, 0], 'minimized': 0, 'minimized_size': 2, 'minimize_on_toggle': get(g:, 'maque_tmux_minimize_on_toggle', 0), 'focus_on_restore': 0, 'vertical': 1}
+  call extend(attrs, params)
+  let attrs.minimized_size = max([attrs.minimized_size, 2])
+  call extend(viewObj, attrs)
+  let viewObj.toggle = function('<SNR>' . s:SID() . '_s:View_toggle')
+  let viewObj.toggle_minimized = function('<SNR>' . s:SID() . '_s:View_toggle_minimized')
+  let viewObj.minimize = function('<SNR>' . s:SID() . '_s:View_minimize')
+  let viewObj.restore = function('<SNR>' . s:SID() . '_s:View_restore')
+  let viewObj._apply_size = function('<SNR>' . s:SID() . '_s:View__apply_size')
+  let viewObj._vertical = function('<SNR>' . s:SID() . '_s:View__vertical')
+  return viewObj
+endfunction
+
+function! <SID>s:View_toggle() dict
+  if self.open()
+    if self.minimize_on_toggle
+      call self.toggle_minimized()
+    else
+      call self.close()
+    endif
+  else
+    call self.create()
+  endif
+endfunction
+
+function! <SID>s:View_toggle_minimized() dict
+  if self.minimized
+    call self.restore()
+  else
+    call self.minimize()
+  endif
+endfunction
+
+function! <SID>s:View_minimize() dict
+  if self.open() && !self.minimized
+    let self._original_size = self.current_size()
+    call self._apply_size(self.minimized_size)
+    let self.minimized = 1
+  endif
+endfunction
+
+function! <SID>s:View_restore() dict
+  if self.open() && self.minimized
+    call self.resize(self._original_size[0], self._original_size[1])
+    let self.minimized = 0
+    if self.focus_on_restore
+      call self.focus()
+    endif
+  endif
+endfunction
+
+function! <SID>s:View__apply_size(size) dict
+  if self._vertical()
+    call self.resize(self._original_size[0], a:size)
+  else
+    call self.resize(a:size, self._original_size[1])
+  endif
+endfunction
+
+function! <SID>s:View__vertical() dict
+  if self.in_layout()
+    return self.layout.direction ==# 'vertical'
+  else
+    return self.vertical
+  endif
+endfunction
+
 let s:use_cache = 0
 let s:cached_panes = {}
 function! maque#tmux#pane#enable_cache()
@@ -58,13 +135,12 @@ function! s:PaneConstructor(name, ...)
     let params = {}
   endif
   let paneObj = {}
-  let attrs = {'id': -1, 'errorfile': tempname(), '_splitter': 'tmux neww -d', 'eval_splitter': 0, 'capture': 1, 'autoclose': 0, '_last_killed': 0, '_killed': 0, 'shell_pid': 0, 'command_pid': 0, 'wait_before_autoclose': 2, 'minimize_on_toggle': get(g:, 'maque_tmux_minimize_on_toggle', 0), 'vertical': 1, 'minimized': 0, 'minimized_size': 2, 'create_minimized': 0, 'restore_on_make': 1, '_original_size': [0, 0], 'kill_running_on_make': 1, 'focus_on_restore': 0, 'focus_on_make': 0, 'manual_termination': 0, 'layout': 0, 'size': 0}
+  let attrs = {'id': -1, 'errorfile': tempname(), '_splitter': 'tmux neww -d', 'eval_splitter': 0, 'capture': 1, 'autoclose': 0, '_last_killed': 0, '_killed': 0, 'shell_pid': 0, 'command_pid': 0, 'wait_before_autoclose': 2, 'create_minimized': 0, 'restore_on_make': 1, 'kill_running_on_make': 1, 'focus_on_make': 0, 'manual_termination': 0, 'layout': 0, 'size': 0}
   call extend(attrs, params)
-  let attrs.minimized_size = max([attrs.minimized_size, 2])
-  let paneObj.name = a:name
   let paneObj.command_executable = ''
   let paneObj.spawning_make = 0
-  call extend(paneObj, attrs)
+  let viewObj = g:ViewConstructor(a:name, attrs)
+  call extend(paneObj, viewObj)
   let paneObj.create = function('<SNR>' . s:SID() . '_s:Pane_create')
   let paneObj.create_free = function('<SNR>' . s:SID() . '_s:Pane_create_free')
   let paneObj.determine_id = function('<SNR>' . s:SID() . '_s:Pane_determine_id')
@@ -79,12 +155,8 @@ function! s:PaneConstructor(name, ...)
   let paneObj.send_keys = function('<SNR>' . s:SID() . '_s:Pane_send_keys')
   let paneObj.open = function('<SNR>' . s:SID() . '_s:Pane_open')
   let paneObj.close = function('<SNR>' . s:SID() . '_s:Pane_close')
-  let paneObj.toggle = function('<SNR>' . s:SID() . '_s:Pane_toggle')
-  let paneObj.toggle_minimized = function('<SNR>' . s:SID() . '_s:Pane_toggle_minimized')
-  let paneObj.minimize = function('<SNR>' . s:SID() . '_s:Pane_minimize')
-  let paneObj.restore = function('<SNR>' . s:SID() . '_s:Pane_restore')
+  let paneObj.current_size = function('<SNR>' . s:SID() . '_s:Pane_current_size')
   let paneObj.set_size = function('<SNR>' . s:SID() . '_s:Pane_set_size')
-  let paneObj._apply_size = function('<SNR>' . s:SID() . '_s:Pane__apply_size')
   let paneObj.resize = function('<SNR>' . s:SID() . '_s:Pane_resize')
   let paneObj.focus = function('<SNR>' . s:SID() . '_s:Pane_focus')
   let paneObj.pipe_to_file = function('<SNR>' . s:SID() . '_s:Pane_pipe_to_file')
@@ -99,7 +171,6 @@ function! s:PaneConstructor(name, ...)
   let paneObj.ready_for_make = function('<SNR>' . s:SID() . '_s:Pane_ready_for_make')
   let paneObj.in_layout = function('<SNR>' . s:SID() . '_s:Pane_in_layout')
   let paneObj._handle_running_process = function('<SNR>' . s:SID() . '_s:Pane__handle_running_process')
-  let paneObj._vertical = function('<SNR>' . s:SID() . '_s:Pane__vertical')
   return paneObj
 endfunction
 
@@ -253,38 +324,8 @@ function! <SID>s:Pane_close() dict
   let self.shell_pid = 0
 endfunction
 
-function! <SID>s:Pane_toggle() dict
-  if self.open()
-    if self.minimize_on_toggle
-      call self.toggle_minimized()
-    else
-      call self.close()
-    endif
-  else
-    call self.create()
-  endif
-endfunction
-
-function! <SID>s:Pane_toggle_minimized() dict
-  if self.minimized
-    call self.restore()
-  else
-    call self.minimize()
-  endif
-endfunction
-
-function! <SID>s:Pane_minimize() dict
-  let self._original_size = maque#tmux#pane#size(self.id)
-  call self._apply_size(self.minimized_size)
-  let self.minimized = 1
-endfunction
-
-function! <SID>s:Pane_restore() dict
-  call self.resize(self._original_size[0], self._original_size[1])
-  let self.minimized = 0
-  if self.focus_on_restore
-    call self.focus()
-  endif
+function! <SID>s:Pane_current_size() dict
+  return maque#tmux#pane#size(self.id)
 endfunction
 
 function! <SID>s:Pane_set_size() dict
@@ -292,22 +333,7 @@ function! <SID>s:Pane_set_size() dict
     call self._apply_size(self.minimized_size)
   elseif self.size
     let self._original_size = maque#tmux#pane#size(self.id)
-    call self._apply_size(self.size, 1)
-  endif
-endfunction
-
-function! <SID>s:Pane__apply_size(size, ...) dict
-  let __splat_var_cpy = copy(a:000)
-  if !empty(__splat_var_cpy)
-    let stack = remove(__splat_var_cpy, 0)
-  else
-    let stack = 0
-  endif
-  let vertical = xor(self._vertical(), stack)
-  if vertical
-    call self.resize(a:size, self._original_size[1])
-  else
-    call self.resize(self._original_size[0], a:size)
+    call self._apply_size(self.size)
   endif
 endfunction
 
@@ -400,14 +426,6 @@ function! <SID>s:Pane__handle_running_process() dict
     endif
   else
     call maque#util#warn('Refusing to kill running process!')
-  endif
-endfunction
-
-function! <SID>s:Pane__vertical() dict
-  if self.in_layout()
-    return self.layout.direction ==# 'vertical'
-  else
-    return self.vertical
   endif
 endfunction
 

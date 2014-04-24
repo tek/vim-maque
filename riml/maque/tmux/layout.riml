@@ -1,7 +1,9 @@
-class Layout
+riml_include 'view.riml'
+
+class Layout < g:View
 
   def initialize(name, args)
-    self.name = name
+    super(name)
     self.panes = []
     self.direction = get(a:args, 'direction', 'vertical')
     self.layout = 0
@@ -59,7 +61,24 @@ class Layout
     end
   end
 
-  defm set_size()
+  defm set_size
+    if self.open()
+      self.ref_pane().set_size()
+    end
+  end
+
+  defm current_size
+    if self.open()
+      return self.ref_pane().current_size()
+    else
+      return [0, 0]
+    end
+  end
+
+  defm resize(width, height)
+    if self.open()
+      self.ref_pane().resize(width, height)
+    end
   end
  
   defm splitter
@@ -101,6 +120,10 @@ class Layout
       add(panes, pane) if pane.open()
     end
     return panes
+  end
+
+  defm ref_pane
+    return self.panes[0]
   end
 end
 

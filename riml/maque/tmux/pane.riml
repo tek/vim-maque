@@ -1,3 +1,5 @@
+riml_include 'view.riml'
+
 use_cache = 0
 cached_panes = {}
 
@@ -44,7 +46,7 @@ def maque#tmux#pane#size(id)
   end
 end
 
-class Pane
+class Pane < g:View
 
   def initialize(name, params={})
     attrs = {
@@ -59,26 +61,18 @@ class Pane
           \ 'shell_pid': 0,
           \ 'command_pid': 0,
           \ 'wait_before_autoclose': 2,
-          \ 'minimize_on_toggle': get(g:, 'maque_tmux_minimize_on_toggle', 0),
-          \ 'vertical': 1,
-          \ 'minimized': 0,
-          \ 'minimized_size': 2,
           \ 'create_minimized': 0,
           \ 'restore_on_make': 1,
-          \ '_original_size': [0, 0],
           \ 'kill_running_on_make': 1,
-          \ 'focus_on_restore': 0,
           \ 'focus_on_make': 0,
           \ 'manual_termination': 0,
           \ 'layout': 0,
           \ 'size': 0,
           \ }
     extend(attrs, params)
-    attrs.minimized_size = max([attrs.minimized_size, 2])
-    self.name = name
     self.command_executable = ''
     self.spawning_make = 0
-    extend(paneObj, attrs)
+    super(name, attrs)
   end
 
   defm create
@@ -223,43 +217,8 @@ class Pane
     self.shell_pid = 0
   end
 
-  defm toggle
-    if self.open()
-      if self.minimize_on_toggle
-        self.toggle_minimized()
-      else
-        self.close()
-      end
-    else
-      self.create()
-    end
-  end
-
-  defm toggle_minimized
-    if self.minimized
-      self.restore()
-    else
-      self.minimize()
-    end
-  end
-
-  " Store the current size and set the minimized_size.
-  " Do not use the 'size' parameter for restoring, as the pane could have been
-  " altered purposefully.
-  defm minimize
-    if self.open() && !self.minimized
-      self._original_size = maque#tmux#pane#size(self.id)
-      self._apply_size(self.minimized_size)
-      self.minimized = 1
-    end
-  end
-
-  defm restore
-    if self.open() && self.minimized
-      self.resize(self._original_size[0], self._original_size[1])
-      self.minimized = 0
-      self.focus() if self.focus_on_restore
-    end
+  defm current_size
+    return maque#tmux#pane#size(self.id)
   end
 
   " Restore the size given by the constructor parameters 'size' or
@@ -269,18 +228,7 @@ class Pane
       self._apply_size(self.minimized_size)
     elseif self.size
       self._original_size = maque#tmux#pane#size(self.id)
-      self._apply_size(self.size, 1)
-    end
-  end
-
-  " FIXME need to discern between minimizing and setting the stacking size in
-  " the layout's direction.
-  defm _apply_size(size, stack=0)
-    :let vertical = xor(self._vertical(), stack)
-    if vertical
-      self.resize(size, self._original_size[1])
-    else
-      self.resize(self._original_size[0], size)
+      self._apply_size(self.size)
     end
   end
 
@@ -376,14 +324,6 @@ class Pane
       end
     else
       maque#util#warn('Refusing to kill running process!')
-    end
-  end
-
-  defm _vertical
-    if self.in_layout()
-      return self.layout.direction == 'vertical'
-    else
-      return self.vertical
     end
   end
 end

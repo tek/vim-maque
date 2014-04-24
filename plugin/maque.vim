@@ -29,7 +29,10 @@ command! MaqueLine                      call maque#ft#common#set_line()<Bar>call
 command! MaqueQuery                     call maque#query()<Bar>call maque#make()
 command! -nargs=? MaqueParse            call maque#parse(<f-args>)
 command! MaqueCycle                     call maque#cycle()
-command! -nargs=? MaqueToggleTmux       call maque#tmux#toggle(<f-args>)
+command! -nargs=1 MaqueRunCommand       call maque#make_command(<q-args>)
+command! -nargs=1 MaqueToggleCommand    call maque#toggle_command(<q-args>)
+command! -nargs=? MaqueTmuxToggleLayout call maque#tmux#toggle_layout(<f-args>)
+command! -nargs=? MaqueTmuxTogglePane   call maque#tmux#toggle(<f-args>)
 command! -nargs=? MaqueTmuxKill         call maque#tmux#kill(<f-args>)
 command! -nargs=* MaqueTmuxBuffer       call maque#tmux#create_buffer_pane(<q-args>)<Bar>call maque#make_auto()
 command! MaqueTmuxDebuffer              call maque#tmux#delete_buffer_pane()
@@ -38,24 +41,22 @@ command! -nargs=+ MaqueTmuxAddPane      call maque#tmux#add_pane(<f-args>)
 command! MaqueTmuxClose                 call maque#tmux#close_pane()
 command! MaqueTmuxMinimize              call maque#tmux#minimize()
 command! -nargs=? MaqueTmuxResetCapture call maque#tmux#reset_capture(<q-args>)
-command! -nargs=1 MaqueRunCommand       call maque#make_command(<q-args>)
-command! -nargs=1 MaqueToggleCommand    call maque#toggle_command(<q-args>)
 "}}}
 
 "{{{ mappings
-nnoremap <silent> <Plug>(maque)               :Maque<cr>
-nnoremap <silent> <Plug>(auto-maque)          :AutoMaque<cr>
-nnoremap <silent> <Plug>(maque-file)          :MaqueFile<cr>
-nnoremap <silent> <Plug>(maque-line)          :MaqueLine<cr>
-nnoremap <silent> <Plug>(maque-query)         :MaqueQuery<cr>
-nnoremap <silent> <Plug>(maque-parse)         :MaqueParse<cr>
-nnoremap <silent> <Plug>(maque-cycle)         :MaqueCycle<cr>
-nnoremap <silent> <Plug>(maque-toggle-tmux)   :MaqueToggleTmux<cr>
-nnoremap <silent> <Plug>(maque-tmux-kill)     :MaqueTmuxKill<cr>
-nnoremap <silent> <Plug>(maque-tmux-buffer)   :MaqueTmuxBuffer<cr>
-nnoremap <silent> <Plug>(maque-tmux-debuffer) :MaqueTmuxDebuffer<cr>
-nnoremap <silent> <Plug>(maque-tmux-cycle)    :MaqueTmuxCycle<cr>
-nnoremap <silent> <Plug>(maque-tmux-close)    :MaqueTmuxClose<cr>
+nnoremap <silent> <Plug>(maque)                  :Maque<cr>
+nnoremap <silent> <Plug>(auto-maque)             :AutoMaque<cr>
+nnoremap <silent> <Plug>(maque-file)             :MaqueFile<cr>
+nnoremap <silent> <Plug>(maque-line)             :MaqueLine<cr>
+nnoremap <silent> <Plug>(maque-query)            :MaqueQuery<cr>
+nnoremap <silent> <Plug>(maque-parse)            :MaqueParse<cr>
+nnoremap <silent> <Plug>(maque-cycle)            :MaqueCycle<cr>
+nnoremap <silent> <Plug>(maque-tmux-kill)        :MaqueTmuxKill<cr>
+nnoremap <silent> <Plug>(maque-tmux-buffer)      :MaqueTmuxBuffer<cr>
+nnoremap <silent> <Plug>(maque-tmux-debuffer)    :MaqueTmuxDebuffer<cr>
+nnoremap <silent> <Plug>(maque-tmux-cycle)       :MaqueTmuxCycle<cr>
+nnoremap <silent> <Plug>(maque-tmux-close)       :MaqueTmuxClose<cr>
+nnoremap <silent> <Plug>(maque-tmux-toggle-make) :MaqueTmuxToggleLayout make<cr>
 "}}}
 
 augroup maque "{{{
