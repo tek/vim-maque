@@ -3,7 +3,7 @@ riml_include 'view.riml'
 class Layout < g:View
 
   def initialize(name, args)
-    super(name)
+    super(name, args)
     self.panes = []
     self.direction = get(a:args, 'direction', 'vertical')
     self.layout = 0
@@ -47,6 +47,12 @@ class Layout < g:View
   defm pack
     for pane in self.panes
       pane.set_size()
+    end
+  end
+
+  defm close
+    for pane in self.open_panes()
+      pane.close()
     end
   end
  
@@ -127,6 +133,6 @@ class Layout < g:View
   end
 end
 
-def maque#tmux#layout#new(name, args)
+def maque#tmux#layout#new(name, args={})
   return new Layout(name, args)
 end

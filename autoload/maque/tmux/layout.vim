@@ -89,7 +89,7 @@ endfunction
 
 function! s:LayoutConstructor(name, args)
   let layoutObj = {}
-  let viewObj = g:ViewConstructor(a:name)
+  let viewObj = g:ViewConstructor(a:name, a:args)
   call extend(layoutObj, viewObj)
   let layoutObj.panes = []
   let layoutObj.direction = get(a:args, 'direction', 'vertical')
@@ -99,6 +99,7 @@ function! s:LayoutConstructor(name, args)
   let layoutObj.create = function('<SNR>' . s:SID() . '_s:Layout_create')
   let layoutObj.create_pane = function('<SNR>' . s:SID() . '_s:Layout_create_pane')
   let layoutObj.pack = function('<SNR>' . s:SID() . '_s:Layout_pack')
+  let layoutObj.close = function('<SNR>' . s:SID() . '_s:Layout_close')
   let layoutObj.open = function('<SNR>' . s:SID() . '_s:Layout_open')
   let layoutObj.focus = function('<SNR>' . s:SID() . '_s:Layout_focus')
   let layoutObj.set_size = function('<SNR>' . s:SID() . '_s:Layout_set_size')
@@ -162,6 +163,12 @@ endfunction
 function! <SID>s:Layout_pack() dict
   for pane in self.panes
     call pane.set_size()
+  endfor
+endfunction
+
+function! <SID>s:Layout_close() dict
+  for pane in s:Layout_open_panes(self)
+    call pane.close()
   endfor
 endfunction
 
@@ -241,6 +248,12 @@ function! <SID>s:Layout_ref_pane() dict
   return self.panes[0]
 endfunction
 
-function! maque#tmux#layout#new(name, args)
-  return s:LayoutConstructor(a:name, a:args)
+function! maque#tmux#layout#new(name, ...)
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let args = remove(__splat_var_cpy, 0)
+  else
+    let args = {}
+  endif
+  return s:LayoutConstructor(a:name, args)
 endfunction
