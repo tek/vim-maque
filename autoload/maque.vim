@@ -128,6 +128,14 @@ function! maque#make_command(name) "{{{
   endif
 endfunction "}}}
 
+function! maque#toggle_command(name) abort "{{{
+  if has_key(maque#commands(), a:name)
+    call maque#command(a:name).toggle()
+  else
+    call maque#util#warn('no such command: '.a:name)
+  endif
+endfunction "}}}
+
 function! maque#set_main_command(name) "{{{
   if has_key(maque#commands(), a:name)
     let g:maqueprg = maque#commands()[a:name].command()

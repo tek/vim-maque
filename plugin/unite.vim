@@ -13,3 +13,4 @@ let g:maque_unite_command_mappings = 1
 
 let g:maque_unite_command_mapping_make = 'M'
 let g:maque_unite_command_mapping_set_main = 'S'
+let g:maque_unite_command_mapping_toggle = 'T'

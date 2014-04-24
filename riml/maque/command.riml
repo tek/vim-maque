@@ -1,3 +1,5 @@
+" FIXME pane_name is misleading as in eval mode, it is expected to return a
+" Pane object
 class Command
 
   def initialize(command, params={})
@@ -63,6 +65,15 @@ class Command
 
   defm kill
     return self.pane().kill_wait()
+  end
+
+  defm toggle
+    pane = self.pane()
+    if pane.process_alive()
+      pane.toggle()
+    else
+      self.make()
+    end
   end
 end
 

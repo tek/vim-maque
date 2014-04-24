@@ -10,6 +10,10 @@ def unite#kinds#maque_command#set_main(candidate)
   maque#set_main_command(candidate.action__name)
 end
 
+def unite#kinds#maque_command#toggle(candidate)
+  maque#toggle_command(candidate.action__name)
+end
+
 s:actions = {
       \ 'make': {
       \   'func': function('unite#kinds#maque_command#make'),
@@ -19,11 +23,15 @@ s:actions = {
       \   'func': function('unite#kinds#maque_command#set_main'),
       \   'description': 'set g:maqueprg to this command line',
       \ },
+      \ 'toggle': {
+      \   'func': function('unite#kinds#maque_command#toggle'),
+      \   'description': 'execute command or toggle the pane if running',
+      \ },
       \ }
 
 g:unite_kind_maque_command = {
       \ 'name': 'maque_command',
-      \ 'default_action': 'make',
+      \ 'default_action': 'toggle',
       \ 'action_table': s:actions,
       \ 'parents': [],
       \ }

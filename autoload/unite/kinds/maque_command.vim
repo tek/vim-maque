@@ -14,5 +14,9 @@ function! unite#kinds#maque_command#set_main(candidate)
   call maque#set_main_command(a:candidate.action__name)
 endfunction
 
-let s:actions = {'make': {'func': function('unite#kinds#maque_command#make'), 'description': 'execute the command in its pane'}, 'set_main': {'func': function('unite#kinds#maque_command#set_main'), 'description': 'set g:maqueprg to this command line'}}
-let g:unite_kind_maque_command = {'name': 'maque_command', 'default_action': 'make', 'action_table': s:actions, 'parents': []}
+function! unite#kinds#maque_command#toggle(candidate)
+  call maque#toggle_command(a:candidate.action__name)
+endfunction
+
+let s:actions = {'make': {'func': function('unite#kinds#maque_command#make'), 'description': 'execute the command in its pane'}, 'set_main': {'func': function('unite#kinds#maque_command#set_main'), 'description': 'set g:maqueprg to this command line'}, 'toggle': {'func': function('unite#kinds#maque_command#toggle'), 'description': 'execute command or toggle the pane if running'}}
+let g:unite_kind_maque_command = {'name': 'maque_command', 'default_action': 'toggle', 'action_table': s:actions, 'parents': []}
