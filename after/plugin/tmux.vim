@@ -16,6 +16,7 @@ if g:maque_tmux_default_panes && !exists('g:maque_remote')
         \ '_splitter': 'g:maque_tmux_aux_split_cmd', 
         \ 'capture': 0,
         \ 'autoclose': 1,
+        \ 'size': 25,
         \ }
         \ )
   call maque#tmux#add_pane('bg', {
@@ -26,9 +27,10 @@ if g:maque_tmux_default_panes && !exists('g:maque_remote')
         \ }
         \ )
   let status = maque#tmux#add_pane('status', {
-        \ '_splitter': 'tmux split-window -v -d -p 30', 
+        \ '_splitter': 'tmux split-window -v -d -p 15', 
         \ 'capture': 0,
         \ 'autoclose': 0,
+        \ 'size': 15,
         \ }
         \ )
   let g:maque_tmux_current_pane = 'main'
