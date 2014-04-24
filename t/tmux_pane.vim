@@ -111,42 +111,6 @@ describe 'pane process management'
 
 end
 
-describe 'minimize'
-
-  after
-    call g:pane.close()
-    unlet g:pane
-  end
-
-  it 'minimize the pane when toggling'
-    let g:master_pane = maque#tmux#pane#new('master')
-    let splitter = 'tmux split-window -h -d "zsh -f"'
-    let g:pane = maque#tmux#pane#new('toggle test', {
-          \ '_splitter': splitter,
-          \ 'capture': 0,
-          \ 'minimize_on_toggle': 1,
-          \ 'vertical': 1,
-          \ 'minimized_size': 20,
-          \ })
-    call g:pane.create()
-    call maque#util#wait_until('g:pane.open()')
-    let original_size = maque#tmux#pane#size(g:pane.id)
-    call g:pane.toggle()
-    call maque#util#wait_until('g:pane.minimized')
-    Expect g:pane.open() == 1
-    Expect g:pane.minimized == 1
-    let size = maque#tmux#pane#size(g:pane.id)
-    Expect size[0] == '20'
-    call g:pane.toggle()
-    call maque#util#wait_until('!g:pane.minimized')
-    Expect g:pane.open() == 1
-    Expect g:pane.minimized == 0
-    let size = maque#tmux#pane#size(g:pane.id)
-    Expect size == original_size
-  end
-
-end
-
 describe 'pane.kill_running_on_make'
   before
     let g:maque_tmux_kill_signals = ['KILL']
