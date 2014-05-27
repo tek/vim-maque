@@ -143,6 +143,10 @@ function! maque#tmux#toggle_layout(...) abort "{{{
   return call('maque#tmux#layout_action', ['toggle'] + a:000)
 endfunction "}}}
 
+function! maque#tmux#minimize_layout(...) abort "{{{
+  return call('maque#tmux#layout_action', ['minimize'] + a:000)
+endfunction "}}}
+
 " kill the running process
 function! maque#tmux#kill(...) "{{{
   return call('maque#tmux#pane_action', ['kill'] + a:000)
