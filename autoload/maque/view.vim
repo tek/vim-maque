@@ -23,16 +23,16 @@ function! g:ViewConstructor(name, ...)
   call extend(attrs, params)
   let attrs.minimized_size = max([attrs.minimized_size, 2])
   call extend(viewObj, attrs)
-  let viewObj.toggle = function('<SNR>' . s:SID() . '_s:View_toggle')
-  let viewObj.toggle_minimized = function('<SNR>' . s:SID() . '_s:View_toggle_minimized')
-  let viewObj.minimize = function('<SNR>' . s:SID() . '_s:View_minimize')
-  let viewObj.restore = function('<SNR>' . s:SID() . '_s:View_restore')
-  let viewObj._apply_size = function('<SNR>' . s:SID() . '_s:View__apply_size')
-  let viewObj._vertical = function('<SNR>' . s:SID() . '_s:View__vertical')
+  let viewObj.toggle = function('<SNR>' . s:SID() . '_View_toggle')
+  let viewObj.toggle_minimized = function('<SNR>' . s:SID() . '_View_toggle_minimized')
+  let viewObj.minimize = function('<SNR>' . s:SID() . '_View_minimize')
+  let viewObj.restore = function('<SNR>' . s:SID() . '_View_restore')
+  let viewObj._apply_size = function('<SNR>' . s:SID() . '_View__apply_size')
+  let viewObj._vertical = function('<SNR>' . s:SID() . '_View__vertical')
   return viewObj
 endfunction
 
-function! <SID>s:View_toggle() dict
+function! s:View_toggle() dict
   if self.open()
     if self.minimize_on_toggle
       call self.toggle_minimized()
@@ -44,7 +44,7 @@ function! <SID>s:View_toggle() dict
   endif
 endfunction
 
-function! <SID>s:View_toggle_minimized() dict
+function! s:View_toggle_minimized() dict
   if self.minimized
     call self.restore()
   else
@@ -52,7 +52,7 @@ function! <SID>s:View_toggle_minimized() dict
   endif
 endfunction
 
-function! <SID>s:View_minimize() dict
+function! s:View_minimize() dict
   if self.open() && !self.minimized
     let self._original_size = self.current_size()
     call self._apply_size(self.minimized_size)
@@ -60,7 +60,7 @@ function! <SID>s:View_minimize() dict
   endif
 endfunction
 
-function! <SID>s:View_restore() dict
+function! s:View_restore() dict
   if self.open() && self.minimized
     call self.resize(self._original_size[0], self._original_size[1])
     let self.minimized = 0
@@ -70,7 +70,7 @@ function! <SID>s:View_restore() dict
   endif
 endfunction
 
-function! <SID>s:View__apply_size(size) dict
+function! s:View__apply_size(size) dict
   if self._vertical()
     call self.resize(self._original_size[0], a:size)
   else
@@ -78,7 +78,7 @@ function! <SID>s:View__apply_size(size) dict
   endif
 endfunction
 
-function! <SID>s:View__vertical() dict
+function! s:View__vertical() dict
   if self.in_layout()
     return self.layout.direction ==# 'vertical'
   else

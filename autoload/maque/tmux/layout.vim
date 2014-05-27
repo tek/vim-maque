@@ -24,16 +24,16 @@ function! g:ViewConstructor(name, ...)
   call extend(attrs, params)
   let attrs.minimized_size = max([attrs.minimized_size, 2])
   call extend(viewObj, attrs)
-  let viewObj.toggle = function('<SNR>' . s:SID() . '_s:View_toggle')
-  let viewObj.toggle_minimized = function('<SNR>' . s:SID() . '_s:View_toggle_minimized')
-  let viewObj.minimize = function('<SNR>' . s:SID() . '_s:View_minimize')
-  let viewObj.restore = function('<SNR>' . s:SID() . '_s:View_restore')
-  let viewObj._apply_size = function('<SNR>' . s:SID() . '_s:View__apply_size')
-  let viewObj._vertical = function('<SNR>' . s:SID() . '_s:View__vertical')
+  let viewObj.toggle = function('<SNR>' . s:SID() . '_View_toggle')
+  let viewObj.toggle_minimized = function('<SNR>' . s:SID() . '_View_toggle_minimized')
+  let viewObj.minimize = function('<SNR>' . s:SID() . '_View_minimize')
+  let viewObj.restore = function('<SNR>' . s:SID() . '_View_restore')
+  let viewObj._apply_size = function('<SNR>' . s:SID() . '_View__apply_size')
+  let viewObj._vertical = function('<SNR>' . s:SID() . '_View__vertical')
   return viewObj
 endfunction
 
-function! <SID>s:View_toggle() dict
+function! s:View_toggle() dict
   if self.open()
     if self.minimize_on_toggle
       call self.toggle_minimized()
@@ -45,7 +45,7 @@ function! <SID>s:View_toggle() dict
   endif
 endfunction
 
-function! <SID>s:View_toggle_minimized() dict
+function! s:View_toggle_minimized() dict
   if self.minimized
     call self.restore()
   else
@@ -53,7 +53,7 @@ function! <SID>s:View_toggle_minimized() dict
   endif
 endfunction
 
-function! <SID>s:View_minimize() dict
+function! s:View_minimize() dict
   if self.open() && !self.minimized
     let self._original_size = self.current_size()
     call self._apply_size(self.minimized_size)
@@ -61,7 +61,7 @@ function! <SID>s:View_minimize() dict
   endif
 endfunction
 
-function! <SID>s:View_restore() dict
+function! s:View_restore() dict
   if self.open() && self.minimized
     call self.resize(self._original_size[0], self._original_size[1])
     let self.minimized = 0
@@ -71,7 +71,7 @@ function! <SID>s:View_restore() dict
   endif
 endfunction
 
-function! <SID>s:View__apply_size(size) dict
+function! s:View__apply_size(size) dict
   if self._vertical()
     call self.resize(self._original_size[0], a:size)
   else
@@ -79,7 +79,7 @@ function! <SID>s:View__apply_size(size) dict
   endif
 endfunction
 
-function! <SID>s:View__vertical() dict
+function! s:View__vertical() dict
   if self.in_layout()
     return self.layout.direction ==# 'vertical'
   else
@@ -95,24 +95,24 @@ function! s:LayoutConstructor(name, args)
   let layoutObj.direction = get(a:args, 'direction', 'vertical')
   let layoutObj.layout = 0
   let layoutObj.size = get(a:args, 'size')
-  let layoutObj.add = function('<SNR>' . s:SID() . '_s:Layout_add')
-  let layoutObj.create = function('<SNR>' . s:SID() . '_s:Layout_create')
-  let layoutObj.create_pane = function('<SNR>' . s:SID() . '_s:Layout_create_pane')
-  let layoutObj.pack = function('<SNR>' . s:SID() . '_s:Layout_pack')
-  let layoutObj.close = function('<SNR>' . s:SID() . '_s:Layout_close')
-  let layoutObj.open = function('<SNR>' . s:SID() . '_s:Layout_open')
-  let layoutObj.focus = function('<SNR>' . s:SID() . '_s:Layout_focus')
-  let layoutObj.set_size = function('<SNR>' . s:SID() . '_s:Layout_set_size')
-  let layoutObj.current_size = function('<SNR>' . s:SID() . '_s:Layout_current_size')
-  let layoutObj.resize = function('<SNR>' . s:SID() . '_s:Layout_resize')
-  let layoutObj.splitter = function('<SNR>' . s:SID() . '_s:Layout_splitter')
-  let layoutObj.creator = function('<SNR>' . s:SID() . '_s:Layout_creator')
-  let layoutObj.in_layout = function('<SNR>' . s:SID() . '_s:Layout_in_layout')
-  let layoutObj.determine_id = function('<SNR>' . s:SID() . '_s:Layout_determine_id')
-  let layoutObj.post_create = function('<SNR>' . s:SID() . '_s:Layout_post_create')
-  let layoutObj.create_kids = function('<SNR>' . s:SID() . '_s:Layout_create_kids')
-  let layoutObj.create_and_wait = function('<SNR>' . s:SID() . '_s:Layout_create_and_wait')
-  let layoutObj.ref_pane = function('<SNR>' . s:SID() . '_s:Layout_ref_pane')
+  let layoutObj.add = function('<SNR>' . s:SID() . '_Layout_add')
+  let layoutObj.create = function('<SNR>' . s:SID() . '_Layout_create')
+  let layoutObj.create_pane = function('<SNR>' . s:SID() . '_Layout_create_pane')
+  let layoutObj.pack = function('<SNR>' . s:SID() . '_Layout_pack')
+  let layoutObj.close = function('<SNR>' . s:SID() . '_Layout_close')
+  let layoutObj.open = function('<SNR>' . s:SID() . '_Layout_open')
+  let layoutObj.focus = function('<SNR>' . s:SID() . '_Layout_focus')
+  let layoutObj.set_size = function('<SNR>' . s:SID() . '_Layout_set_size')
+  let layoutObj.current_size = function('<SNR>' . s:SID() . '_Layout_current_size')
+  let layoutObj.resize = function('<SNR>' . s:SID() . '_Layout_resize')
+  let layoutObj.splitter = function('<SNR>' . s:SID() . '_Layout_splitter')
+  let layoutObj.creator = function('<SNR>' . s:SID() . '_Layout_creator')
+  let layoutObj.in_layout = function('<SNR>' . s:SID() . '_Layout_in_layout')
+  let layoutObj.determine_id = function('<SNR>' . s:SID() . '_Layout_determine_id')
+  let layoutObj.post_create = function('<SNR>' . s:SID() . '_Layout_post_create')
+  let layoutObj.create_kids = function('<SNR>' . s:SID() . '_Layout_create_kids')
+  let layoutObj.create_and_wait = function('<SNR>' . s:SID() . '_Layout_create_and_wait')
+  let layoutObj.ref_pane = function('<SNR>' . s:SID() . '_Layout_ref_pane')
   return layoutObj
 endfunction
 
@@ -126,12 +126,12 @@ function! s:Layout_open_panes(layoutObj)
   return panes
 endfunction
 
-function! <SID>s:Layout_add(pane) dict
+function! s:Layout_add(pane) dict
   call add(self.panes, a:pane)
   let a:pane.layout = self
 endfunction
 
-function! <SID>s:Layout_create() dict
+function! s:Layout_create() dict
   if !(self.open())
     if self.in_layout() && len(self.panes) ># 0
       call self.layout.create_pane(self.panes[0])
@@ -141,7 +141,7 @@ function! <SID>s:Layout_create() dict
   endif
 endfunction
 
-function! <SID>s:Layout_create_pane(pane) dict
+function! s:Layout_create_pane(pane) dict
   if self.in_layout()
     call self.layout.create_kids()
   endif
@@ -160,36 +160,36 @@ function! <SID>s:Layout_create_pane(pane) dict
   endif
 endfunction
 
-function! <SID>s:Layout_pack() dict
+function! s:Layout_pack() dict
   for pane in self.panes
     call pane.set_size()
   endfor
 endfunction
 
-function! <SID>s:Layout_close() dict
+function! s:Layout_close() dict
   for pane in s:Layout_open_panes(self)
     call pane.close()
   endfor
 endfunction
 
-function! <SID>s:Layout_open() dict
+function! s:Layout_open() dict
   return !empty(s:Layout_open_panes(self))
 endfunction
 
-function! <SID>s:Layout_focus() dict
+function! s:Layout_focus() dict
   if self.open()
     let pane = s:Layout_open_panes(self)[0]
     call pane.focus()
   endif
 endfunction
 
-function! <SID>s:Layout_set_size() dict
+function! s:Layout_set_size() dict
   if self.open()
     call self.ref_pane().set_size()
   endif
 endfunction
 
-function! <SID>s:Layout_current_size() dict
+function! s:Layout_current_size() dict
   if self.open()
     return self.ref_pane().current_size()
   else
@@ -197,31 +197,31 @@ function! <SID>s:Layout_current_size() dict
   endif
 endfunction
 
-function! <SID>s:Layout_resize(width, height) dict
+function! s:Layout_resize(width, height) dict
   if self.open()
     call self.ref_pane().resize(a:width, a:height)
   endif
 endfunction
 
-function! <SID>s:Layout_splitter() dict
+function! s:Layout_splitter() dict
   return self.direction ==# 'vertical' ? 'splitw -v -d' : 'splitw -h -d'
 endfunction
 
-function! <SID>s:Layout_creator() dict
+function! s:Layout_creator() dict
   return self.direction ==# 'vertical' ? 'splitw -h -d' : 'splitw -v -d'
 endfunction
 
-function! <SID>s:Layout_in_layout() dict
+function! s:Layout_in_layout() dict
   return type(self.layout) !=# type(0)
 endfunction
 
-function! <SID>s:Layout_determine_id(...) dict
+function! s:Layout_determine_id(...) dict
 endfunction
 
-function! <SID>s:Layout_post_create() dict
+function! s:Layout_post_create() dict
 endfunction
 
-function! <SID>s:Layout_create_kids() dict
+function! s:Layout_create_kids() dict
   for pane in self.panes
     if !(pane.open())
       call pane.create_and_wait()
@@ -229,7 +229,7 @@ function! <SID>s:Layout_create_kids() dict
   endfor
 endfunction
 
-function! <SID>s:Layout_create_and_wait(...) dict
+function! s:Layout_create_and_wait(...) dict
   let __splat_var_cpy = copy(a:000)
   if !empty(__splat_var_cpy)
     let timeout = remove(__splat_var_cpy, 0)
@@ -244,7 +244,7 @@ function! <SID>s:Layout_create_and_wait(...) dict
   endwhile
 endfunction
 
-function! <SID>s:Layout_ref_pane() dict
+function! s:Layout_ref_pane() dict
   return self.panes[0]
 endfunction
 

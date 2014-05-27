@@ -24,46 +24,46 @@ function! s:CommandConstructor(command, ...)
   let attrs = {'_command': a:command, 'pane_name': 'main', 'handler': g:maque_handler, 'cmd_type': 'shell', 'pane_type': 'name'}
   call extend(commandObj, attrs)
   call extend(commandObj, params)
-  let commandObj.command = function('<SNR>' . s:SID() . '_s:Command_command')
-  let commandObj._command_eval = function('<SNR>' . s:SID() . '_s:Command__command_eval')
-  let commandObj._command_shell = function('<SNR>' . s:SID() . '_s:Command__command_shell')
-  let commandObj.cmd_compact = function('<SNR>' . s:SID() . '_s:Command_cmd_compact')
-  let commandObj.make = function('<SNR>' . s:SID() . '_s:Command_make')
-  let commandObj.pane = function('<SNR>' . s:SID() . '_s:Command_pane')
-  let commandObj._pane_eval = function('<SNR>' . s:SID() . '_s:Command__pane_eval')
-  let commandObj._pane_name = function('<SNR>' . s:SID() . '_s:Command__pane_name')
-  let commandObj.restart = function('<SNR>' . s:SID() . '_s:Command_restart')
-  let commandObj.kill = function('<SNR>' . s:SID() . '_s:Command_kill')
-  let commandObj.toggle = function('<SNR>' . s:SID() . '_s:Command_toggle')
+  let commandObj.command = function('<SNR>' . s:SID() . '_Command_command')
+  let commandObj._command_eval = function('<SNR>' . s:SID() . '_Command__command_eval')
+  let commandObj._command_shell = function('<SNR>' . s:SID() . '_Command__command_shell')
+  let commandObj.cmd_compact = function('<SNR>' . s:SID() . '_Command_cmd_compact')
+  let commandObj.make = function('<SNR>' . s:SID() . '_Command_make')
+  let commandObj.pane = function('<SNR>' . s:SID() . '_Command_pane')
+  let commandObj._pane_eval = function('<SNR>' . s:SID() . '_Command__pane_eval')
+  let commandObj._pane_name = function('<SNR>' . s:SID() . '_Command__pane_name')
+  let commandObj.restart = function('<SNR>' . s:SID() . '_Command_restart')
+  let commandObj.kill = function('<SNR>' . s:SID() . '_Command_kill')
+  let commandObj.toggle = function('<SNR>' . s:SID() . '_Command_toggle')
   return commandObj
 endfunction
 
-function! <SID>s:Command_command() dict
+function! s:Command_command() dict
   return call(get(self, '_command_' . self.cmd_type), [], self)
 endfunction
 
-function! <SID>s:Command__command_eval() dict
+function! s:Command__command_eval() dict
   return eval(self._command)
 endfunction
 
-function! <SID>s:Command__command_shell() dict
+function! s:Command__command_shell() dict
   return self._command
 endfunction
 
-function! <SID>s:Command_cmd_compact() dict
+function! s:Command_cmd_compact() dict
   return self.command()
 endfunction
 
-function! <SID>s:Command_make() dict
+function! s:Command_make() dict
   let pane = self.pane()
   call maque#make_pane(pane, self.command(), self.handler)
 endfunction
 
-function! <SID>s:Command_pane() dict
+function! s:Command_pane() dict
   return call(get(self, '_pane_' . self.pane_type), [], self)
 endfunction
 
-function! <SID>s:Command__pane_eval() dict
+function! s:Command__pane_eval() dict
   try
     return eval(self.pane_name)
   catch
@@ -72,21 +72,21 @@ function! <SID>s:Command__pane_eval() dict
   endtry
 endfunction
 
-function! <SID>s:Command__pane_name() dict
+function! s:Command__pane_name() dict
   return maque#pane(self.pane_name)
 endfunction
 
-function! <SID>s:Command_restart() dict
+function! s:Command_restart() dict
   if self.kill()
     call self.make()
   endif
 endfunction
 
-function! <SID>s:Command_kill() dict
+function! s:Command_kill() dict
   return self.pane().kill_wait()
 endfunction
 
-function! <SID>s:Command_toggle() dict
+function! s:Command_toggle() dict
   let pane = self.pane()
   if pane.process_alive()
     call pane.toggle()
@@ -104,13 +104,13 @@ function! s:RemoteVimConstructor(name, command, params)
   let commandObj = s:CommandConstructor('', a:params)
   call extend(remoteVimObj, commandObj)
   let remoteVimObj.name = a:name
-  let remoteVimObj.command = function('<SNR>' . s:SID() . '_s:RemoteVim_command')
-  let remoteVimObj.cmd_compact = function('<SNR>' . s:SID() . '_s:RemoteVim_cmd_compact')
-  let remoteVimObj.execute = function('<SNR>' . s:SID() . '_s:RemoteVim_execute')
-  let remoteVimObj.eval = function('<SNR>' . s:SID() . '_s:RemoteVim_eval')
-  let remoteVimObj.remote = function('<SNR>' . s:SID() . '_s:RemoteVim_remote')
-  let remoteVimObj.launch_vim = function('<SNR>' . s:SID() . '_s:RemoteVim_launch_vim')
-  let remoteVimObj.server_name = function('<SNR>' . s:SID() . '_s:RemoteVim_server_name')
+  let remoteVimObj.command = function('<SNR>' . s:SID() . '_RemoteVim_command')
+  let remoteVimObj.cmd_compact = function('<SNR>' . s:SID() . '_RemoteVim_cmd_compact')
+  let remoteVimObj.execute = function('<SNR>' . s:SID() . '_RemoteVim_execute')
+  let remoteVimObj.eval = function('<SNR>' . s:SID() . '_RemoteVim_eval')
+  let remoteVimObj.remote = function('<SNR>' . s:SID() . '_RemoteVim_remote')
+  let remoteVimObj.launch_vim = function('<SNR>' . s:SID() . '_RemoteVim_launch_vim')
+  let remoteVimObj.server_name = function('<SNR>' . s:SID() . '_RemoteVim_server_name')
   return remoteVimObj
 endfunction
 
@@ -118,32 +118,32 @@ function! s:RemoteVim_base_command(remoteVimObj)
   return "vim --servername " . a:remoteVimObj.server_name()
 endfunction
 
-function! <SID>s:RemoteVim_command() dict
+function! s:RemoteVim_command() dict
   let arg = 'let g:maque_remote = 1'
   let cmd = s:RemoteVim_base_command(self) . " --cmd " . '"' . arg . '"'
   return cmd
 endfunction
 
-function! <SID>s:RemoteVim_cmd_compact() dict
+function! s:RemoteVim_cmd_compact() dict
   return "remote vim " . self.server_name()
 endfunction
 
-function! <SID>s:RemoteVim_execute(cmdline) dict
+function! s:RemoteVim_execute(cmdline) dict
   call self.remote('send', ":" . a:cmdline . "<cr>")
 endfunction
 
-function! <SID>s:RemoteVim_eval(expr) dict
+function! s:RemoteVim_eval(expr) dict
   call self.remote('expr', a:expr)
 endfunction
 
-function! <SID>s:RemoteVim_remote(method, args) dict
+function! s:RemoteVim_remote(method, args) dict
   call self.launch_vim()
   let esc = escape(a:args, "'" . '"')
   let cmd = s:RemoteVim_base_command(self) . " --remote-" . a:method . " " . '"' . esc . '"'
   call maque#util#system(cmd)
 endfunction
 
-function! <SID>s:RemoteVim_launch_vim() dict
+function! s:RemoteVim_launch_vim() dict
   let pane = self.pane()
   if type(pane) ==# type({}) && !pane.process_alive()
     echo 'maque: launching remote vim.'
@@ -152,7 +152,7 @@ function! <SID>s:RemoteVim_launch_vim() dict
   endif
 endfunction
 
-function! <SID>s:RemoteVim_server_name() dict
+function! s:RemoteVim_server_name() dict
   if !(has_key(self, '_server_name'))
     let id = maque#tmux#vim_id()
     let self._server_name = "maque_" . id . "_" . self.name

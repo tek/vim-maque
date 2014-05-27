@@ -44,16 +44,16 @@ function! g:MaqueUniteSourceConstructor(source, description, actions)
   let maqueUniteSourceObj.name = 'maque_' . a:source
   let maqueUniteSourceObj.default_kind = maqueUniteSourceObj.name
   let maqueUniteSourceObj.hooks = {'on_syntax': 'unite#sources#' . maqueUniteSourceObj.name . '#init', 'on_close': 'unite#sources#' . maqueUniteSourceObj.name . '#close'}
-  let maqueUniteSourceObj.init = function('<SNR>' . s:SID() . '_s:MaqueUniteSource_init')
-  let maqueUniteSourceObj.close = function('<SNR>' . s:SID() . '_s:MaqueUniteSource_close')
+  let maqueUniteSourceObj.init = function('<SNR>' . s:SID() . '_MaqueUniteSource_init')
+  let maqueUniteSourceObj.close = function('<SNR>' . s:SID() . '_MaqueUniteSource_close')
   return maqueUniteSourceObj
 endfunction
 
-function! <SID>s:MaqueUniteSource_init() dict
+function! s:MaqueUniteSource_init() dict
   call maque#unite#map(self.actions, self.source)
 endfunction
 
-function! <SID>s:MaqueUniteSource_close() dict
+function! s:MaqueUniteSource_close() dict
   call maque#unite#unmap(self.actions, self.source)
 endfunction
 
@@ -67,18 +67,18 @@ function! s:TmuxPaneSourceConstructor()
   let maqueUniteSourceObj = g:MaqueUniteSourceConstructor('tmux_pane', 'tmux panes managed by maque', s:actions)
   call extend(tmuxPaneSourceObj, maqueUniteSourceObj)
   let tmuxPaneSourceObj.syntax = 'uniteSource__MaqueTmuxPane'
-  let tmuxPaneSourceObj.gather_candidates = function('<SNR>' . s:SID() . '_s:TmuxPaneSource_gather_candidates')
-  let tmuxPaneSourceObj.format_candidate = function('<SNR>' . s:SID() . '_s:TmuxPaneSource_format_candidate')
-  let tmuxPaneSourceObj.init_syntax = function('<SNR>' . s:SID() . '_s:TmuxPaneSource_init_syntax')
+  let tmuxPaneSourceObj.gather_candidates = function('<SNR>' . s:SID() . '_TmuxPaneSource_gather_candidates')
+  let tmuxPaneSourceObj.format_candidate = function('<SNR>' . s:SID() . '_TmuxPaneSource_format_candidate')
+  let tmuxPaneSourceObj.init_syntax = function('<SNR>' . s:SID() . '_TmuxPaneSource_init_syntax')
   return tmuxPaneSourceObj
 endfunction
 
-function! <SID>s:TmuxPaneSource_gather_candidates(args, context) dict
+function! s:TmuxPaneSource_gather_candidates(args, context) dict
   let longest = max(map(values(g:maque_tmux_panes), 'len(v:val.name)'))
   return map(values(g:maque_tmux_panes), 'self.format_candidate(v:val, longest)')
 endfunction
 
-function! <SID>s:TmuxPaneSource_format_candidate(pane, longest) dict
+function! s:TmuxPaneSource_format_candidate(pane, longest) dict
   let name = a:pane.name
   let active = name ==# g:maque_tmux_current_pane ? ' [+]' : ''
   let pad = repeat(' ', a:longest - len(name))
@@ -86,7 +86,7 @@ function! <SID>s:TmuxPaneSource_format_candidate(pane, longest) dict
   return {'word': line, 'action__name': name}
 endfunction
 
-function! <SID>s:TmuxPaneSource_init_syntax() dict
+function! s:TmuxPaneSource_init_syntax() dict
   syntax match uniteSource__MaqueTmuxPane_name /\%(^\s*\[\)\@<=[^\]]\+/ 
   \ containedin=uniteSource__MaqueTmuxPane contained
   syntax match uniteSource__MaqueTmuxPane_bracket /[\[\]]/ 

@@ -44,16 +44,16 @@ function! g:MaqueUniteSourceConstructor(source, description, actions)
   let maqueUniteSourceObj.name = 'maque_' . a:source
   let maqueUniteSourceObj.default_kind = maqueUniteSourceObj.name
   let maqueUniteSourceObj.hooks = {'on_syntax': 'unite#sources#' . maqueUniteSourceObj.name . '#init', 'on_close': 'unite#sources#' . maqueUniteSourceObj.name . '#close'}
-  let maqueUniteSourceObj.init = function('<SNR>' . s:SID() . '_s:MaqueUniteSource_init')
-  let maqueUniteSourceObj.close = function('<SNR>' . s:SID() . '_s:MaqueUniteSource_close')
+  let maqueUniteSourceObj.init = function('<SNR>' . s:SID() . '_MaqueUniteSource_init')
+  let maqueUniteSourceObj.close = function('<SNR>' . s:SID() . '_MaqueUniteSource_close')
   return maqueUniteSourceObj
 endfunction
 
-function! <SID>s:MaqueUniteSource_init() dict
+function! s:MaqueUniteSource_init() dict
   call maque#unite#map(self.actions, self.source)
 endfunction
 
-function! <SID>s:MaqueUniteSource_close() dict
+function! s:MaqueUniteSource_close() dict
   call maque#unite#unmap(self.actions, self.source)
 endfunction
 
@@ -67,19 +67,19 @@ function! s:CommandSourceConstructor()
   let maqueUniteSourceObj = g:MaqueUniteSourceConstructor('command', 'maque commands', s:actions)
   call extend(commandSourceObj, maqueUniteSourceObj)
   let commandSourceObj.syntax = 'uniteSource__MaqueCommand'
-  let commandSourceObj.gather_candidates = function('<SNR>' . s:SID() . '_s:CommandSource_gather_candidates')
-  let commandSourceObj.format_candidate = function('<SNR>' . s:SID() . '_s:CommandSource_format_candidate')
-  let commandSourceObj.init_syntax = function('<SNR>' . s:SID() . '_s:CommandSource_init_syntax')
+  let commandSourceObj.gather_candidates = function('<SNR>' . s:SID() . '_CommandSource_gather_candidates')
+  let commandSourceObj.format_candidate = function('<SNR>' . s:SID() . '_CommandSource_format_candidate')
+  let commandSourceObj.init_syntax = function('<SNR>' . s:SID() . '_CommandSource_init_syntax')
   return commandSourceObj
 endfunction
 
-function! <SID>s:CommandSource_gather_candidates(args, context) dict
+function! s:CommandSource_gather_candidates(args, context) dict
   let longest_name = max(map(keys(g:maque_commands), 'len(v:val)'))
   let longest_command = max(map(values(g:maque_commands), 'len(v:val.cmd_compact())'))
   return map(keys(g:maque_commands), 'self.format_candidate(v:val, longest_name, longest_command)')
 endfunction
 
-function! <SID>s:CommandSource_format_candidate(name, longest_name, longest_command) dict
+function! s:CommandSource_format_candidate(name, longest_name, longest_command) dict
   let cmd = maque#command(a:name)
   let pane = cmd.pane()
   let pad_name = repeat(' ', a:longest_name - len(a:name))
@@ -88,7 +88,7 @@ function! <SID>s:CommandSource_format_candidate(name, longest_name, longest_comm
   return {'word': line, 'action__name': a:name}
 endfunction
 
-function! <SID>s:CommandSource_init_syntax() dict
+function! s:CommandSource_init_syntax() dict
   syntax match uniteSource__MaqueCommand_name /\%(^\s*\[\)\@<=[^\]]\+/ 
   \ containedin=uniteSource__MaqueCommand contained
   syntax match uniteSource__MaqueCommand_bracket /[\[\]]/ 

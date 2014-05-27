@@ -43,15 +43,15 @@ function! g:MaqueUniteSourceConstructor(source, description, actions)
   let maqueUniteSourceObj.name = 'maque_' . a:source
   let maqueUniteSourceObj.default_kind = maqueUniteSourceObj.name
   let maqueUniteSourceObj.hooks = {'on_syntax': 'unite#sources#' . maqueUniteSourceObj.name . '#init', 'on_close': 'unite#sources#' . maqueUniteSourceObj.name . '#close'}
-  let maqueUniteSourceObj.init = function('<SNR>' . s:SID() . '_s:MaqueUniteSource_init')
-  let maqueUniteSourceObj.close = function('<SNR>' . s:SID() . '_s:MaqueUniteSource_close')
+  let maqueUniteSourceObj.init = function('<SNR>' . s:SID() . '_MaqueUniteSource_init')
+  let maqueUniteSourceObj.close = function('<SNR>' . s:SID() . '_MaqueUniteSource_close')
   return maqueUniteSourceObj
 endfunction
 
-function! <SID>s:MaqueUniteSource_init() dict
+function! s:MaqueUniteSource_init() dict
   call maque#unite#map(self.actions, self.source)
 endfunction
 
-function! <SID>s:MaqueUniteSource_close() dict
+function! s:MaqueUniteSource_close() dict
   call maque#unite#unmap(self.actions, self.source)
 endfunction

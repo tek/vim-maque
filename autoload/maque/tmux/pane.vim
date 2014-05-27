@@ -24,16 +24,16 @@ function! g:ViewConstructor(name, ...)
   call extend(attrs, params)
   let attrs.minimized_size = max([attrs.minimized_size, 2])
   call extend(viewObj, attrs)
-  let viewObj.toggle = function('<SNR>' . s:SID() . '_s:View_toggle')
-  let viewObj.toggle_minimized = function('<SNR>' . s:SID() . '_s:View_toggle_minimized')
-  let viewObj.minimize = function('<SNR>' . s:SID() . '_s:View_minimize')
-  let viewObj.restore = function('<SNR>' . s:SID() . '_s:View_restore')
-  let viewObj._apply_size = function('<SNR>' . s:SID() . '_s:View__apply_size')
-  let viewObj._vertical = function('<SNR>' . s:SID() . '_s:View__vertical')
+  let viewObj.toggle = function('<SNR>' . s:SID() . '_View_toggle')
+  let viewObj.toggle_minimized = function('<SNR>' . s:SID() . '_View_toggle_minimized')
+  let viewObj.minimize = function('<SNR>' . s:SID() . '_View_minimize')
+  let viewObj.restore = function('<SNR>' . s:SID() . '_View_restore')
+  let viewObj._apply_size = function('<SNR>' . s:SID() . '_View__apply_size')
+  let viewObj._vertical = function('<SNR>' . s:SID() . '_View__vertical')
   return viewObj
 endfunction
 
-function! <SID>s:View_toggle() dict
+function! s:View_toggle() dict
   if self.open()
     if self.minimize_on_toggle
       call self.toggle_minimized()
@@ -45,7 +45,7 @@ function! <SID>s:View_toggle() dict
   endif
 endfunction
 
-function! <SID>s:View_toggle_minimized() dict
+function! s:View_toggle_minimized() dict
   if self.minimized
     call self.restore()
   else
@@ -53,7 +53,7 @@ function! <SID>s:View_toggle_minimized() dict
   endif
 endfunction
 
-function! <SID>s:View_minimize() dict
+function! s:View_minimize() dict
   if self.open() && !self.minimized
     let self._original_size = self.current_size()
     call self._apply_size(self.minimized_size)
@@ -61,7 +61,7 @@ function! <SID>s:View_minimize() dict
   endif
 endfunction
 
-function! <SID>s:View_restore() dict
+function! s:View_restore() dict
   if self.open() && self.minimized
     call self.resize(self._original_size[0], self._original_size[1])
     let self.minimized = 0
@@ -71,7 +71,7 @@ function! <SID>s:View_restore() dict
   endif
 endfunction
 
-function! <SID>s:View__apply_size(size) dict
+function! s:View__apply_size(size) dict
   if self._vertical()
     call self.resize(self._original_size[0], a:size)
   else
@@ -79,7 +79,7 @@ function! <SID>s:View__apply_size(size) dict
   endif
 endfunction
 
-function! <SID>s:View__vertical() dict
+function! s:View__vertical() dict
   if self.in_layout()
     return self.layout.direction ==# 'vertical'
   else
@@ -141,40 +141,40 @@ function! s:PaneConstructor(name, ...)
   let paneObj.spawning_make = 0
   let viewObj = g:ViewConstructor(a:name, attrs)
   call extend(paneObj, viewObj)
-  let paneObj.create = function('<SNR>' . s:SID() . '_s:Pane_create')
-  let paneObj.create_free = function('<SNR>' . s:SID() . '_s:Pane_create_free')
-  let paneObj.determine_id = function('<SNR>' . s:SID() . '_s:Pane_determine_id')
-  let paneObj.post_create = function('<SNR>' . s:SID() . '_s:Pane_post_create')
-  let paneObj.create_and_wait = function('<SNR>' . s:SID() . '_s:Pane_create_and_wait')
-  let paneObj.make = function('<SNR>' . s:SID() . '_s:Pane_make')
-  let paneObj.create_and_make = function('<SNR>' . s:SID() . '_s:Pane_create_and_make')
-  let paneObj.kill = function('<SNR>' . s:SID() . '_s:Pane_kill')
-  let paneObj._kill = function('<SNR>' . s:SID() . '_s:Pane__kill')
-  let paneObj.kill_wait = function('<SNR>' . s:SID() . '_s:Pane_kill_wait')
-  let paneObj.send = function('<SNR>' . s:SID() . '_s:Pane_send')
-  let paneObj.send_keys = function('<SNR>' . s:SID() . '_s:Pane_send_keys')
-  let paneObj.open = function('<SNR>' . s:SID() . '_s:Pane_open')
-  let paneObj.close = function('<SNR>' . s:SID() . '_s:Pane_close')
-  let paneObj.current_size = function('<SNR>' . s:SID() . '_s:Pane_current_size')
-  let paneObj.set_size = function('<SNR>' . s:SID() . '_s:Pane_set_size')
-  let paneObj.resize = function('<SNR>' . s:SID() . '_s:Pane_resize')
-  let paneObj.focus = function('<SNR>' . s:SID() . '_s:Pane_focus')
-  let paneObj.pipe_to_file = function('<SNR>' . s:SID() . '_s:Pane_pipe_to_file')
-  let paneObj.pipe_cmd = function('<SNR>' . s:SID() . '_s:Pane_pipe_cmd')
-  let paneObj.reset_capture = function('<SNR>' . s:SID() . '_s:Pane_reset_capture')
-  let paneObj.description = function('<SNR>' . s:SID() . '_s:Pane_description')
-  let paneObj.splitter = function('<SNR>' . s:SID() . '_s:Pane_splitter')
-  let paneObj.set_shell_pid = function('<SNR>' . s:SID() . '_s:Pane_set_shell_pid')
-  let paneObj.set_command_pid = function('<SNR>' . s:SID() . '_s:Pane_set_command_pid')
-  let paneObj.set_command_executable = function('<SNR>' . s:SID() . '_s:Pane_set_command_executable')
-  let paneObj.process_alive = function('<SNR>' . s:SID() . '_s:Pane_process_alive')
-  let paneObj.ready_for_make = function('<SNR>' . s:SID() . '_s:Pane_ready_for_make')
-  let paneObj.in_layout = function('<SNR>' . s:SID() . '_s:Pane_in_layout')
-  let paneObj._handle_running_process = function('<SNR>' . s:SID() . '_s:Pane__handle_running_process')
+  let paneObj.create = function('<SNR>' . s:SID() . '_Pane_create')
+  let paneObj.create_free = function('<SNR>' . s:SID() . '_Pane_create_free')
+  let paneObj.determine_id = function('<SNR>' . s:SID() . '_Pane_determine_id')
+  let paneObj.post_create = function('<SNR>' . s:SID() . '_Pane_post_create')
+  let paneObj.create_and_wait = function('<SNR>' . s:SID() . '_Pane_create_and_wait')
+  let paneObj.make = function('<SNR>' . s:SID() . '_Pane_make')
+  let paneObj.create_and_make = function('<SNR>' . s:SID() . '_Pane_create_and_make')
+  let paneObj.kill = function('<SNR>' . s:SID() . '_Pane_kill')
+  let paneObj._kill = function('<SNR>' . s:SID() . '_Pane__kill')
+  let paneObj.kill_wait = function('<SNR>' . s:SID() . '_Pane_kill_wait')
+  let paneObj.send = function('<SNR>' . s:SID() . '_Pane_send')
+  let paneObj.send_keys = function('<SNR>' . s:SID() . '_Pane_send_keys')
+  let paneObj.open = function('<SNR>' . s:SID() . '_Pane_open')
+  let paneObj.close = function('<SNR>' . s:SID() . '_Pane_close')
+  let paneObj.current_size = function('<SNR>' . s:SID() . '_Pane_current_size')
+  let paneObj.set_size = function('<SNR>' . s:SID() . '_Pane_set_size')
+  let paneObj.resize = function('<SNR>' . s:SID() . '_Pane_resize')
+  let paneObj.focus = function('<SNR>' . s:SID() . '_Pane_focus')
+  let paneObj.pipe_to_file = function('<SNR>' . s:SID() . '_Pane_pipe_to_file')
+  let paneObj.pipe_cmd = function('<SNR>' . s:SID() . '_Pane_pipe_cmd')
+  let paneObj.reset_capture = function('<SNR>' . s:SID() . '_Pane_reset_capture')
+  let paneObj.description = function('<SNR>' . s:SID() . '_Pane_description')
+  let paneObj.splitter = function('<SNR>' . s:SID() . '_Pane_splitter')
+  let paneObj.set_shell_pid = function('<SNR>' . s:SID() . '_Pane_set_shell_pid')
+  let paneObj.set_command_pid = function('<SNR>' . s:SID() . '_Pane_set_command_pid')
+  let paneObj.set_command_executable = function('<SNR>' . s:SID() . '_Pane_set_command_executable')
+  let paneObj.process_alive = function('<SNR>' . s:SID() . '_Pane_process_alive')
+  let paneObj.ready_for_make = function('<SNR>' . s:SID() . '_Pane_ready_for_make')
+  let paneObj.in_layout = function('<SNR>' . s:SID() . '_Pane_in_layout')
+  let paneObj._handle_running_process = function('<SNR>' . s:SID() . '_Pane__handle_running_process')
   return paneObj
 endfunction
 
-function! <SID>s:Pane_create() dict
+function! s:Pane_create() dict
   if !(self.open())
     if self.in_layout()
       call self.layout.create_pane(self)
@@ -184,7 +184,7 @@ function! <SID>s:Pane_create() dict
   endif
 endfunction
 
-function! <SID>s:Pane_create_free() dict
+function! s:Pane_create_free() dict
   if !(self.open())
     let panes_before = maque#tmux#pane#all()
     call maque#util#system(self.splitter(), 1)
@@ -193,13 +193,13 @@ function! <SID>s:Pane_create_free() dict
   endif
 endfunction
 
-function! <SID>s:Pane_determine_id(panes_before) dict
+function! s:Pane_determine_id(panes_before) dict
   let matcher = 'index(keys(a:panes_before), v:val) == -1'
   let matches = filter(keys(maque#tmux#pane#all(1)), matcher)
   let self.id = len(matches) ># 0 ? matches[0] : -1
 endfunction
 
-function! <SID>s:Pane_post_create() dict
+function! s:Pane_post_create() dict
   if self.open()
     let self.minimized = 0
     if self.create_minimized
@@ -210,7 +210,7 @@ function! <SID>s:Pane_post_create() dict
   endif
 endfunction
 
-function! <SID>s:Pane_create_and_wait(...) dict
+function! s:Pane_create_and_wait(...) dict
   let __splat_var_cpy = copy(a:000)
   if !empty(__splat_var_cpy)
     let timeout = remove(__splat_var_cpy, 0)
@@ -225,7 +225,7 @@ function! <SID>s:Pane_create_and_wait(...) dict
   endwhile
 endfunction
 
-function! <SID>s:Pane_make(cmd, ...) dict
+function! s:Pane_make(cmd, ...) dict
   let capture = get(a:000, 0, self.capture)
   let autoclose = get(a:000, 1, self.autoclose)
   if self.ready_for_make()
@@ -251,7 +251,7 @@ function! <SID>s:Pane_make(cmd, ...) dict
   let self.spawning_make = 0
 endfunction
 
-function! <SID>s:Pane_create_and_make(cmd, ...) dict
+function! s:Pane_create_and_make(cmd, ...) dict
   if !(self.open())
     let self.spawning_make = 1
   endif
@@ -259,7 +259,7 @@ function! <SID>s:Pane_create_and_make(cmd, ...) dict
   call call(self.make, [a:cmd] + a:000, self)
 endfunction
 
-function! <SID>s:Pane_kill(...) dict
+function! s:Pane_kill(...) dict
   let __splat_var_cpy = copy(a:000)
   if !empty(__splat_var_cpy)
     let signal = remove(__splat_var_cpy, 0)
@@ -285,12 +285,12 @@ function! <SID>s:Pane_kill(...) dict
   endif
 endfunction
 
-function! <SID>s:Pane__kill(signal) dict
+function! s:Pane__kill(signal) dict
   call maque#util#system('kill -' . a:signal . ' ' . self.command_pid, 1)
   call maque#util#warn('sent SIG' . a:signal . " to pane '" . self.name . "'!")
 endfunction
 
-function! <SID>s:Pane_kill_wait() dict
+function! s:Pane_kill_wait() dict
   for index in range(len(g:maque_tmux_kill_signals))
     call self.kill()
     if !(self.process_alive())
@@ -304,19 +304,19 @@ function! <SID>s:Pane_kill_wait() dict
   return !self.process_alive()
 endfunction
 
-function! <SID>s:Pane_send(cmd) dict
+function! s:Pane_send(cmd) dict
   call self.send_keys("'" . a:cmd . "' 'ENTER'")
 endfunction
 
-function! <SID>s:Pane_send_keys(cmd) dict
+function! s:Pane_send_keys(cmd) dict
   call maque#tmux#command('send-keys -t ' . self.id . ' ' . a:cmd)
 endfunction
 
-function! <SID>s:Pane_open() dict
+function! s:Pane_open() dict
   return has_key(maque#tmux#pane#all(), self.id)
 endfunction
 
-function! <SID>s:Pane_close() dict
+function! s:Pane_close() dict
   if self.open()
     call maque#tmux#command('kill-pane -t ' . self.id)
   endif
@@ -324,11 +324,11 @@ function! <SID>s:Pane_close() dict
   let self.shell_pid = 0
 endfunction
 
-function! <SID>s:Pane_current_size() dict
+function! s:Pane_current_size() dict
   return maque#tmux#pane#size(self.id)
 endfunction
 
-function! <SID>s:Pane_set_size() dict
+function! s:Pane_set_size() dict
   if self.minimized
     call self._apply_size(self.minimized_size)
   elseif self.size
@@ -337,12 +337,12 @@ function! <SID>s:Pane_set_size() dict
   endif
 endfunction
 
-function! <SID>s:Pane_resize(width, height) dict
+function! s:Pane_resize(width, height) dict
   let cmd = 'resize-pane -t ' . self.id . ' -x ' . a:width . ' -y ' . a:height
   call maque#tmux#command(cmd)
 endfunction
 
-function! <SID>s:Pane_focus() dict
+function! s:Pane_focus() dict
   call maque#tmux#command('select-pane -t ' . self.id)
   if g:maque_tmux_map_focus_vim
     let cmd = 'run "tmux last-pane; tmux unbind-key -n ' . g:maque_tmux_focus_vim_key . '"'
@@ -350,27 +350,27 @@ function! <SID>s:Pane_focus() dict
   endif
 endfunction
 
-function! <SID>s:Pane_pipe_to_file() dict
+function! s:Pane_pipe_to_file() dict
   let filter = g:maque_tmux_filter_escape_sequences ? g:maque_tmux_pane_escape_filter : 'tee'
   let redirect = filter . ' > ' . self.errorfile
   call maque#tmux#command(self.pipe_cmd() . ' ' . shellescape(redirect))
 endfunction
 
-function! <SID>s:Pane_pipe_cmd() dict
+function! s:Pane_pipe_cmd() dict
   return 'pipe-pane -t ' . self.id
 endfunction
 
-function! <SID>s:Pane_reset_capture() dict
+function! s:Pane_reset_capture() dict
   call maque#tmux#command(self.pipe_cmd())
   call delete(self.errorfile)
   call self.pipe_to_file()
 endfunction
 
-function! <SID>s:Pane_description() dict
+function! s:Pane_description() dict
   return 'tmux pane "' . self.name . '"'
 endfunction
 
-function! <SID>s:Pane_splitter() dict
+function! s:Pane_splitter() dict
   if self.in_layout()
     return self.layout.splitter()
   else
@@ -382,14 +382,14 @@ function! <SID>s:Pane_splitter() dict
   endif
 endfunction
 
-function! <SID>s:Pane_set_shell_pid() dict
+function! s:Pane_set_shell_pid() dict
   let panes = maque#tmux#pane#all()
   if has_key(panes, self.id)
     let self.shell_pid = panes[self.id].pid
   endif
 endfunction
 
-function! <SID>s:Pane_set_command_pid() dict
+function! s:Pane_set_command_pid() dict
   let self.command_pid = 0
   if self.open()
     let pids = maque#util#child_pids(self.shell_pid)
@@ -400,24 +400,24 @@ function! <SID>s:Pane_set_command_pid() dict
   return self.command_pid
 endfunction
 
-function! <SID>s:Pane_set_command_executable() dict
+function! s:Pane_set_command_executable() dict
   call self.set_command_pid()
   return self.command_executable
 endfunction
 
-function! <SID>s:Pane_process_alive() dict
+function! s:Pane_process_alive() dict
   return self.set_command_pid() ># 0
 endfunction
 
-function! <SID>s:Pane_ready_for_make() dict
+function! s:Pane_ready_for_make() dict
   return self.open() && (self.spawning_make || !self.process_alive() || self._handle_running_process())
 endfunction
 
-function! <SID>s:Pane_in_layout() dict
+function! s:Pane_in_layout() dict
   return type(self.layout) !=# type(0)
 endfunction
 
-function! <SID>s:Pane__handle_running_process() dict
+function! s:Pane__handle_running_process() dict
   if self.kill_running_on_make
     if self.kill_wait()
       return 1
@@ -454,12 +454,12 @@ function! s:VimPaneConstructor(...)
   let vimPaneObj = {}
   let paneObj = s:PaneConstructor('vim', params)
   call extend(vimPaneObj, paneObj)
-  let vimPaneObj.open = function('<SNR>' . s:SID() . '_s:VimPane_open')
-  let vimPaneObj.Pane_open = function('<SNR>' . s:SID() . '_s:Pane_open')
+  let vimPaneObj.open = function('<SNR>' . s:SID() . '_VimPane_open')
+  let vimPaneObj.Pane_open = function('<SNR>' . s:SID() . '_Pane_open')
   return vimPaneObj
 endfunction
 
-function! <SID>s:VimPane_open() dict
+function! s:VimPane_open() dict
   if self.id ==# -1
     let self.id = maque#tmux#vim_id()
   endif
