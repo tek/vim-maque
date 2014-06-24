@@ -136,9 +136,13 @@ function! maque#toggle_command(name) abort "{{{
   endif
 endfunction "}}}
 
-function! maque#set_main_command(name) "{{{
+function! maque#set_main_command(command) abort "{{{
+    let g:maqueprg = a:command.command()
+endfunction "}}}
+
+function! maque#set_main_command_name(name) "{{{
   if has_key(maque#commands(), a:name)
-    let g:maqueprg = maque#commands()[a:name].command()
+    return maque#set_main_command(maque#commands()[a:name])
   else
     call maque#util#warn('no such command: '.a:name)
   endif

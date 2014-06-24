@@ -39,7 +39,7 @@ function! ctrlp#maque#command#accept(mode, str) "{{{
       call maque#kill_command(name)
       call ctrlp#exit()
     elseif a:mode == 's'
-      call maque#set_main_command(name)
+      call maque#set_main_command_name(name)
       call ctrlp#exit()
       echo 'Selected command "'.name.'" for the main pane.'
     endif

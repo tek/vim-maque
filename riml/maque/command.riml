@@ -12,6 +12,7 @@ class Command
           \ 'handler': g:maque_handler,
           \ 'cmd_type': 'shell',
           \ 'pane_type': 'name',
+          \ 'copy_to_main': 0,
           \ }
     extend(commandObj, attrs)
     extend(commandObj, params)
@@ -35,6 +36,7 @@ class Command
 
   defm make
     pane = self.pane()
+    maque#set_main_command(self) if self.copy_to_main
     maque#make_pane(pane, self.command(), self.handler)
   end
 

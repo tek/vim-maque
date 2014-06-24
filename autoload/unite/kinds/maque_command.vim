@@ -11,7 +11,7 @@ function! unite#kinds#maque_command#make(candidate)
 endfunction
 
 function! unite#kinds#maque_command#set_main(candidate)
-  call maque#set_main_command(a:candidate.action__name)
+  call maque#set_main_command_name(a:candidate.action__name)
 endfunction
 
 function! unite#kinds#maque_command#toggle(candidate)

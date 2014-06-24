@@ -7,7 +7,7 @@ def unite#kinds#maque_command#make(candidate)
 end
 
 def unite#kinds#maque_command#set_main(candidate)
-  maque#set_main_command(candidate.action__name)
+  maque#set_main_command_name(candidate.action__name)
 end
 
 def unite#kinds#maque_command#toggle(candidate)
