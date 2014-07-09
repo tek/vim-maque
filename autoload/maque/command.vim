@@ -10,7 +10,7 @@ function! s:SID()
   return s:SID_VALUE
 endfunction
 
-function! s:CommandConstructor(command, ...)
+function! s:CommandConstructor(command, name, ...)
   let __splat_var_cpy = copy(a:000)
   if !empty(__splat_var_cpy)
     let params = remove(__splat_var_cpy, 0)
@@ -21,7 +21,7 @@ function! s:CommandConstructor(command, ...)
   if has_key(params, 'pane')
     let params['pane_name'] = remove(params, 'pane')
   endif
-  let attrs = {'_command': a:command, 'pane_name': 'main', 'handler': g:maque_handler, 'cmd_type': 'shell', 'pane_type': 'name', 'copy_to_main': 0}
+  let attrs = {'_command': a:command, 'pane_name': 'main', 'handler': g:maque_handler, 'cmd_type': 'shell', 'pane_type': 'name', 'copy_to_main': 0, 'name': a:name}
   call extend(commandObj, attrs)
   call extend(commandObj, params)
   let commandObj.command = function('<SNR>' . s:SID() . '_Command_command')
@@ -55,11 +55,14 @@ function! s:Command_cmd_compact() dict
 endfunction
 
 function! s:Command_make() dict
+  let g:maque_making_command = self.name
+  silent doautocmd User MaqueCommandMake
   let pane = self.pane()
   if self.copy_to_main
     call maque#set_main_command(self)
   endif
   call maque#make_pane(pane, self.command(), self.handler)
+  unlet g:maque_making_command
 endfunction
 
 function! s:Command_pane() dict
@@ -102,11 +105,10 @@ function! maque#command#new(...)
   return call('s:CommandConstructor', a:000)
 endfunction
 
-function! s:RemoteVimConstructor(name, command, params)
+function! s:RemoteVimConstructor(name, params)
   let remoteVimObj = {}
-  let commandObj = s:CommandConstructor('', a:params)
+  let commandObj = s:CommandConstructor('', a:name, a:params)
   call extend(remoteVimObj, commandObj)
-  let remoteVimObj.name = a:name
   let remoteVimObj.command = function('<SNR>' . s:SID() . '_RemoteVim_command')
   let remoteVimObj.cmd_compact = function('<SNR>' . s:SID() . '_RemoteVim_cmd_compact')
   let remoteVimObj.execute = function('<SNR>' . s:SID() . '_RemoteVim_execute')
@@ -163,6 +165,6 @@ function! s:RemoteVim_server_name() dict
   return self._server_name
 endfunction
 
-function! maque#command#new_vim(name, command, args)
-  return s:RemoteVimConstructor(a:name, a:command, a:args)
+function! maque#command#new_vim(name, args)
+  return s:RemoteVimConstructor(a:name, a:args)
 endfunction

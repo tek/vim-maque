@@ -21,9 +21,14 @@ endfunction "}}}
 " uses the tmux pane cache to avoid multiple invocations of `tmux list-panes`
 " with identical results
 function! maque#tmux#make_pane(pane, cmd) "{{{
+  let g:maque_making_pane = a:pane.name
+  let g:maque_making_cmdline = a:cmd
+  silent doautocmd User MaqueTmuxMake
   call maque#tmux#pane#enable_cache()
   call a:pane.create_and_make(a:cmd)
   call maque#tmux#pane#disable_cache()
+  unlet g:maque_making_pane
+  unlet g:maque_making_cmdline
 endfunction "}}}
 
 " parse the active pane's last command's output into the quickfix list

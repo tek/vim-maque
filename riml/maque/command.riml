@@ -36,9 +36,12 @@ class Command
   end
 
   defm make
+    g:maque_making_command = self.name
+    :silent doautocmd User MaqueCommandMake
     pane = self.pane()
     maque#set_main_command(self) if self.copy_to_main
     maque#make_pane(pane, self.command(), self.handler)
+    :unlet g:maque_making_command
   end
 
   defm pane
