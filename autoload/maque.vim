@@ -115,7 +115,7 @@ function! maque#add_command(name, cmd, ...) "{{{
     call maque#util#warn('command "'.a:name.'" already created!')
   else
     let commands = maque#commands()
-    let commands[a:name] = maque#command#new(a:cmd, args)
+    let commands[a:name] = maque#command#new(a:cmd, a:name, args)
   endif
   return maque#command(a:name)
 endfunction "}}}
