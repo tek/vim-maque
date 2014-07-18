@@ -1,0 +1,25 @@
+def maque#test#pane(params={}, name='test') abort
+  params = extend({
+        \ 'capture': 0,
+        \ '_splitter': 'tmux new-window -d',
+        \ 'minimal_shell': 1,
+        \ }, params)
+  g:pane = maque#tmux#pane#new(name, params)
+  return g:pane
+end
+
+def maque#test#create(params={}, name='test') abort
+  maque#test#pane(params, name)
+  g:pane.create()
+end
+
+def maque#test#make(cmd, params={}, name='test') abort
+  maque#test#create(params, name)
+  g:pane.make(cmd)
+end
+
+def maque#test#finish()
+  g:pane.kill('KILL')
+  g:pane.close()
+  :unlet g:pane
+end
