@@ -68,7 +68,7 @@ class Pane < g:View
           \ 'manual_termination': 0,
           \ 'layout': 0,
           \ 'size': 0,
-          \ 'minimal_shell': 1,
+          \ 'minimal_shell': 0,
           \ }
     extend(attrs, params)
     self.command_executable = ''
@@ -273,14 +273,15 @@ class Pane < g:View
 
   defm splitter
     if self.in_layout()
-      return self.layout.splitter()
+      splitter = self.layout.splitter()
     else
       if self.eval_splitter
-        return eval(self._splitter)
+        splitter = eval(self._splitter)
       else
-        return self._splitter
+        splitter = self._splitter
       end
     end
+    return splitter . self.splitter_params()
   end
 
   defm set_shell_pid
@@ -318,6 +319,12 @@ class Pane < g:View
 
   defm in_layout
     return type(self.layout) != type(0)
+  end
+
+  defm splitter_params
+    params = ''
+    params .= ' "' . g:maque_tmux_minimal_shell . '"' if self.minimal_shell
+    return params
   end
 
   defm _handle_running_process

@@ -33,7 +33,7 @@ class Layout < g:View
     unless pane.open()
       if self.open()
         self.focus()
-        maque#tmux#command_output(self.splitter())
+        self.split(pane)
         maque#tmux#pane('vim').focus()
       else
         self.create()
@@ -65,6 +65,11 @@ class Layout < g:View
       pane = self.open_panes()[0]
       pane.focus()
     end
+  end
+
+  defm split(pane)
+    splitter = self.splitter() . pane.splitter_params()
+    maque#tmux#command_output(splitter)
   end
 
   defm set_size

@@ -102,6 +102,7 @@ function! s:LayoutConstructor(name, args)
   let layoutObj.close = function('<SNR>' . s:SID() . '_Layout_close')
   let layoutObj.open = function('<SNR>' . s:SID() . '_Layout_open')
   let layoutObj.focus = function('<SNR>' . s:SID() . '_Layout_focus')
+  let layoutObj.split = function('<SNR>' . s:SID() . '_Layout_split')
   let layoutObj.set_size = function('<SNR>' . s:SID() . '_Layout_set_size')
   let layoutObj.current_size = function('<SNR>' . s:SID() . '_Layout_current_size')
   let layoutObj.resize = function('<SNR>' . s:SID() . '_Layout_resize')
@@ -149,7 +150,7 @@ function! s:Layout_create_pane(pane) dict
   if !(a:pane.open())
     if self.open()
       call self.focus()
-      call maque#tmux#command_output(self.splitter())
+      call self.split(a:pane)
       call maque#tmux#pane('vim').focus()
     else
       call self.create()
@@ -181,6 +182,11 @@ function! s:Layout_focus() dict
     let pane = s:Layout_open_panes(self)[0]
     call pane.focus()
   endif
+endfunction
+
+function! s:Layout_split(pane) dict
+  let splitter = self.splitter() . a:pane.splitter_params()
+  call maque#tmux#command_output(splitter)
 endfunction
 
 function! s:Layout_set_size() dict

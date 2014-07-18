@@ -22,7 +22,7 @@ function! g:ViewConstructor(name, ...)
   let viewObj.name = a:name
   let attrs = {'_original_size': [0, 0], 'minimized': 0, 'minimized_size': 2, 'minimize_on_toggle': get(g:, 'maque_tmux_minimize_on_toggle', 0), 'focus_on_restore': 0, 'vertical': 1}
   call extend(attrs, params)
-  let attrs.minimized_size = max([attrs.minimized_size, 1])
+  let attrs.minimized_size = max([attrs.minimized_size, 2])
   call extend(viewObj, attrs)
   let viewObj.toggle = function('<SNR>' . s:SID() . '_View_toggle')
   let viewObj.toggle_minimized = function('<SNR>' . s:SID() . '_View_toggle_minimized')
@@ -135,7 +135,7 @@ function! s:PaneConstructor(name, ...)
     let params = {}
   endif
   let paneObj = {}
-  let attrs = {'id': -1, 'errorfile': tempname(), '_splitter': 'tmux neww -d', 'eval_splitter': 0, 'capture': 1, 'autoclose': 0, '_last_killed': 0, '_killed': 0, 'shell_pid': 0, 'command_pid': 0, 'wait_before_autoclose': 2, 'create_minimized': 0, 'restore_on_make': 1, 'kill_running_on_make': 1, 'focus_on_make': 0, 'manual_termination': 0, 'layout': 0, 'size': 0, 'minimal_shell': 1}
+  let attrs = {'id': -1, 'errorfile': tempname(), '_splitter': 'tmux neww -d', 'eval_splitter': 0, 'capture': 1, 'autoclose': 0, '_last_killed': 0, '_killed': 0, 'shell_pid': 0, 'command_pid': 0, 'wait_before_autoclose': 2, 'create_minimized': 0, 'restore_on_make': 1, 'kill_running_on_make': 1, 'focus_on_make': 0, 'manual_termination': 0, 'layout': 0, 'size': 0, 'minimal_shell': 0}
   call extend(attrs, params)
   let paneObj.command_executable = ''
   let paneObj.spawning_make = 0
@@ -171,6 +171,7 @@ function! s:PaneConstructor(name, ...)
   let paneObj.process_alive = function('<SNR>' . s:SID() . '_Pane_process_alive')
   let paneObj.ready_for_make = function('<SNR>' . s:SID() . '_Pane_ready_for_make')
   let paneObj.in_layout = function('<SNR>' . s:SID() . '_Pane_in_layout')
+  let paneObj.splitter_params = function('<SNR>' . s:SID() . '_Pane_splitter_params')
   let paneObj._handle_running_process = function('<SNR>' . s:SID() . '_Pane__handle_running_process')
   return paneObj
 endfunction
@@ -377,14 +378,15 @@ endfunction
 
 function! s:Pane_splitter() dict
   if self.in_layout()
-    return self.layout.splitter()
+    let splitter = self.layout.splitter()
   else
     if self.eval_splitter
-      return eval(self._splitter)
+      let splitter = eval(self._splitter)
     else
-      return self._splitter
+      let splitter = self._splitter
     endif
   endif
+  return splitter . self.splitter_params()
 endfunction
 
 function! s:Pane_set_shell_pid() dict
@@ -420,6 +422,14 @@ endfunction
 
 function! s:Pane_in_layout() dict
   return type(self.layout) !=# type(0)
+endfunction
+
+function! s:Pane_splitter_params() dict
+  let params = ''
+  if self.minimal_shell
+    let params .= ' "' . g:maque_tmux_minimal_shell . '"'
+  endif
+  return params
 endfunction
 
 function! s:Pane__handle_running_process() dict
