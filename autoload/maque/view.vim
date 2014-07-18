@@ -19,7 +19,7 @@ function! g:ViewConstructor(name, ...)
   endif
   let viewObj = {}
   let viewObj.name = a:name
-  let attrs = {'_original_size': [0, 0], 'minimized': 0, 'minimized_size': 2, 'minimize_on_toggle': get(g:, 'maque_tmux_minimize_on_toggle', 0), 'focus_on_restore': 0, 'vertical': 1}
+  let attrs = {'_original_size': [0, 0], 'minimized': 0, 'minimized_size': 2, 'minimize_on_toggle': get(g:, 'maque_tmux_minimize_on_toggle', 0), 'focus_on_restore': 0, 'vertical': 1, 'size': 0}
   call extend(attrs, params)
   let attrs.minimized_size = max([attrs.minimized_size, 2])
   call extend(viewObj, attrs)
@@ -27,8 +27,13 @@ function! g:ViewConstructor(name, ...)
   let viewObj.toggle_minimized = function('<SNR>' . s:SID() . '_View_toggle_minimized')
   let viewObj.minimize = function('<SNR>' . s:SID() . '_View_minimize')
   let viewObj.restore = function('<SNR>' . s:SID() . '_View_restore')
-  let viewObj._apply_size = function('<SNR>' . s:SID() . '_View__apply_size')
+  let viewObj.apply_size = function('<SNR>' . s:SID() . '_View_apply_size')
   let viewObj._vertical = function('<SNR>' . s:SID() . '_View__vertical')
+  let viewObj.fixed_size = function('<SNR>' . s:SID() . '_View_fixed_size')
+  let viewObj.layout_size = function('<SNR>' . s:SID() . '_View_layout_size')
+  let viewObj.layout_position = function('<SNR>' . s:SID() . '_View_layout_position')
+  let viewObj.pack_layout = function('<SNR>' . s:SID() . '_View_pack_layout')
+  let viewObj.pack = function('<SNR>' . s:SID() . '_View_pack')
   return viewObj
 endfunction
 
@@ -55,22 +60,28 @@ endfunction
 function! s:View_minimize() dict
   if self.open() && !self.minimized
     let self._original_size = self.current_size()
-    call self._apply_size(self.minimized_size)
+    if !(self.in_layout())
+      call self.apply_size(self.minimized_size)
+    endif
     let self.minimized = 1
+    call self.pack_layout()
   endif
 endfunction
 
 function! s:View_restore() dict
   if self.open() && self.minimized
-    call self.resize(self._original_size[0], self._original_size[1])
+    if !(self.in_layout())
+      call self.resize(self._original_size[0], self._original_size[1])
+    endif
     let self.minimized = 0
     if self.focus_on_restore
       call self.focus()
     endif
+    call self.pack_layout()
   endif
 endfunction
 
-function! s:View__apply_size(size) dict
+function! s:View_apply_size(size) dict
   if self._vertical()
     call self.resize(self._original_size[0], a:size)
   else
@@ -80,8 +91,30 @@ endfunction
 
 function! s:View__vertical() dict
   if self.in_layout()
-    return self.layout.direction ==# 'vertical'
+    return self.layout.layout_vertical()
   else
     return self.vertical
   endif
+endfunction
+
+function! s:View_fixed_size() dict
+  return self.size !=# 0
+endfunction
+
+function! s:View_layout_size() dict
+  return self.current_size()[self._vertical()]
+endfunction
+
+function! s:View_layout_position() dict
+  return self.current_position()[self._vertical()]
+endfunction
+
+function! s:View_pack_layout() dict
+  if self.in_layout()
+    call self.layout.pack()
+  endif
+  call self.pack()
+endfunction
+
+function! s:View_pack() dict
 endfunction

@@ -9,6 +9,7 @@ class g:View
           \ 'minimize_on_toggle': get(g:, 'maque_tmux_minimize_on_toggle', 0),
           \ 'focus_on_restore': 0,
           \ 'vertical': 1,
+          \ 'size': 0,
           \ }
     extend(attrs, params)
     attrs.minimized_size = max([attrs.minimized_size, 2])
@@ -41,20 +42,22 @@ class g:View
   defm minimize
     if self.open() && !self.minimized
       self._original_size = self.current_size()
-      self._apply_size(self.minimized_size)
+      self.apply_size(self.minimized_size) unless self.in_layout()
       self.minimized = 1
+      self.pack_layout()
     end
   end
 
   defm restore
     if self.open() && self.minimized
-      self.resize(self._original_size[0], self._original_size[1])
+      self.resize(self._original_size[0], self._original_size[1]) unless self.in_layout()
       self.minimized = 0
       self.focus() if self.focus_on_restore
+      self.pack_layout()
     end
   end
 
-  defm _apply_size(size)
+  defm apply_size(size)
     if self._vertical()
       self.resize(self._original_size[0], size)
     else
@@ -64,9 +67,29 @@ class g:View
 
   defm _vertical
     if self.in_layout()
-      return self.layout.direction == 'vertical'
+      return self.layout.layout_vertical()
     else
       return self.vertical
     end
+  end
+
+  defm fixed_size
+    return self.size != 0
+  end
+
+  defm layout_size
+    return self.current_size()[self._vertical()]
+  end
+
+  defm layout_position
+    return self.current_position()[self._vertical()]
+  end
+
+  defm pack_layout
+    self.layout.pack() if self.in_layout()
+    self.pack()
+  end
+
+  defm pack
   end
 end

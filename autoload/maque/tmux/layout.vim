@@ -20,7 +20,7 @@ function! g:ViewConstructor(name, ...)
   endif
   let viewObj = {}
   let viewObj.name = a:name
-  let attrs = {'_original_size': [0, 0], 'minimized': 0, 'minimized_size': 2, 'minimize_on_toggle': get(g:, 'maque_tmux_minimize_on_toggle', 0), 'focus_on_restore': 0, 'vertical': 1}
+  let attrs = {'_original_size': [0, 0], 'minimized': 0, 'minimized_size': 2, 'minimize_on_toggle': get(g:, 'maque_tmux_minimize_on_toggle', 0), 'focus_on_restore': 0, 'vertical': 1, 'size': 0}
   call extend(attrs, params)
   let attrs.minimized_size = max([attrs.minimized_size, 2])
   call extend(viewObj, attrs)
@@ -28,8 +28,13 @@ function! g:ViewConstructor(name, ...)
   let viewObj.toggle_minimized = function('<SNR>' . s:SID() . '_View_toggle_minimized')
   let viewObj.minimize = function('<SNR>' . s:SID() . '_View_minimize')
   let viewObj.restore = function('<SNR>' . s:SID() . '_View_restore')
-  let viewObj._apply_size = function('<SNR>' . s:SID() . '_View__apply_size')
+  let viewObj.apply_size = function('<SNR>' . s:SID() . '_View_apply_size')
   let viewObj._vertical = function('<SNR>' . s:SID() . '_View__vertical')
+  let viewObj.fixed_size = function('<SNR>' . s:SID() . '_View_fixed_size')
+  let viewObj.layout_size = function('<SNR>' . s:SID() . '_View_layout_size')
+  let viewObj.layout_position = function('<SNR>' . s:SID() . '_View_layout_position')
+  let viewObj.pack_layout = function('<SNR>' . s:SID() . '_View_pack_layout')
+  let viewObj.pack = function('<SNR>' . s:SID() . '_View_pack')
   return viewObj
 endfunction
 
@@ -56,22 +61,28 @@ endfunction
 function! s:View_minimize() dict
   if self.open() && !self.minimized
     let self._original_size = self.current_size()
-    call self._apply_size(self.minimized_size)
+    if !(self.in_layout())
+      call self.apply_size(self.minimized_size)
+    endif
     let self.minimized = 1
+    call self.pack_layout()
   endif
 endfunction
 
 function! s:View_restore() dict
   if self.open() && self.minimized
-    call self.resize(self._original_size[0], self._original_size[1])
+    if !(self.in_layout())
+      call self.resize(self._original_size[0], self._original_size[1])
+    endif
     let self.minimized = 0
     if self.focus_on_restore
       call self.focus()
     endif
+    call self.pack_layout()
   endif
 endfunction
 
-function! s:View__apply_size(size) dict
+function! s:View_apply_size(size) dict
   if self._vertical()
     call self.resize(self._original_size[0], a:size)
   else
@@ -81,10 +92,38 @@ endfunction
 
 function! s:View__vertical() dict
   if self.in_layout()
-    return self.layout.direction ==# 'vertical'
+    return self.layout.layout_vertical()
   else
     return self.vertical
   endif
+endfunction
+
+function! s:View_fixed_size() dict
+  return self.size !=# 0
+endfunction
+
+function! s:View_layout_size() dict
+  return self.current_size()[self._vertical()]
+endfunction
+
+function! s:View_layout_position() dict
+  return self.current_position()[self._vertical()]
+endfunction
+
+function! s:View_pack_layout() dict
+  if self.in_layout()
+    call self.layout.pack()
+  endif
+  call self.pack()
+endfunction
+
+function! s:View_pack() dict
+endfunction
+
+function! maque#tmux#layout#cmp_pane_height(p1, p2)
+  let pos1 = a:p1.layout_position()
+  let pos2 = a:p2.layout_position()
+  return pos1 ==# pos2 ? 0 : pos1 ># pos2 ? 1 : -1
 endfunction
 
 function! s:LayoutConstructor(name, args)
@@ -94,16 +133,16 @@ function! s:LayoutConstructor(name, args)
   let layoutObj.panes = []
   let layoutObj.direction = get(a:args, 'direction', 'vertical')
   let layoutObj.layout = 0
-  let layoutObj.size = get(a:args, 'size')
   let layoutObj.add = function('<SNR>' . s:SID() . '_Layout_add')
   let layoutObj.create = function('<SNR>' . s:SID() . '_Layout_create')
   let layoutObj.create_pane = function('<SNR>' . s:SID() . '_Layout_create_pane')
   let layoutObj.pack = function('<SNR>' . s:SID() . '_Layout_pack')
+  let layoutObj.pack_pane = function('<SNR>' . s:SID() . '_Layout_pack_pane')
   let layoutObj.close = function('<SNR>' . s:SID() . '_Layout_close')
   let layoutObj.open = function('<SNR>' . s:SID() . '_Layout_open')
   let layoutObj.focus = function('<SNR>' . s:SID() . '_Layout_focus')
   let layoutObj.split = function('<SNR>' . s:SID() . '_Layout_split')
-  let layoutObj.set_size = function('<SNR>' . s:SID() . '_Layout_set_size')
+  let layoutObj.set_preferred_size = function('<SNR>' . s:SID() . '_Layout_set_preferred_size')
   let layoutObj.current_size = function('<SNR>' . s:SID() . '_Layout_current_size')
   let layoutObj.resize = function('<SNR>' . s:SID() . '_Layout_resize')
   let layoutObj.splitter = function('<SNR>' . s:SID() . '_Layout_splitter')
@@ -114,6 +153,10 @@ function! s:LayoutConstructor(name, args)
   let layoutObj.create_kids = function('<SNR>' . s:SID() . '_Layout_create_kids')
   let layoutObj.create_and_wait = function('<SNR>' . s:SID() . '_Layout_create_and_wait')
   let layoutObj.ref_pane = function('<SNR>' . s:SID() . '_Layout_ref_pane')
+  let layoutObj.current_size = function('<SNR>' . s:SID() . '_Layout_current_size')
+  let layoutObj.current_position = function('<SNR>' . s:SID() . '_Layout_current_position')
+  let layoutObj.stretch_size = function('<SNR>' . s:SID() . '_Layout_stretch_size')
+  let layoutObj.layout_vertical = function('<SNR>' . s:SID() . '_Layout_layout_vertical')
   return layoutObj
 endfunction
 
@@ -124,7 +167,7 @@ function! s:Layout_open_panes(layoutObj)
       call add(panes, pane)
     endif
   endfor
-  return panes
+  return sort(panes, 'maque#tmux#layout#cmp_pane_height')
 endfunction
 
 function! s:Layout_add(pane) dict
@@ -162,9 +205,18 @@ function! s:Layout_create_pane(pane) dict
 endfunction
 
 function! s:Layout_pack() dict
-  for pane in self.panes
-    call pane.set_size()
+  let stretch_size = self.stretch_size()
+  for pane in s:Layout_open_panes(self)
+    call self.pack_pane(pane, stretch_size)
   endfor
+endfunction
+
+function! s:Layout_pack_pane(pane, stretch_size) dict
+  if a:pane.fixed_size()
+    call a:pane.set_preferred_size()
+  else
+    call a:pane.apply_size(a:stretch_size)
+  endif
 endfunction
 
 function! s:Layout_close() dict
@@ -189,9 +241,9 @@ function! s:Layout_split(pane) dict
   call maque#tmux#command_output(splitter)
 endfunction
 
-function! s:Layout_set_size() dict
+function! s:Layout_set_preferred_size() dict
   if self.open()
-    call self.ref_pane().set_size()
+    call self.ref_pane().set_preferred_size()
   endif
 endfunction
 
@@ -210,11 +262,11 @@ function! s:Layout_resize(width, height) dict
 endfunction
 
 function! s:Layout_splitter() dict
-  return self.direction ==# 'vertical' ? 'splitw -v -d' : 'splitw -h -d'
+  return self.layout_vertical() ? 'splitw -v -d' : 'splitw -h -d'
 endfunction
 
 function! s:Layout_creator() dict
-  return self.direction ==# 'vertical' ? 'splitw -h -d' : 'splitw -v -d'
+  return self.layout_vertical() ? 'splitw -h -d' : 'splitw -v -d'
 endfunction
 
 function! s:Layout_in_layout() dict
@@ -252,6 +304,34 @@ endfunction
 
 function! s:Layout_ref_pane() dict
   return self.panes[0]
+endfunction
+
+function! s:Layout_current_size() dict
+  return self.ref_pane().current_size()
+endfunction
+
+function! s:Layout_current_position() dict
+  return self.ref_pane().current_position()
+endfunction
+
+function! s:Layout_stretch_size() dict
+  let total_size = 0
+  let fixed_pane_size = 0
+  let stretch_count = 0
+  let index = self.layout_vertical() ? 1 : 0
+  for pane in s:Layout_open_panes(self)
+    let total_size += pane.current_size()[index]
+    if pane.fixed_size()
+      let fixed_pane_size += pane.effective_size()
+    else
+      let stretch_count += 1
+    endif
+  endfor
+  return stretch_count ? ((total_size - fixed_pane_size) / stretch_count) : 0
+endfunction
+
+function! s:Layout_layout_vertical() dict
+  return self.direction ==# 'vertical'
 endfunction
 
 function! maque#tmux#layout#new(name, ...)

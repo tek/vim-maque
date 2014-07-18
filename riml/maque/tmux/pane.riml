@@ -4,6 +4,7 @@ use_cache = 0
 cached_panes = {}
 
 def maque#tmux#pane#enable_cache
+  maque#tmux#pane#disable_cache()
   maque#tmux#pane#all()
   s:use_cache = 1
 end
@@ -19,13 +20,16 @@ def parse_tmux_output(line)
         \ 'pid': values[1],
         \ 'width': values[2],
         \ 'height': values[3],
+        \ 'left': values[4],
+        \ 'top': values[5],
         \ }
 end
 
 def maque#tmux#pane#all(*args)
   force = get(args, 0)
   if !s:use_cache || force
-    cmd = 'list-panes -a -F "#{pane_id} #{pane_pid} #{pane_width} #{pane_height}"'
+    cmd = 'list-panes -a -F "#{pane_id} #{pane_pid} #{pane_width}' .
+          \ ' #{pane_height} #{pane_left} #{pane_top}"'
     lines = split(maque#tmux#command_output(cmd), "\n")
     s:cached_panes = {}
     for line in lines
@@ -41,6 +45,16 @@ def maque#tmux#pane#size(id)
   if has_key(panes, id)
     pane = panes[id]
     return [pane.width, pane.height]
+  else
+    return [0, 0]
+  end
+end
+
+def maque#tmux#pane#position(id)
+  panes = maque#tmux#pane#all()
+  if has_key(panes, id)
+    pane = panes[id]
+    return [pane.left, pane.top]
   else
     return [0, 0]
   end
@@ -67,7 +81,6 @@ class Pane < g:View
           \ 'focus_on_make': 0,
           \ 'manual_termination': 0,
           \ 'layout': 0,
-          \ 'size': 0,
           \ 'minimal_shell': 0,
           \ }
     extend(attrs, params)
@@ -216,25 +229,36 @@ class Pane < g:View
     end
     self.command_pid = 0
     self.shell_pid = 0
+    maque#tmux#pane#enable_cache()
+    self.pack_layout()
   end
 
   defm current_size
     return maque#tmux#pane#size(self.id)
   end
 
+  defm current_position
+    return maque#tmux#pane#position(self.id)
+  end
+
+  defm effective_size
+    return self.minimized ? self.minimized_size : self.size
+  end
+
   " Restore the size given by the constructor parameters 'size' or
   " 'minimized_size', whichever is appropriate
-  defm set_size
+  defm set_preferred_size
     if self.minimized
-      self._apply_size(self.minimized_size)
-    elseif self.size
-      self._original_size = maque#tmux#pane#size(self.id)
-      self._apply_size(self.size)
+      self.apply_size(self.minimized_size)
+    elseif self.fixed_size()
+      self.apply_size(self.size)
     end
   end
 
   defm resize(width, height)
-    cmd = 'resize-pane -t '.self.id .' -x '.width .' -y '.height
+    cmd = 'resize-pane -t '.self.id
+    cmd .= ' -x '.width if width > 0
+    cmd .= ' -y '.height if height > 0
     maque#tmux#command(cmd)
   end
 
@@ -311,6 +335,12 @@ class Pane < g:View
     return self.set_command_pid() > 0
   end
 
+  " check whether it's ok to dispatch a command.
+  " This kills the running process (if configured), which is undesirable when
+  " calling make while the pane was closed, as it will mistake the shell
+  " initialization subprocesses, if any, for commands.
+  " For that purpose, the 'spawning_make' flag is set in the special function
+  " create_and_make, and used here to prevent killing the process.
   defm ready_for_make
     return self.open() && (self.spawning_make ||
           \ !self.process_alive() ||

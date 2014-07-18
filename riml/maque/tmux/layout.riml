@@ -1,5 +1,11 @@
 riml_include 'view.riml'
 
+def maque#tmux#layout#cmp_pane_height(p1, p2)
+  pos1 = p1.layout_position()
+  pos2 = p2.layout_position()
+  return pos1 == pos2 ? 0 : pos1 > pos2 ? 1 : -1
+end
+
 class Layout < g:View
 
   def initialize(name, args)
@@ -7,7 +13,6 @@ class Layout < g:View
     self.panes = []
     self.direction = get(a:args, 'direction', 'vertical')
     self.layout = 0
-    self.size = get(a:args, 'size')
   end
 
   defm add(pane)
@@ -45,8 +50,17 @@ class Layout < g:View
   end
  
   defm pack
-    for pane in self.panes
-      pane.set_size()
+    stretch_size = self.stretch_size()
+    for pane in self.open_panes()
+      self.pack_pane(pane, stretch_size)
+    end
+  end
+
+  defm pack_pane(pane, stretch_size)
+    if pane.fixed_size()
+      pane.set_preferred_size()
+    else
+      pane.apply_size(stretch_size)
     end
   end
 
@@ -72,12 +86,18 @@ class Layout < g:View
     maque#tmux#command_output(splitter)
   end
 
-  defm set_size
+  " defm restore
+    " super()
+    " self.pack()
+  " end
+
+  defm set_preferred_size
     if self.open()
-      self.ref_pane().set_size()
+      self.ref_pane().set_preferred_size()
     end
   end
 
+  " TODO use logic from stretch_size to determine this as total_size()
   defm current_size
     if self.open()
       return self.ref_pane().current_size()
@@ -93,11 +113,11 @@ class Layout < g:View
   end
  
   defm splitter
-    return self.direction == 'vertical' ? 'splitw -v -d' : 'splitw -h -d'
+    return self.layout_vertical() ? 'splitw -v -d' : 'splitw -h -d'
   end
  
   defm creator
-    return self.direction == 'vertical' ? 'splitw -h -d' : 'splitw -v -d'
+    return self.layout_vertical() ? 'splitw -h -d' : 'splitw -v -d'
   end
 
   defm in_layout
@@ -130,11 +150,39 @@ class Layout < g:View
     for pane in self.panes
       add(panes, pane) if pane.open()
     end
-    return panes
+    return sort(panes, 'maque#tmux#layout#cmp_pane_height')
   end
 
   defm ref_pane
     return self.panes[0]
+  end
+
+  defm current_size
+    return self.ref_pane().current_size()
+  end
+
+  defm current_position
+    return self.ref_pane().current_position()
+  end
+
+  defm stretch_size
+    total_size = 0
+    fixed_pane_size = 0
+    stretch_count = 0
+    index = self.layout_vertical() ? 1 : 0
+    for pane in self.open_panes()
+      total_size += pane.current_size()[index]
+      if pane.fixed_size() 
+        fixed_pane_size += pane.effective_size()
+      else
+        stretch_count += 1
+      end
+    end
+    return stretch_count ? ((total_size - fixed_pane_size) / stretch_count) : 0
+  end
+
+  defm layout_vertical
+    return self.direction == 'vertical'
   end
 end
 
