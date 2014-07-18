@@ -22,7 +22,7 @@ function! g:ViewConstructor(name, ...)
   let viewObj.name = a:name
   let attrs = {'_original_size': [0, 0], 'minimized': 0, 'minimized_size': 2, 'minimize_on_toggle': get(g:, 'maque_tmux_minimize_on_toggle', 0), 'focus_on_restore': 0, 'vertical': 1}
   call extend(attrs, params)
-  let attrs.minimized_size = max([attrs.minimized_size, 2])
+  let attrs.minimized_size = max([attrs.minimized_size, 1])
   call extend(viewObj, attrs)
   let viewObj.toggle = function('<SNR>' . s:SID() . '_View_toggle')
   let viewObj.toggle_minimized = function('<SNR>' . s:SID() . '_View_toggle_minimized')
@@ -135,7 +135,7 @@ function! s:PaneConstructor(name, ...)
     let params = {}
   endif
   let paneObj = {}
-  let attrs = {'id': -1, 'errorfile': tempname(), '_splitter': 'tmux neww -d', 'eval_splitter': 0, 'capture': 1, 'autoclose': 0, '_last_killed': 0, '_killed': 0, 'shell_pid': 0, 'command_pid': 0, 'wait_before_autoclose': 2, 'create_minimized': 0, 'restore_on_make': 1, 'kill_running_on_make': 1, 'focus_on_make': 0, 'manual_termination': 0, 'layout': 0, 'size': 0}
+  let attrs = {'id': -1, 'errorfile': tempname(), '_splitter': 'tmux neww -d', 'eval_splitter': 0, 'capture': 1, 'autoclose': 0, '_last_killed': 0, '_killed': 0, 'shell_pid': 0, 'command_pid': 0, 'wait_before_autoclose': 2, 'create_minimized': 0, 'restore_on_make': 1, 'kill_running_on_make': 1, 'focus_on_make': 0, 'manual_termination': 0, 'layout': 0, 'size': 0, 'minimal_shell': 1}
   call extend(attrs, params)
   let paneObj.command_executable = ''
   let paneObj.spawning_make = 0
@@ -162,6 +162,7 @@ function! s:PaneConstructor(name, ...)
   let paneObj.pipe_to_file = function('<SNR>' . s:SID() . '_Pane_pipe_to_file')
   let paneObj.pipe_cmd = function('<SNR>' . s:SID() . '_Pane_pipe_cmd')
   let paneObj.reset_capture = function('<SNR>' . s:SID() . '_Pane_reset_capture')
+  let paneObj.output = function('<SNR>' . s:SID() . '_Pane_output')
   let paneObj.description = function('<SNR>' . s:SID() . '_Pane_description')
   let paneObj.splitter = function('<SNR>' . s:SID() . '_Pane_splitter')
   let paneObj.set_shell_pid = function('<SNR>' . s:SID() . '_Pane_set_shell_pid')
@@ -364,6 +365,10 @@ function! s:Pane_reset_capture() dict
   call maque#tmux#command(self.pipe_cmd())
   call delete(self.errorfile)
   call self.pipe_to_file()
+endfunction
+
+function! s:Pane_output() dict
+  return filereadable(self.errorfile) ? readfile(self.errorfile) : []
 endfunction
 
 function! s:Pane_description() dict

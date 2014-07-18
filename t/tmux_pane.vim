@@ -145,3 +145,43 @@ describe 'pane.kill_running_on_make'
     Expect g:pane.command_pid == pid
   end
 end
+
+describe 'pane.reset_capture()'
+  before
+    let g:maque_tmux_kill_signals = ['KILL']
+    let g:maque_tmux_filter_escape_sequences = 0
+    let g:pane = maque#tmux#pane#new('foo', {
+          \ 'capture': 1,
+          \ 'manual_termination': 1,
+          \ '_splitter': 'tmux new-window -d "zsh -f"'
+          \ }
+          \ )
+    call g:pane.create()
+    let g:test_file = './t/temp/reset_capture'
+    silent !mkdir -p ./t/temp
+    execute 'silent !rm -f ' . g:test_file
+    execute 'silent !touch ' . g:test_file
+    call g:pane.make('tail -f ' . g:test_file)
+    call maque#util#wait_until('g:pane.process_alive()')
+    execute 'redir! > ' . g:test_file
+    silent echo 'line 1'
+    redir END
+  end
+
+  after
+    call g:pane.kill('KILL')
+    call g:pane.close()
+    unlet g:pane
+  end
+
+  it 'resets the tmux pipe'
+    Expect g:pane.output() == ['', 'line 1']
+    call g:pane.reset_capture()
+    Expect g:pane.output() == []
+    sleep 100m
+    execute 'redir! >> ' . g:test_file
+    echo 'line 2'
+    silent redir END
+    Expect g:pane.output() == ['', 'line 2']
+  end
+end

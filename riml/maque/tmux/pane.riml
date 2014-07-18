@@ -68,6 +68,7 @@ class Pane < g:View
           \ 'manual_termination': 0,
           \ 'layout': 0,
           \ 'size': 0,
+          \ 'minimal_shell': 1,
           \ }
     extend(attrs, params)
     self.command_executable = ''
@@ -260,6 +261,10 @@ class Pane < g:View
     maque#tmux#command(self.pipe_cmd())
     delete(self.errorfile)
     self.pipe_to_file()
+  end
+
+  defm output
+    return filereadable(self.errorfile) ? readfile(self.errorfile) : []
   end
 
   defm description
