@@ -36,6 +36,15 @@ command! -nargs=? MaqueTmuxMinimizeLayout call maque#tmux#minimize_layout(<q-arg
 command! -nargs=? MaqueTmuxResetCapture   call maque#tmux#reset_capture(<q-args>)
 "}}}
 
+"{{{ mappings
+nnoremap <silent> <Plug>(maque-tmux-kill)        :MaqueTmuxKill<cr>
+nnoremap <silent> <Plug>(maque-tmux-buffer)      :MaqueTmuxBuffer<cr>
+nnoremap <silent> <Plug>(maque-tmux-debuffer)    :MaqueTmuxDebuffer<cr>
+nnoremap <silent> <Plug>(maque-tmux-cycle)       :MaqueTmuxCycle<cr>
+nnoremap <silent> <Plug>(maque-tmux-close)       :MaqueTmuxClose<cr>
+nnoremap <silent> <Plug>(maque-tmux-toggle-make) :MaqueTmuxToggleLayout make<cr>
+"}}}
+
 augroup maque_tmux "{{{
   autocmd!
   autocmd VimLeave * call maque#tmux#close_all()

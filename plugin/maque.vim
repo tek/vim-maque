@@ -44,12 +44,6 @@ nnoremap <silent> <Plug>(maque-line)             :MaqueLine<cr>
 nnoremap <silent> <Plug>(maque-query)            :MaqueQuery<cr>
 nnoremap <silent> <Plug>(maque-parse)            :MaqueParse<cr>
 nnoremap <silent> <Plug>(maque-cycle)            :MaqueCycle<cr>
-nnoremap <silent> <Plug>(maque-tmux-kill)        :MaqueTmuxKill<cr>
-nnoremap <silent> <Plug>(maque-tmux-buffer)      :MaqueTmuxBuffer<cr>
-nnoremap <silent> <Plug>(maque-tmux-debuffer)    :MaqueTmuxDebuffer<cr>
-nnoremap <silent> <Plug>(maque-tmux-cycle)       :MaqueTmuxCycle<cr>
-nnoremap <silent> <Plug>(maque-tmux-close)       :MaqueTmuxClose<cr>
-nnoremap <silent> <Plug>(maque-tmux-toggle-make) :MaqueTmuxToggleLayout make<cr>
 "}}}
 
 augroup maque "{{{
