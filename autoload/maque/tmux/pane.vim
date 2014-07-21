@@ -83,11 +83,18 @@ function! s:View_restore() dict
   endif
 endfunction
 
-function! s:View_apply_size(size) dict
-  if self._vertical()
-    call self.resize(0, a:size)
+function! s:View_apply_size(size, ...) dict
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let both = remove(__splat_var_cpy, 0)
   else
-    call self.resize(a:size, 0)
+    let both = 0
+  endif
+  let secondary = both ? self._original_size[!self._vertical()] : 0
+  if self._vertical()
+    call self.resize(secondary, a:size)
+  else
+    call self.resize(a:size, secondary)
   endif
 endfunction
 

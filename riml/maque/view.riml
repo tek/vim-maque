@@ -57,11 +57,12 @@ class g:View
     end
   end
 
-  defm apply_size(size)
+  defm apply_size(size, both=0)
+    secondary = both ? self._original_size[!self._vertical()] : 0
     if self._vertical()
-      self.resize(0, size)
+      self.resize(secondary, size)
     else
-      self.resize(size, 0)
+      self.resize(size, secondary)
     end
   end
 
