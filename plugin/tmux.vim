@@ -22,6 +22,8 @@ endif
 let g:maque_tmux_layouts = {}
 let g:maque_tmux_panes = {}
 let g:maque_tmux_current_pane = ''
+let g:maque_tmux_exiting = 0
+
 "{{{ commands
 command! -nargs=? MaqueTmuxToggleLayout   call maque#tmux#toggle_layout(<f-args>)
 command! -nargs=? MaqueTmuxTogglePane     call maque#tmux#toggle(<f-args>)

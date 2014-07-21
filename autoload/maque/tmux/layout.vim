@@ -205,10 +205,12 @@ function! s:Layout_create_pane(pane) dict
 endfunction
 
 function! s:Layout_pack() dict
-  let stretch_size = self.stretch_size()
-  for pane in s:Layout_open_panes(self)
-    call self.pack_pane(pane, stretch_size)
-  endfor
+  if !g:maque_tmux_exiting
+    let stretch_size = self.stretch_size()
+    for pane in s:Layout_open_panes(self)
+      call self.pack_pane(pane, stretch_size)
+    endfor
+  endif
 endfunction
 
 function! s:Layout_pack_pane(pane, stretch_size) dict

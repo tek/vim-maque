@@ -50,9 +50,11 @@ class Layout < g:View
   end
  
   defm pack
-    stretch_size = self.stretch_size()
-    for pane in self.open_panes()
-      self.pack_pane(pane, stretch_size)
+    if !g:maque_tmux_exiting
+      stretch_size = self.stretch_size()
+      for pane in self.open_panes()
+        self.pack_pane(pane, stretch_size)
+      end
     end
   end
 

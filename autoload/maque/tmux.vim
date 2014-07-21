@@ -221,6 +221,7 @@ endfunction "}}}
 
 function! maque#tmux#close_all() "{{{
   let g:maque_async = 0
+  let g:maque_tmux_exiting = 1
   if exists('g:maque_tmux_panes')
     for pane in values(g:maque_tmux_panes)
       if pane.name != 'vim'
