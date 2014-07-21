@@ -1,4 +1,4 @@
-if g:maque_tmux_default_panes
+if g:maque_tmux_default_panes && !exists('g:maque_tmux_panes_created')
   let vim = maque#tmux#add_vim_pane({
         \ '_splitter': '',
         \ 'capture': 0,
