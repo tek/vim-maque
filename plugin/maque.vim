@@ -42,6 +42,7 @@ command! MaqueTmuxClose                   call maque#tmux#close_pane()
 command! -nargs=? MaqueTmuxMinimize       call maque#tmux#minimize(<q-args>)
 command! -nargs=? MaqueTmuxMinimizeLayout call maque#tmux#minimize_layout(<q-args>)
 command! -nargs=? MaqueTmuxResetCapture   call maque#tmux#reset_capture(<q-args>)
+command! -nargs=+ MaqueAddService         call maque#add_service(<q-args>)
 "}}}
 
 "{{{ mappings

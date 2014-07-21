@@ -122,3 +122,18 @@ function! maque#util#wait_until(predicate, ...) "{{{
     let counter += 1
   endwhile
 endfunction "}}}
+
+function! maque#util#parse_args(args, min_num, max_num) abort "{{{
+  try
+    sandbox let parsed = eval('[' . a:args . ']')
+    echom string(parsed)
+    if len(parsed) > a:max_num || len(parsed) < a:min_num
+      throw 'error'
+    end
+    return [1, parsed]
+  catch
+    echom v:exception
+    call maque#util#warn('Command argument parse error: ' . a:args)
+    return [0, []]
+  endtry
+endfunction "}}}

@@ -96,8 +96,18 @@ endfunction "}}}
 function! maque#tmux#add_pane_in_layout(name, layout, ...) "{{{
   let params = a:0 ? a:1 : {}
   let pane = maque#tmux#add_pane(a:name, params)
-  call maque#tmux#add_pane_to_layout(a:layout, pane)
-  return pane
+  return maque#tmux#add_pane_to_layout(a:layout, pane)
+endfunction "}}}
+
+function! maque#tmux#add_service_pane(name, layout, ...) abort "{{{
+  let params = a:0 ? a:1 : {}
+  let params = extend(params, {
+        \ 'create_minimized': 1,
+        \ 'minimized_size': 2,
+        \ 'capture': 0,
+        \ 'restore_on_make': 0,
+        \ })
+  return maque#tmux#add_pane_in_layout(a:name, a:layout, params)
 endfunction "}}}
 
 " add a pane for the main vim
@@ -126,6 +136,7 @@ function! maque#tmux#add_pane_to_layout(name, pane) abort "{{{
   else
     call g:maque_tmux_layouts[a:name].add(a:pane)
   endif
+  return a:pane
 endfunction "}}}
 
 function! maque#tmux#pane_action(action, ...) abort "{{{

@@ -148,6 +148,44 @@ function! maque#set_main_command_name(name) "{{{
   endif
 endfunction "}}}
 
+function! maque#add_service_pane(name, layout, params) abort "{{{
+  let Handler = maque#util#handler_function('add_service_pane', '')
+  if type(Handler) == 2
+    call Handler(a:name, a:layout, a:params)
+  else
+    call maque#util#warn('no handler for executing service in a pane!')
+  endif
+endfunction "}}}
+
+function! s:pop(dict, key, ...) abort "{{{
+  let value = get(a:dict, a:key, get(a:000, 0))
+  if has_key(a:dict, a:key)
+    unlet a:dict[a:key]
+  endif
+  return value
+endfunction "}}}
+
+function! maque#process_service_args(args) abort "{{{
+  let cmd = a:args[0]
+  let params = get(a:args, 1, {})
+  let start = s:pop(params, 'start')
+  let name = s:pop(params, 'name', split(cmd, ' ')[0])
+  let layout = s:pop(params, 'layout', 'make')
+  return [name, cmd, start, layout, params]
+endfunction "}}}
+
+function! maque#add_service(args) abort "{{{
+  let [success, args] = maque#util#parse_args(a:args, 1, 2)
+  if success
+    let [name, cmd, start, layout, params] = maque#process_service_args(args)
+    call maque#add_service_pane(name, layout, params)
+    call maque#add_command(name, cmd, { 'pane': name })
+    if start
+      call maque#make_command(name)
+    endif
+  endif
+endfunction "}}}
+
 function! maque#dummy_pane(...) "{{{
   let pane = { 'name': g:maque_handler }
 
