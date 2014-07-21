@@ -110,7 +110,6 @@ function! maque#tmux#_add_service_pane_in_layout(name, layout, ...) abort "{{{
         \ 'minimized_size': 2,
         \ 'capture': 0,
         \ 'restore_on_make': 0,
-        \ 'autoclose': 1,
         \ })
   return maque#tmux#add_pane_in_layout(a:name, a:layout, params)
 endfunction "}}}
