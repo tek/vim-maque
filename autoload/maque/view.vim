@@ -98,7 +98,7 @@ function! s:View__vertical() dict
 endfunction
 
 function! s:View_fixed_size() dict
-  return self.size !=# 0
+  return self.size !=# 0 || self.minimized
 endfunction
 
 function! s:View_layout_size() dict

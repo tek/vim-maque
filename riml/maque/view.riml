@@ -74,7 +74,7 @@ class g:View
   end
 
   defm fixed_size
-    return self.size != 0
+    return self.size != 0 || self.minimized
   end
 
   defm layout_size
