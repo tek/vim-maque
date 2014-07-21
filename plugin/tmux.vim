@@ -11,6 +11,12 @@ let g:maque_tmux_focus_vim_key = 'f12'
 let g:maque_tmux_error_pane = 'main'
 let g:maque_tmux_default_panes = 1
 let g:maque_tmux_minimal_shell = 'zsh -f'
+
+if (argc() > 0 && argv(0) =~ '\.git') ||
+      \ exists('g:maque_remote') ||
+      \ exists('g:maque_tmux_panes_created')
+  let g:maque_tmux_default_panes = 0
+endif
 "}}}
 
 let g:maque_tmux_layouts = {}

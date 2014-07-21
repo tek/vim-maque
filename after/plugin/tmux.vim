@@ -1,4 +1,4 @@
-if g:maque_tmux_default_panes && !exists('g:maque_remote')
+if g:maque_tmux_default_panes
   let vim = maque#tmux#add_vim_pane({
         \ '_splitter': '',
         \ 'capture': 0,
@@ -55,5 +55,6 @@ if g:maque_tmux_default_panes && !exists('g:maque_remote')
   call vim_layout.add(aux)
   call make_layout.add(main)
   call make_layout.add(status)
+  let g:maque_tmux_panes_created = 1
   silent doautocmd User MaqueTmuxPanesCreated
 endif
