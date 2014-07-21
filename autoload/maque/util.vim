@@ -126,7 +126,6 @@ endfunction "}}}
 function! maque#util#parse_args(args, min_num, max_num) abort "{{{
   try
     sandbox let parsed = eval('[' . a:args . ']')
-    echom string(parsed)
     if len(parsed) > a:max_num || len(parsed) < a:min_num
       throw 'error'
     end
