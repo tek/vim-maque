@@ -18,6 +18,7 @@ let g:maque_set_ft_options = 0
 let g:maque_loaded = 1
 let g:maque_async = 1
 let g:maque_use_make_fallback = 0
+let g:_maque_scheduled_tasks = []
 "}}}
 
 "{{{ commands
@@ -31,7 +32,7 @@ command! -nargs=? MaqueParse              call maque#parse(<f-args>)
 command! MaqueCycle                       call maque#cycle()
 command! -nargs=1 MaqueRunCommand         call maque#make_command(<q-args>)
 command! -nargs=1 MaqueToggleCommand      call maque#toggle_command(<q-args>)
-command! -nargs=+ MaqueAddService         call maque#add_service(<q-args>)
+command! -nargs=+ MaqueAddService         call maque#add_service_cmd(<q-args>)
 "}}}
 
 "{{{ mappings

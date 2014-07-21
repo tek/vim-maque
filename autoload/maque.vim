@@ -149,7 +149,7 @@ function! maque#set_main_command_name(name) "{{{
 endfunction "}}}
 
 function! maque#add_service_pane(name, layout, params) abort "{{{
-  let Handler = maque#util#handler_function('add_service_pane', '')
+  let Handler = maque#util#handler_function('add_service_pane_in_layout', '')
   if type(Handler) == 2
     call Handler(a:name, a:layout, a:params)
   else
@@ -174,7 +174,7 @@ function! maque#process_service_args(args) abort "{{{
   return [name, cmd, start, layout, params]
 endfunction "}}}
 
-function! maque#add_service(args) abort "{{{
+function! maque#_add_service(args) abort "{{{
   let [success, args] = maque#util#parse_args(a:args, 1, 2)
   if success
     let [name, cmd, start, layout, params] = maque#process_service_args(args)
@@ -184,6 +184,15 @@ function! maque#add_service(args) abort "{{{
       call maque#make_command(name)
     endif
   endif
+endfunction "}}}
+
+function! maque#add_service_cmd(args) abort "{{{
+  return maque#util#schedule('maque#_add_service', [a:args])
+endfunction "}}}
+
+function! maque#initialized() abort "{{{
+  let Handler = maque#util#handler_function('initialized', 'maque#util#true')
+  return Handler()
 endfunction "}}}
 
 function! maque#dummy_pane(...) "{{{

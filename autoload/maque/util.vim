@@ -9,6 +9,7 @@ endfunction "}}}
 function! maque#util#warn(msg) "{{{
   echohl WarningMsg
   echo 'maque: '.a:msg
+  echom 'maque: '.a:msg
   echohl None
 endfunction "}}}
 
@@ -135,4 +136,23 @@ function! maque#util#parse_args(args, min_num, max_num) abort "{{{
     call maque#util#warn('Command argument parse error: ' . a:args)
     return [0, []]
   endtry
+endfunction "}}}
+
+" Schedule a function call for execution as soon as initialization is complete
+function! maque#util#schedule(func, args) abort "{{{
+  if maque#initialized()
+    return call(a:func, a:args)
+  else
+    call add(g:_maque_scheduled_tasks, [a:func, a:args])
+  endif
+endfunction "}}}
+
+function! maque#util#run_scheduled_tasks() abort "{{{
+  for info in g:_maque_scheduled_tasks
+    call call(info[0], info[1])
+  endfor
+endfunction "}}}
+
+function! maque#util#true() abort "{{{
+  return 1
 endfunction "}}}

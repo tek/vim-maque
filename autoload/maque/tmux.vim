@@ -93,21 +93,30 @@ function! maque#tmux#add_pane(name, ...) "{{{
 endfunction "}}}
 
 " add new pane and attach to layout
-function! maque#tmux#add_pane_in_layout(name, layout, ...) "{{{
+function! maque#tmux#_add_pane_in_layout(name, layout, ...) abort "{{{
   let params = a:0 ? a:1 : {}
   let pane = maque#tmux#add_pane(a:name, params)
   return maque#tmux#add_pane_to_layout(a:layout, pane)
 endfunction "}}}
 
-function! maque#tmux#add_service_pane(name, layout, ...) abort "{{{
+function! maque#tmux#add_pane_in_layout(...) abort "{{{
+  return maque#util#schedule('maque#tmux#_add_pane_in_layout', a:000)
+endfunction "}}}
+
+function! maque#tmux#_add_service_pane_in_layout(name, layout, ...) abort "{{{
   let params = a:0 ? a:1 : {}
   let params = extend(params, {
         \ 'create_minimized': 1,
         \ 'minimized_size': 2,
         \ 'capture': 0,
         \ 'restore_on_make': 0,
+        \ 'autoclose': 1,
         \ })
   return maque#tmux#add_pane_in_layout(a:name, a:layout, params)
+endfunction "}}}
+
+function! maque#tmux#add_service_pane_in_layout(...) abort "{{{
+  return maque#util#schedule('maque#tmux#_add_service_pane_in_layout', a:000)
 endfunction "}}}
 
 " add a pane for the main vim
@@ -244,6 +253,10 @@ function! maque#tmux#vim_id() abort "{{{
       return pane.id
     endif
   endfor
+endfunction "}}}
+
+function! maque#tmux#initialized() abort "{{{
+  return exists('g:maque_tmux_layout_done')
 endfunction "}}}
 
 function! s:pane() "{{{

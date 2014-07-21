@@ -56,5 +56,6 @@ if g:maque_tmux_default_panes
   call make_layout.add(main)
   call make_layout.add(status)
   let g:maque_tmux_panes_created = 1
+  call maque#util#run_scheduled_tasks()
   silent doautocmd User MaqueTmuxPanesCreated
 endif
