@@ -33,6 +33,7 @@ command! MaqueCycle                       call maque#cycle()
 command! -nargs=1 MaqueRunCommand         call maque#make_command(<q-args>)
 command! -nargs=1 MaqueToggleCommand      call maque#toggle_command(<q-args>)
 command! -nargs=+ MaqueAddService         call maque#add_service_cmd(<q-args>)
+command! -nargs=+ MaqueAddCommand         call maque#add_command_cmd(<q-args>)
 "}}}
 
 "{{{ mappings

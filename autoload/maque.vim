@@ -190,6 +190,24 @@ function! maque#add_service_cmd(args) abort "{{{
   return maque#util#schedule('maque#_add_service', [a:args])
 endfunction "}}}
 
+function! maque#process_command_args(args) abort "{{{
+  let cmd = a:args[0]
+  let params = get(a:args, 1, {})
+  let name = s:pop(params, 'name', split(cmd, ' ')[0])
+  if !has_key(params, 'pane')
+    let params['pane'] = 'main'
+  endif
+  return [name, cmd, params]
+endfunction "}}}
+
+function! maque#add_command_cmd(args) abort "{{{
+  let [success, args] = maque#util#parse_args(a:args, 1, 2)
+  if success
+    let [name, cmd, params] = maque#process_command_args(args)
+    call maque#add_command(name, cmd, params)
+  endif
+endfunction "}}}
+
 function! maque#initialized() abort "{{{
   let Handler = maque#util#handler_function('initialized', 'maque#util#true')
   return Handler()
