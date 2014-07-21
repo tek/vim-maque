@@ -30,6 +30,7 @@ function! g:ViewConstructor(name, ...)
   let viewObj.apply_size = function('<SNR>' . s:SID() . '_View_apply_size')
   let viewObj._vertical = function('<SNR>' . s:SID() . '_View__vertical')
   let viewObj.fixed_size = function('<SNR>' . s:SID() . '_View_fixed_size')
+  let viewObj.effective_size = function('<SNR>' . s:SID() . '_View_effective_size')
   let viewObj.layout_size = function('<SNR>' . s:SID() . '_View_layout_size')
   let viewObj.layout_position = function('<SNR>' . s:SID() . '_View_layout_position')
   let viewObj.pack_layout = function('<SNR>' . s:SID() . '_View_pack_layout')
@@ -83,9 +84,9 @@ endfunction
 
 function! s:View_apply_size(size) dict
   if self._vertical()
-    call self.resize(self._original_size[0], a:size)
+    call self.resize(0, a:size)
   else
-    call self.resize(a:size, self._original_size[1])
+    call self.resize(a:size, 0)
   endif
 endfunction
 
@@ -99,6 +100,10 @@ endfunction
 
 function! s:View_fixed_size() dict
   return self.size !=# 0 || self.minimized
+endfunction
+
+function! s:View_effective_size() dict
+  return self.minimized ? self.minimized_size : self.size
 endfunction
 
 function! s:View_layout_size() dict

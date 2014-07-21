@@ -31,6 +31,7 @@ function! g:ViewConstructor(name, ...)
   let viewObj.apply_size = function('<SNR>' . s:SID() . '_View_apply_size')
   let viewObj._vertical = function('<SNR>' . s:SID() . '_View__vertical')
   let viewObj.fixed_size = function('<SNR>' . s:SID() . '_View_fixed_size')
+  let viewObj.effective_size = function('<SNR>' . s:SID() . '_View_effective_size')
   let viewObj.layout_size = function('<SNR>' . s:SID() . '_View_layout_size')
   let viewObj.layout_position = function('<SNR>' . s:SID() . '_View_layout_position')
   let viewObj.pack_layout = function('<SNR>' . s:SID() . '_View_pack_layout')
@@ -84,9 +85,9 @@ endfunction
 
 function! s:View_apply_size(size) dict
   if self._vertical()
-    call self.resize(self._original_size[0], a:size)
+    call self.resize(0, a:size)
   else
-    call self.resize(a:size, self._original_size[1])
+    call self.resize(a:size, 0)
   endif
 endfunction
 
@@ -100,6 +101,10 @@ endfunction
 
 function! s:View_fixed_size() dict
   return self.size !=# 0 || self.minimized
+endfunction
+
+function! s:View_effective_size() dict
+  return self.minimized ? self.minimized_size : self.size
 endfunction
 
 function! s:View_layout_size() dict
@@ -201,7 +206,6 @@ function! s:PaneConstructor(name, ...)
   let paneObj.close = function('<SNR>' . s:SID() . '_Pane_close')
   let paneObj.current_size = function('<SNR>' . s:SID() . '_Pane_current_size')
   let paneObj.current_position = function('<SNR>' . s:SID() . '_Pane_current_position')
-  let paneObj.effective_size = function('<SNR>' . s:SID() . '_Pane_effective_size')
   let paneObj.set_preferred_size = function('<SNR>' . s:SID() . '_Pane_set_preferred_size')
   let paneObj.resize = function('<SNR>' . s:SID() . '_Pane_resize')
   let paneObj.focus = function('<SNR>' . s:SID() . '_Pane_focus')
@@ -380,10 +384,6 @@ endfunction
 
 function! s:Pane_current_position() dict
   return maque#tmux#pane#position(self.id)
-endfunction
-
-function! s:Pane_effective_size() dict
-  return self.minimized ? self.minimized_size : self.size
 endfunction
 
 function! s:Pane_set_preferred_size() dict

@@ -241,10 +241,6 @@ class Pane < g:View
     return maque#tmux#pane#position(self.id)
   end
 
-  defm effective_size
-    return self.minimized ? self.minimized_size : self.size
-  end
-
   " Restore the size given by the constructor parameters 'size' or
   " 'minimized_size', whichever is appropriate
   defm set_preferred_size
