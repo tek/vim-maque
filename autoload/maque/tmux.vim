@@ -105,12 +105,12 @@ endfunction "}}}
 
 function! maque#tmux#_add_service_pane_in_layout(name, layout, ...) abort "{{{
   let params = a:0 ? a:1 : {}
-  let params = extend(params, {
+  let params = extend({
         \ 'create_minimized': 1,
         \ 'minimized_size': 2,
         \ 'capture': 0,
         \ 'restore_on_make': 0,
-        \ })
+        \ }, params)
   return maque#tmux#add_pane_in_layout(a:name, a:layout, params)
 endfunction "}}}
 
