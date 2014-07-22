@@ -258,6 +258,11 @@ function! maque#tmux#initialized() abort "{{{
   return exists('g:maque_tmux_layout_done')
 endfunction "}}}
 
+function! maque#tmux#finish_init() abort "{{{
+  let g:maque_tmux_panes_created = 1
+  call maque#util#run_scheduled_tasks()
+endfunction "}}}
+
 function! s:pane() "{{{
   let name = g:maque_tmux_current_pane
   if has_key(g:maque_tmux_panes, s:buffer())

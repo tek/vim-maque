@@ -48,4 +48,5 @@ nnoremap <silent> <Plug>(maque-tmux-toggle-make) :MaqueTmuxToggleLayout make<cr>
 augroup maque_tmux "{{{
   autocmd!
   autocmd VimLeave * call maque#tmux#close_all()
+  autocmd User MaqueTmuxPanesCreated call maque#tmux#finish_init()
 augroup END "}}}
