@@ -414,10 +414,6 @@ endfunction
 
 function! s:Pane_focus() dict
   call maque#tmux#command('select-pane -t ' . self.id)
-  if g:maque_tmux_map_focus_vim
-    let cmd = 'run "tmux last-pane; tmux unbind-key -n ' . g:maque_tmux_focus_vim_key . '"'
-    call maque#tmux#command('bind-key -n ' . g:maque_tmux_focus_vim_key . ' ' . cmd)
-  endif
 endfunction
 
 function! s:Pane_pipe_to_file() dict

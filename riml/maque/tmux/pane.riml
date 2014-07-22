@@ -260,10 +260,6 @@ class Pane < g:View
 
   defm focus
     maque#tmux#command('select-pane -t '.self.id)
-    if g:maque_tmux_map_focus_vim
-      cmd = 'run "tmux last-pane; tmux unbind-key -n '.g:maque_tmux_focus_vim_key .'"'
-      maque#tmux#command('bind-key -n '.g:maque_tmux_focus_vim_key .' '.cmd)
-    end
   end
 
   defm pipe_to_file
