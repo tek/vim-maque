@@ -56,3 +56,15 @@ function! maque#test#finish()
   call g:pane.close()
   unlet g:pane
 endfunction
+
+function! maque#test#wait_until(predicate, ...)
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let timeout = remove(__splat_var_cpy, 0)
+  else
+    let timeout = 10
+  endif
+  call maque#util#wait_until(a:predicate, timeout)
+  let result = eval(a:predicate)
+  Expect result == 1
+endfunction

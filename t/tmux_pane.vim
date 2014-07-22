@@ -13,7 +13,7 @@ describe 'pane.reset_capture()'
     execute 'silent !rm -f ' . g:test_file
     execute 'silent !touch ' . g:test_file
     call g:pane.make('tail -f ' . g:test_file)
-    call maque#util#wait_until('g:pane.process_alive()')
+    call maque#test#wait_until('g:pane.process_alive()')
     execute 'redir! > ' . g:test_file
     silent echo 'line 1'
     redir END
@@ -109,7 +109,7 @@ describe 'pane process management'
 
   it 'should determine the pid of a running command'
     call g:pane.make('tail -f plugin/maque.vim')
-    call maque#util#wait_until('g:pane.set_command_executable() == "tail"', 50)
+    call maque#test#wait_until('g:pane.set_command_executable() == "tail"', 50)
     Expect g:pane.process_alive() > 0
     call g:pane.set_command_pid()
     Expect g:pane.command_pid > 0
@@ -120,22 +120,22 @@ describe 'pane process management'
     let max_tries = 1
     let g:maque_tmux_kill_signals = ['INT']
     call g:pane.make('tail -f plugin/maque.vim')
-    call maque#util#wait_until('g:pane.process_alive()')
+    call maque#test#wait_until('g:pane.process_alive()')
     call g:pane.kill()
-    call maque#util#wait_until('!g:pane.process_alive()')
+    call maque#test#wait_until('!g:pane.process_alive()')
     Expect g:pane.command_pid == 0
   end
 
   it 'should kill a subshell with SIGKILL'
     let g:maque_tmux_kill_signals = ['INT', 'TERM', 'KILL']
     call g:pane.make('zsh -i')
-    call maque#util#wait_until('g:pane.process_alive()')
+    call maque#test#wait_until('g:pane.process_alive()')
     call g:pane.kill()
     Expect g:pane.process_alive() > 0
     call g:pane.kill()
     Expect g:pane.process_alive() > 0
     call g:pane.kill()
-    call maque#util#wait_until('!g:pane.process_alive()')
+    call maque#test#wait_until('!g:pane.process_alive()')
     Expect g:pane.command_pid == 0
   end
 end
@@ -144,7 +144,7 @@ describe 'pane.kill_running_on_make'
   before
     let g:maque_tmux_kill_signals = ['KILL']
     call maque#test#make('tail -f plugin/maque.vim')
-    call maque#util#wait_until('g:pane.process_alive()')
+    call maque#test#wait_until('g:pane.process_alive()')
   end
 
   after
@@ -155,7 +155,7 @@ describe 'pane.kill_running_on_make'
     let g:pane.kill_running_on_make = 1
     let pid = g:pane.command_pid
     call g:pane.make('tail -f plugin/maque.vim')
-    call maque#util#wait_until('g:pane.process_alive()')
+    call maque#test#wait_until('g:pane.process_alive()')
     Expect g:pane.command_pid != pid
   end
 

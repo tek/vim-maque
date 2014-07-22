@@ -23,3 +23,9 @@ def maque#test#finish()
   g:pane.close()
   :unlet g:pane
 end
+
+def maque#test#wait_until(predicate, timeout=10)
+  maque#util#wait_until(predicate, timeout)
+  result = eval(predicate)
+  :Expect result == 1
+end
