@@ -24,6 +24,27 @@ def maque#test#finish()
   :unlet g:pane
 end
 
+def maque#test#current_pane_id
+  output = maque#tmux#command_output('list-panes -F "#{pane_id} #{pane_active}"')
+  lines = split(output, "\n")
+  current = filter(lines, 'v:val =~ "1$"')[0]
+  return split(current)[0]
+end
+
+def maque#test#layout
+  main_layout = maque#tmux#add_layout('main', { 'direction': 'horizontal', })
+  make_layout = maque#tmux#add_layout('make', { 'direction': 'vertical',
+        \ 'minimized_size': 4 })
+  g:maque_tmux_layout_done = 1
+  vim = maque#tmux#add_vim_pane({ '_splitter': '', 'capture': 0, })
+  vim.id = maque#test#current_pane_id()
+  main_layout.add(vim)
+  main_layout.add(make_layout)
+  maque#tmux#add_pane_in_layout('main', 'make', { 'capture': 1, 'autoclose': 0, })
+  g:maque_tmux_current_pane = 'main'
+  maque#tmux#finish_init()
+end
+
 def maque#test#wait_until(predicate, timeout=10)
   maque#util#wait_until(predicate, timeout)
   result = eval(predicate)

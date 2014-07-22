@@ -57,6 +57,26 @@ function! maque#test#finish()
   unlet g:pane
 endfunction
 
+function! maque#test#current_pane_id()
+  let output = maque#tmux#command_output('list-panes -F "#{pane_id} #{pane_active}"')
+  let lines = split(output, "\n")
+  let current = filter(lines, 'v:val =~ "1$"')[0]
+  return split(current)[0]
+endfunction
+
+function! maque#test#layout()
+  let main_layout = maque#tmux#add_layout('main', {'direction': 'horizontal'})
+  let make_layout = maque#tmux#add_layout('make', {'direction': 'vertical', 'minimized_size': 4})
+  let g:maque_tmux_layout_done = 1
+  let vim = maque#tmux#add_vim_pane({'_splitter': '', 'capture': 0})
+  let vim.id = maque#test#current_pane_id()
+  call main_layout.add(vim)
+  call main_layout.add(make_layout)
+  call maque#tmux#add_pane_in_layout('main', 'make', {'capture': 1, 'autoclose': 0})
+  let g:maque_tmux_current_pane = 'main'
+  call maque#tmux#finish_init()
+endfunction
+
 function! maque#test#wait_until(predicate, ...)
   let __splat_var_cpy = copy(a:000)
   if !empty(__splat_var_cpy)

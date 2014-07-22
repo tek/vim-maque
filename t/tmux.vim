@@ -40,3 +40,33 @@ describe 'add_pane'
   end
 end
 
+describe 'integration'
+  before
+    source plugin/maque.vim
+    source plugin/tmux.vim
+  end
+
+  it 'schedule a minimized service pane and toggle sizes'
+    MaqueAddService 'tail -f plugin/maque.vim', { 'start': 1, 'size': 10,
+          \ 'minimized_size': 3 }
+    call maque#test#layout()
+    let g:pane = maque#tmux#pane('tail')
+    let g:layout = maque#tmux#layout('make')
+    call maque#test#wait_until('g:pane.set_command_executable() == ''tail''')
+    Expect g:pane.effective_size() == 3
+    Expect g:pane.layout_size() == 3
+    MaqueToggleCommand tail
+    Expect g:pane.effective_size() == 10
+    Expect g:pane.layout_size() == 10
+    MaqueTmuxToggleLayout make
+    Expect g:layout.effective_size() == 4
+    Expect g:layout.layout_size() == 4
+    Expect g:pane.layout_size() == 10
+    MaqueToggleCommand tail
+    Expect g:layout.layout_size() == 4
+    Expect g:pane.layout_size() == 3
+    MaqueTmuxToggleLayout make
+    Expect g:layout.layout_size() > 4
+    Expect g:pane.layout_size() == 3
+  end
+end
