@@ -181,6 +181,11 @@ function! maque#tmux#toggle(...) "{{{
 endfunction "}}}
 
 " close the specified pane, default to active
+function! maque#tmux#open(...) "{{{
+  return call('maque#tmux#pane_action', ['open'] + a:000)
+endfunction "}}}
+
+" close the specified pane, default to active
 function! maque#tmux#close(...) "{{{
   return call('maque#tmux#pane_action', ['close'] + a:000)
 endfunction "}}}
@@ -190,6 +195,16 @@ function! maque#tmux#reset_capture(...) "{{{
   let name = a:0 ? a:1 : ''
   let pane = get(g:maque_tmux_panes, name, s:pane())
   call pane.reset_capture()
+endfunction "}}}
+
+" focus the specified pane, default to active
+function! maque#tmux#focus(...) "{{{
+  return call('maque#tmux#pane_action', ['focus'] + a:000)
+endfunction "}}}
+
+" restore the specified pane, default to active
+function! maque#tmux#restore(...) "{{{
+  return call('maque#tmux#pane_action', ['restore'] + a:000)
 endfunction "}}}
 
 function! maque#tmux#pane(name) "{{{

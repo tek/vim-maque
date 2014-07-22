@@ -24,6 +24,12 @@ def unite#kinds#maque_tmux_pane#activate(candidate)
   echo 'set "'.name.'" as active pane.'
 end
 
+def unite#kinds#maque_tmux_pane#focus(candidate)
+  maque#tmux#open(candidate.action__name)
+  maque#tmux#restore(candidate.action__name)
+  maque#tmux#focus(candidate.action__name)
+end
+
 s:actions = {
       \ 'toggle': {
       \   'func': function('unite#kinds#maque_tmux_pane#toggle'),
@@ -44,6 +50,10 @@ s:actions = {
       \ 'activate': {
       \   'func': function('unite#kinds#maque_tmux_pane#activate'),
       \   'description': 'set as active pane',
+      \ },
+      \ 'focus': {
+      \   'func': function('unite#kinds#maque_tmux_pane#focus'),
+      \   'description': 'focus the pane',
       \ },
       \ }
 

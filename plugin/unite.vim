@@ -8,6 +8,7 @@ let g:maque_unite_tmux_pane_mapping_toggle = 'T'
 let g:maque_unite_tmux_pane_mapping_close = 'C'
 let g:maque_unite_tmux_pane_mapping_activate = 'A'
 let g:maque_unite_tmux_pane_mapping_parse = 'P'
+let g:maque_unite_tmux_pane_mapping_focus = 'F'
 
 let g:maque_unite_command_mappings = 1
 
