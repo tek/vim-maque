@@ -24,6 +24,9 @@ describe 'pane.reset_capture()'
   end
 
   it 'resets the tmux pipe'
+    if exists('$TRAVIS')
+      return
+    endif
     Expect g:pane.output() == ['', 'line 1']
     call g:pane.reset_capture()
     Expect g:pane.output() == []
@@ -117,6 +120,9 @@ describe 'pane process management'
   end
 
   it 'should kill a simple process with SIGINT'
+    if exists('$TRAVIS')
+      return
+    endif
     let max_tries = 1
     let g:maque_tmux_kill_signals = ['INT']
     call g:pane.make('tail -f plugin/maque.vim')
@@ -152,6 +158,9 @@ describe 'pane.kill_running_on_make'
   end
 
   it 'should kill a running command when the option is set'
+    if exists('$TRAVIS')
+      return
+    endif
     let g:pane.kill_running_on_make = 1
     let pid = g:pane.command_pid
     call g:pane.make('tail -f plugin/maque.vim')
