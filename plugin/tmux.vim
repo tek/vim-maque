@@ -28,7 +28,7 @@ command! -nargs=* MaqueTmuxBuffer         call maque#tmux#create_buffer_pane(<q-
 command! MaqueTmuxDebuffer                call maque#tmux#delete_buffer_pane()
 command! MaqueTmuxCycle                   call maque#tmux#cycle_panes()
 command! -nargs=+ MaqueTmuxAddPane        call maque#tmux#add_pane(<f-args>)
-command! MaqueTmuxClose                   call maque#tmux#close_pane()
+command! MaqueTmuxClose                   call maque#tmux#close()
 command! -nargs=? MaqueTmuxMinimize       call maque#tmux#minimize(<q-args>)
 command! -nargs=? MaqueTmuxMinimizeLayout call maque#tmux#minimize_layout(<q-args>)
 command! -nargs=? MaqueTmuxResetCapture   call maque#tmux#reset_capture(<q-args>)
