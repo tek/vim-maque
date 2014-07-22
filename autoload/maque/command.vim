@@ -107,7 +107,7 @@ endfunction
 
 function! s:RemoteVimConstructor(name, params)
   let remoteVimObj = {}
-  let commandObj = s:CommandConstructor('', a:name, a:params)
+  let commandObj = s:CommandConstructor('', a:name, extend({'main': 0}, a:params))
   call extend(remoteVimObj, commandObj)
   let remoteVimObj.command = function('<SNR>' . s:SID() . '_RemoteVim_command')
   let remoteVimObj.cmd_compact = function('<SNR>' . s:SID() . '_RemoteVim_cmd_compact')
@@ -175,7 +175,7 @@ endfunction
 
 function! s:MainVimConstructor()
   let mainVimObj = {}
-  let remoteVimObj = s:RemoteVimConstructor('main_vim', {'pane_name': 'vim'})
+  let remoteVimObj = s:RemoteVimConstructor('main_vim', {'pane_name': 'vim', 'main': 1})
   call extend(mainVimObj, remoteVimObj)
   let mainVimObj.server_name = function('<SNR>' . s:SID() . '_MainVim_server_name')
   return mainVimObj

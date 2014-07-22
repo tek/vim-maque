@@ -90,7 +90,7 @@ end
 class RemoteVim < Command
 
   def initialize(name, params)
-    super('', name, params)
+    super('', name, extend({ 'main': 0 }, params))
   end
 
   defm command
@@ -152,7 +152,7 @@ end
 class MainVim < RemoteVim
 
   def initialize()
-    super('main_vim', { 'pane_name': 'vim' })
+    super('main_vim', { 'pane_name': 'vim', 'main': 1 })
   end
 
   defm server_name
