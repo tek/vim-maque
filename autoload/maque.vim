@@ -120,6 +120,17 @@ function! maque#add_command(name, cmd, ...) "{{{
   return maque#command(a:name)
 endfunction "}}}
 
+function! maque#add_vim_command(name, cmd, ...) abort "{{{
+  let args = a:0 ? a:1 : {}
+  if has_key(maque#commands(), a:name)
+    call maque#util#warn('command "'.a:name.'" already created!')
+  else
+    let commands = maque#commands()
+    let commands[a:name] = maque#command#new_vim_command(a:cmd, a:name, args)
+  endif
+  return maque#command(a:name)
+endfunction "}}}
+
 function! maque#make_command(name) "{{{
   if has_key(maque#commands(), a:name)
     call maque#command(a:name).make()

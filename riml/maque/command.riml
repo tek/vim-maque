@@ -127,19 +127,54 @@ class RemoteVim < Command
     if type(pane) == type({}) && !pane.process_alive()
       echo 'maque: launching remote vim.'
       self.make()
-      maque#util#wait_until("maque#util#server_alive('#{self.server_name()}')", 25)
+      maque#util#wait_until("maque#util#server_alive('#{self.server_name()}')",
+            \ 25)
     end
   end
 
   defm server_name
     unless has_key(self, '_server_name')
-      id = maque#tmux#vim_id()
-      self._server_name = "maque_#{id}_#{self.name}"
-    endif
+      if self.main
+        self._server_name = v:servername
+      else
+        id = maque#tmux#vim_id()
+        self._server_name = "maque_#{id}_#{self.name}"
+      end
+    end
     return self._server_name
   end
 end
 
 def maque#command#new_vim(name, args)
   return new RemoteVim(name, args)
+end
+
+class MainVim < RemoteVim
+
+  def initialize()
+    super('main_vim', { 'pane_name': 'vim' })
+  end
+
+  defm server_name
+    return v:servername
+  end
+end
+
+def maque#command#new_main_vim()
+  return new MainVim()
+end
+
+class VimCommand < Command
+
+  def initialize(*args)
+    super(*args)
+  end
+
+  defm make
+    :execute self.command()
+  end
+end
+
+def maque#command#new_vim_command(*args)
+  return new VimCommand(*args)
 end

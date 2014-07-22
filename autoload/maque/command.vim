@@ -159,12 +159,48 @@ endfunction
 
 function! s:RemoteVim_server_name() dict
   if !(has_key(self, '_server_name'))
-    let id = maque#tmux#vim_id()
-    let self._server_name = "maque_" . id . "_" . self.name
+    if self.main
+      let self._server_name = v:servername
+    else
+      let id = maque#tmux#vim_id()
+      let self._server_name = "maque_" . id . "_" . self.name
+    endif
   endif
   return self._server_name
 endfunction
 
 function! maque#command#new_vim(name, args)
   return s:RemoteVimConstructor(a:name, a:args)
+endfunction
+
+function! s:MainVimConstructor()
+  let mainVimObj = {}
+  let remoteVimObj = s:RemoteVimConstructor('main_vim', {'pane_name': 'vim'})
+  call extend(mainVimObj, remoteVimObj)
+  let mainVimObj.server_name = function('<SNR>' . s:SID() . '_MainVim_server_name')
+  return mainVimObj
+endfunction
+
+function! s:MainVim_server_name() dict
+  return v:servername
+endfunction
+
+function! maque#command#new_main_vim()
+  return s:MainVimConstructor()
+endfunction
+
+function! s:VimCommandConstructor(...)
+  let vimCommandObj = {}
+  let commandObj = call('s:CommandConstructor', a:000)
+  call extend(vimCommandObj, commandObj)
+  let vimCommandObj.make = function('<SNR>' . s:SID() . '_VimCommand_make')
+  return vimCommandObj
+endfunction
+
+function! s:VimCommand_make() dict
+  execute self.command()
+endfunction
+
+function! maque#command#new_vim_command(...)
+  return call('s:VimCommandConstructor', a:000)
 endfunction

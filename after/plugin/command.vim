@@ -1,9 +1,5 @@
 if g:maque_add_default_commands && !exists('g:maque_remote')
-  let g:maque_main_vim = maque#command#new_vim('main_vim', {
-        \ 'pane_name': 'vim',
-        \ 'server_name': v:servername,
-        \ }
-        \ )
+  let g:maque_main_vim = maque#command#new_main_vim()
   call maque#add_command('main', 'maque#prg()', {
         \ 'cmd_type': 'eval',
         \ 'pane_type': 'eval',
