@@ -19,6 +19,7 @@ let g:maque_loaded = 1
 let g:maque_async = 1
 let g:maque_use_make_fallback = 0
 let g:_maque_scheduled_tasks = []
+let g:maque_errors_in_status = 0
 "}}}
 
 "{{{ commands

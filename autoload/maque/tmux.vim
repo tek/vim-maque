@@ -36,12 +36,10 @@ function! maque#tmux#parse(...) "{{{
   let pane = a:0 ? g:maque_tmux_panes[a:1] : maque#tmux#error_pane()
   if filereadable(pane.errorfile)
     execute 'cgetfile '.pane.errorfile
-    if empty(getqflist())
-      call maque#util#warn('no errors!')
-    else
-      copen
-      call maque#jump_to_error()
+    if g:maque_errors_in_status
+      call g:maque_status.execute('cgetfile ' . pane.errorfile)
     endif
+    return 1
   endif
 endfunction "}}}
 

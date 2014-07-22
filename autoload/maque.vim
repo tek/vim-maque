@@ -66,8 +66,23 @@ function! maque#query() "{{{
   call maque#set_params(fname)
 endfunction "}}}
 
+function! maque#handle_errors() abort "{{{
+  if empty(getqflist())
+    call maque#util#warn('no errors!')
+  else
+    if g:maque_errors_in_status
+      call g:maque_status.execute('copen')
+    else
+      copen
+    endif
+    call maque#jump_to_error()
+  endif
+endfunction "}}}
+
 function! maque#parse(...) "{{{
-  return call('maque#'.g:maque_handler.'#parse', a:000)
+  if call('maque#'.g:maque_handler.'#parse', a:000)
+    return maque#handle_errors()
+  endif
 endfunction "}}}
 
 function! maque#cycle() "{{{
