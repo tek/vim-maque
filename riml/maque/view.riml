@@ -78,16 +78,17 @@ class g:View
     return self.size != 0 || self.minimized
   end
 
+  " Add 0 to the result to ensure the return value is int
   defm effective_size
-    return self.minimized ? self.minimized_size : self.size
+    return (self.minimized ? self.minimized_size : self.size) + 0
   end
 
   defm layout_size
-    return self.current_size()[self._vertical()]
+    return self.current_size()[self._vertical()] + 0
   end
 
   defm layout_position
-    return self.current_position()[self._vertical()]
+    return self.current_position()[self._vertical()] + 0
   end
 
   defm pack_layout

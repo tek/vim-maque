@@ -104,7 +104,7 @@ describe 'pane process management'
   end
 
   it 'should determine the pid of its shell'
-    Expect g:pane.shell_pid > '0'
+    Expect g:pane.shell_pid > 0
   end
 
   it 'should determine the pid of a running command'
@@ -112,7 +112,7 @@ describe 'pane process management'
     call maque#util#wait_until('g:pane.set_command_executable() == "tail"', 50)
     Expect g:pane.process_alive() > 0
     call g:pane.set_command_pid()
-    Expect g:pane.command_pid > '0'
+    Expect g:pane.command_pid > 0
     Expect g:pane.process_alive() to_be_true
   end
 

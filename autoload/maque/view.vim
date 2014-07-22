@@ -110,15 +110,15 @@ function! s:View_fixed_size() dict
 endfunction
 
 function! s:View_effective_size() dict
-  return self.minimized ? self.minimized_size : self.size
+  return (self.minimized ? self.minimized_size : self.size) + 0
 endfunction
 
 function! s:View_layout_size() dict
-  return self.current_size()[self._vertical()]
+  return self.current_size()[self._vertical()] + 0
 endfunction
 
 function! s:View_layout_position() dict
-  return self.current_position()[self._vertical()]
+  return self.current_position()[self._vertical()] + 0
 endfunction
 
 function! s:View_pack_layout() dict

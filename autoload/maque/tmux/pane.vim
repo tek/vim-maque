@@ -111,15 +111,15 @@ function! s:View_fixed_size() dict
 endfunction
 
 function! s:View_effective_size() dict
-  return self.minimized ? self.minimized_size : self.size
+  return (self.minimized ? self.minimized_size : self.size) + 0
 endfunction
 
 function! s:View_layout_size() dict
-  return self.current_size()[self._vertical()]
+  return self.current_size()[self._vertical()] + 0
 endfunction
 
 function! s:View_layout_position() dict
-  return self.current_position()[self._vertical()]
+  return self.current_position()[self._vertical()] + 0
 endfunction
 
 function! s:View_pack_layout() dict
@@ -146,7 +146,7 @@ endfunction
 
 function! s:parse_tmux_output(line)
   let values = split(a:line)
-  return {'id': values[0], 'pid': values[1], 'width': values[2], 'height': values[3], 'left': values[4], 'top': values[5]}
+  return {'id': values[0], 'pid': values[1] + 0, 'width': values[2] + 0, 'height': values[3] + 0, 'left': values[4] + 0, 'top': values[5] + 0}
 endfunction
 
 function! maque#tmux#pane#all(...)
@@ -469,7 +469,7 @@ function! s:Pane_set_command_pid() dict
   if self.open()
     let pids = maque#util#child_pids(self.shell_pid)
     let [pid, comm] = empty(pids) ? [0, ''] : pids[0]
-    let self.command_pid = pid
+    let self.command_pid = pid + 0
     let self.command_executable = comm
   endif
   return self.command_pid

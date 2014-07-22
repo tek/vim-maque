@@ -17,11 +17,11 @@ def parse_tmux_output(line)
   values = split(line)
   return {
         \ 'id': values[0],
-        \ 'pid': values[1],
-        \ 'width': values[2],
-        \ 'height': values[3],
-        \ 'left': values[4],
-        \ 'top': values[5],
+        \ 'pid': values[1] + 0,
+        \ 'width': values[2] + 0,
+        \ 'height': values[3] + 0,
+        \ 'left': values[4] + 0,
+        \ 'top': values[5] + 0,
         \ }
 end
 
@@ -316,7 +316,7 @@ class Pane < g:View
     if self.open()
       pids = maque#util#child_pids(self.shell_pid)
       [pid, comm] = empty(pids) ? [0, ''] : pids[0]
-      self.command_pid = pid
+      self.command_pid = pid + 0
       self.command_executable = comm
     end
     return self.command_pid
