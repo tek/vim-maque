@@ -7,8 +7,8 @@ function! maque#util#buffer_is_in_project(num) "{{{
 endfunction "}}}
 
 function! maque#util#warn(msg) "{{{
+  redraw
   echohl WarningMsg
-  echo 'maque: '.a:msg
   echom 'maque: '.a:msg
   echohl None
 endfunction "}}}
