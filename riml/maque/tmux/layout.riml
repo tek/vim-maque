@@ -77,7 +77,7 @@ class Layout < g:View
 
   defm focus
     if self.open()
-      pane = self.open_panes()[0]
+      pane = self.ref_pane()
       pane.focus()
     end
   end
@@ -91,11 +91,6 @@ class Layout < g:View
   defm target_pane_param
     return '-t ' . self.pane_id()
   end
-
-  " defm restore
-    " super()
-    " self.pack()
-  " end
 
   defm set_preferred_size
     if self.open()
@@ -156,24 +151,32 @@ class Layout < g:View
     for pane in self.panes
       add(panes, pane) if pane.open()
     end
-    return sort(panes, 'maque#tmux#layout#cmp_pane_height')
+    return panes
+  end
+
+  def open_panes_sorted
+    return sort(self.open_panes(), 'maque#tmux#layout#cmp_pane_height')
+  end
+
+  def any_pane
+    return self.open_panes()[0]
+  end
+
+  defm ref_pane
+    panes = self.open_panes_sorted()
+    return panes[0]
   end
 
   defm pane_id
     return self.ref_pane().pane_id()
   end
 
-  defm ref_pane
-    panes = self.open_panes()
-    return panes[0]
-  end
-
   defm current_size
-    return self.ref_pane().current_size()
+    return self.any_pane().current_size()
   end
 
   defm current_position
-    return self.ref_pane().current_position()
+    return self.any_pane().current_position()
   end
 
   defm stretch_size

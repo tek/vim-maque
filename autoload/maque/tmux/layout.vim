@@ -165,8 +165,8 @@ function! s:LayoutConstructor(name, args)
   let layoutObj.post_create = function('<SNR>' . s:SID() . '_Layout_post_create')
   let layoutObj.create_kids = function('<SNR>' . s:SID() . '_Layout_create_kids')
   let layoutObj.create_and_wait = function('<SNR>' . s:SID() . '_Layout_create_and_wait')
-  let layoutObj.pane_id = function('<SNR>' . s:SID() . '_Layout_pane_id')
   let layoutObj.ref_pane = function('<SNR>' . s:SID() . '_Layout_ref_pane')
+  let layoutObj.pane_id = function('<SNR>' . s:SID() . '_Layout_pane_id')
   let layoutObj.current_size = function('<SNR>' . s:SID() . '_Layout_current_size')
   let layoutObj.current_position = function('<SNR>' . s:SID() . '_Layout_current_position')
   let layoutObj.stretch_size = function('<SNR>' . s:SID() . '_Layout_stretch_size')
@@ -181,7 +181,15 @@ function! s:Layout_open_panes(layoutObj)
       call add(panes, pane)
     endif
   endfor
-  return sort(panes, 'maque#tmux#layout#cmp_pane_height')
+  return panes
+endfunction
+
+function! s:Layout_open_panes_sorted(layoutObj)
+  return sort(s:Layout_open_panes(a:layoutObj), 'maque#tmux#layout#cmp_pane_height')
+endfunction
+
+function! s:Layout_any_pane(layoutObj)
+  return s:Layout_open_panes(a:layoutObj)[0]
 endfunction
 
 function! s:Layout_add(pane) dict
@@ -246,7 +254,7 @@ endfunction
 
 function! s:Layout_focus() dict
   if self.open()
-    let pane = s:Layout_open_panes(self)[0]
+    let pane = self.ref_pane()
     call pane.focus()
   endif
 endfunction
@@ -321,21 +329,21 @@ function! s:Layout_create_and_wait(...) dict
   endwhile
 endfunction
 
+function! s:Layout_ref_pane() dict
+  let panes = s:Layout_open_panes_sorted(self)
+  return panes[0]
+endfunction
+
 function! s:Layout_pane_id() dict
   return self.ref_pane().pane_id()
 endfunction
 
-function! s:Layout_ref_pane() dict
-  let panes = s:Layout_open_panes(self)
-  return panes[0]
-endfunction
-
 function! s:Layout_current_size() dict
-  return self.ref_pane().current_size()
+  return s:Layout_any_pane(self).current_size()
 endfunction
 
 function! s:Layout_current_position() dict
-  return self.ref_pane().current_position()
+  return s:Layout_any_pane(self).current_position()
 endfunction
 
 function! s:Layout_stretch_size() dict
