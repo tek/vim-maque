@@ -253,7 +253,6 @@ endfunction
 
 function! s:Layout_split(pane) dict
   let splitter = self.splitter() . ' ' . self.target_pane_param() . ' ' . a:pane.splitter_params()
-  echom splitter
   call maque#tmux#command_output(splitter)
 endfunction
 

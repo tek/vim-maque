@@ -83,10 +83,8 @@ class Layout < g:View
   end
 
   defm split(pane)
-    " splitter = self.splitter() . ' ' . pane.splitter_params()
     splitter = self.splitter() . ' ' . self.target_pane_param() . ' ' .
           \ pane.splitter_params()
-    :echom splitter
     maque#tmux#command_output(splitter)
   end
 
