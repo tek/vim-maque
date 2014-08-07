@@ -1,0 +1,21 @@
+def unite#filters#ignored_panes#define
+  return g:maque_unite_filter_ignored_panes
+end
+
+def unite#filters#ignored_panes#ignore(candidate)
+  return index(g:maque_unite_tmux_pane_ignore, candidate.action__name) == -1
+end
+
+class IgnoredPanes
+
+  def initialize
+    self.name = 'ignored_panes'
+    self.description = 'Open tmux panes'
+  end
+
+  defm filter(candidates, context)
+    return filter(candidates, 'unite#filters#ignored_panes#ignore(v:val)')
+  end
+end
+
+let g:maque_unite_filter_ignored_panes = new IgnoredPanes()

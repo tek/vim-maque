@@ -11,6 +11,7 @@ class TmuxPaneSource < g:MaqueUniteSource
   def initialize
     super('tmux_pane', 'tmux panes managed by maque', s:actions)
     self.syntax = 'uniteSource__MaqueTmuxPane'
+    self.filters = ['open_panes', 'ignored_panes']
   end
 
   defm gather_candidates(args, context)

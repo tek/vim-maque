@@ -1,0 +1,17 @@
+def unite#filters#open_panes#define
+  return g:maque_unite_filter_open_panes
+end
+
+class OpenPanes
+
+  def initialize
+    self.name = 'open_panes'
+    self.description = 'Open tmux panes'
+  end
+
+  defm filter(candidates, context)
+    return filter(candidates, 'maque#tmux#pane(v:val.action__name).open()')
+  end
+end
+
+let g:maque_unite_filter_open_panes = new OpenPanes()
