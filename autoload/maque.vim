@@ -119,8 +119,9 @@ function! maque#jump_to_error() "{{{
 endfunction "}}}
 
 function! maque#set_params(...) "{{{
-  let params = a:0 ? ' '.a:1 : ''
-  let g:maqueprg = &makeprg.' '.maque#args().params
+  let cmdline = maque#prefix(&makeprg) . &makeprg . ' ' . maque#args()
+        \ . ' ' . get(a:000, 0, '')
+  let g:maqueprg = substitute(cmdline, '^\s\+|\s\+$', '', 'g')
   return 1
 endfunction "}}}
 
@@ -292,6 +293,10 @@ endfunction "}}}
 
 function! maque#args() "{{{
   return maque#util#variable('maque_args_'.&makeprg)
+endfunction "}}}
+
+function! maque#prefix(cmd) abort "{{{
+  return get(g:, 'maque_prefix_' . a:cmd, '')
 endfunction "}}}
 
 function! maque#prg() "{{{
