@@ -207,7 +207,7 @@ function! maque#_add_service(args) abort "{{{
     let [name, cmd, start, layout, params] = maque#process_service_args(args)
     call maque#add_service_pane(name, layout, params)
     call maque#add_command(name, cmd, { 'pane': name })
-    if start
+    if start && maque#autostart_ok()
       call maque#make_command(name)
     endif
   endif
@@ -355,4 +355,8 @@ endfunction "}}}
 function! maque#make_all() abort "{{{
   call maque#set_params()
   return maque#make()
+endfunction "}}}
+
+function! maque#autostart_ok() abort "{{{
+  return !argc()
 endfunction "}}}
