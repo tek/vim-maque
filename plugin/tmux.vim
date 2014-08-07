@@ -32,6 +32,7 @@ command! MaqueTmuxClose                   call maque#tmux#close()
 command! -nargs=? MaqueTmuxMinimize       call maque#tmux#minimize(<q-args>)
 command! -nargs=? MaqueTmuxMinimizeLayout call maque#tmux#minimize_layout(<q-args>)
 command! -nargs=? MaqueTmuxResetCapture   call maque#tmux#reset_capture(<q-args>)
+command! -nargs=? MaqueTmuxFocus          call maque#tmux#focus(<q-args>)
 "}}}
 
 "{{{ mappings
@@ -41,6 +42,7 @@ nnoremap <silent> <Plug>(maque-tmux-debuffer)    :MaqueTmuxDebuffer<cr>
 nnoremap <silent> <Plug>(maque-tmux-cycle)       :MaqueTmuxCycle<cr>
 nnoremap <silent> <Plug>(maque-tmux-close)       :MaqueTmuxClose<cr>
 nnoremap <silent> <Plug>(maque-tmux-toggle-make) :MaqueTmuxToggleLayout make<cr>
+nnoremap <silent> <Plug>(maque-tmux-focus)       :MaqueTmuxFocus<cr>
 "}}}
 
 augroup maque_tmux "{{{
