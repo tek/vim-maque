@@ -154,6 +154,7 @@ function! s:LayoutConstructor(name, args)
   let layoutObj.open = function('<SNR>' . s:SID() . '_Layout_open')
   let layoutObj.focus = function('<SNR>' . s:SID() . '_Layout_focus')
   let layoutObj.split = function('<SNR>' . s:SID() . '_Layout_split')
+  let layoutObj.target_pane_param = function('<SNR>' . s:SID() . '_Layout_target_pane_param')
   let layoutObj.set_preferred_size = function('<SNR>' . s:SID() . '_Layout_set_preferred_size')
   let layoutObj.current_size = function('<SNR>' . s:SID() . '_Layout_current_size')
   let layoutObj.resize = function('<SNR>' . s:SID() . '_Layout_resize')
@@ -164,6 +165,7 @@ function! s:LayoutConstructor(name, args)
   let layoutObj.post_create = function('<SNR>' . s:SID() . '_Layout_post_create')
   let layoutObj.create_kids = function('<SNR>' . s:SID() . '_Layout_create_kids')
   let layoutObj.create_and_wait = function('<SNR>' . s:SID() . '_Layout_create_and_wait')
+  let layoutObj.pane_id = function('<SNR>' . s:SID() . '_Layout_pane_id')
   let layoutObj.ref_pane = function('<SNR>' . s:SID() . '_Layout_ref_pane')
   let layoutObj.current_size = function('<SNR>' . s:SID() . '_Layout_current_size')
   let layoutObj.current_position = function('<SNR>' . s:SID() . '_Layout_current_position')
@@ -204,7 +206,6 @@ function! s:Layout_create_pane(pane) dict
   let panes_before = maque#tmux#pane#all()
   if !(a:pane.open())
     if self.open()
-      call self.focus()
       call self.split(a:pane)
       call maque#tmux#pane('vim').focus()
     else
@@ -251,8 +252,13 @@ function! s:Layout_focus() dict
 endfunction
 
 function! s:Layout_split(pane) dict
-  let splitter = self.splitter() . a:pane.splitter_params()
+  let splitter = self.splitter() . ' ' . self.target_pane_param() . ' ' . a:pane.splitter_params()
+  echom splitter
   call maque#tmux#command_output(splitter)
+endfunction
+
+function! s:Layout_target_pane_param() dict
+  return '-t ' . self.pane_id()
 endfunction
 
 function! s:Layout_set_preferred_size() dict
@@ -316,8 +322,13 @@ function! s:Layout_create_and_wait(...) dict
   endwhile
 endfunction
 
+function! s:Layout_pane_id() dict
+  return self.ref_pane().pane_id()
+endfunction
+
 function! s:Layout_ref_pane() dict
-  return self.panes[0]
+  let panes = s:Layout_open_panes(self)
+  return panes[0]
 endfunction
 
 function! s:Layout_current_size() dict

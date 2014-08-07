@@ -29,7 +29,7 @@ class Layout < g:View
       end
     end
   end
- 
+
   defm create_pane(pane) abort
     if self.in_layout()
       self.layout.create_kids()
@@ -37,7 +37,6 @@ class Layout < g:View
     panes_before = maque#tmux#pane#all()
     unless pane.open()
       if self.open()
-        self.focus()
         self.split(pane)
         maque#tmux#pane('vim').focus()
       else
@@ -48,7 +47,7 @@ class Layout < g:View
       self.pack()
     end
   end
- 
+
   defm pack
     if !g:maque_tmux_exiting
       stretch_size = self.stretch_size()
@@ -71,11 +70,11 @@ class Layout < g:View
       pane.close()
     end
   end
- 
+
   defm open
     return !empty(self.open_panes())
   end
- 
+
   defm focus
     if self.open()
       pane = self.open_panes()[0]
@@ -84,8 +83,15 @@ class Layout < g:View
   end
 
   defm split(pane)
-    splitter = self.splitter() . pane.splitter_params()
+    " splitter = self.splitter() . ' ' . pane.splitter_params()
+    splitter = self.splitter() . ' ' . self.target_pane_param() . ' ' .
+          \ pane.splitter_params()
+    :echom splitter
     maque#tmux#command_output(splitter)
+  end
+
+  defm target_pane_param
+    return '-t ' . self.pane_id()
   end
 
   " defm restore
@@ -113,11 +119,11 @@ class Layout < g:View
       self.ref_pane().resize(width, height)
     end
   end
- 
+
   defm splitter
     return self.layout_vertical() ? 'splitw -v -d' : 'splitw -h -d'
   end
- 
+
   defm creator
     return self.layout_vertical() ? 'splitw -h -d' : 'splitw -v -d'
   end
@@ -137,7 +143,7 @@ class Layout < g:View
       pane.create_and_wait() unless pane.open()
     end
   end
- 
+
   defm create_and_wait(timeout=5)
     self.create()
     counter = 0
@@ -155,8 +161,13 @@ class Layout < g:View
     return sort(panes, 'maque#tmux#layout#cmp_pane_height')
   end
 
+  defm pane_id
+    return self.ref_pane().pane_id()
+  end
+
   defm ref_pane
-    return self.panes[0]
+    panes = self.open_panes()
+    return panes[0]
   end
 
   defm current_size
@@ -174,7 +185,7 @@ class Layout < g:View
     index = self.layout_vertical() ? 1 : 0
     for pane in self.open_panes()
       total_size += pane.current_size()[index]
-      if pane.fixed_size() 
+      if pane.fixed_size()
         fixed_pane_size += pane.effective_size()
       else
         stretch_count += 1

@@ -360,6 +360,10 @@ class Pane < g:View
       maque#util#warn('Refusing to kill running process!')
     end
   end
+
+  defm pane_id
+    return self.id
+  end
 end
 
 def next_signal(idx)

@@ -230,6 +230,7 @@ function! s:PaneConstructor(name, ...)
   let paneObj.in_layout = function('<SNR>' . s:SID() . '_Pane_in_layout')
   let paneObj.splitter_params = function('<SNR>' . s:SID() . '_Pane_splitter_params')
   let paneObj._handle_running_process = function('<SNR>' . s:SID() . '_Pane__handle_running_process')
+  let paneObj.pane_id = function('<SNR>' . s:SID() . '_Pane_pane_id')
   return paneObj
 endfunction
 
@@ -506,6 +507,10 @@ function! s:Pane__handle_running_process() dict
   else
     call maque#util#warn('Refusing to kill running process!')
   endif
+endfunction
+
+function! s:Pane_pane_id() dict
+  return self.id
 endfunction
 
 function! s:next_signal(idx)
