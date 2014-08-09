@@ -1,0 +1,17 @@
+def unite#filters#stopped_commands#define
+  return g:maque_unite_filter_stopped_commands
+end
+
+class StoppedCommands
+
+  def initialize
+    self.name = 'stopped_commands'
+    self.description = 'Only display commands that aren''t currently running.'
+  end
+
+  defm filter(candidates, context)
+    return filter(candidates, 'maque#command(v:val.action__name).stopped()')
+  end
+end
+
+let g:maque_unite_filter_stopped_commands = new StoppedCommands()

@@ -34,6 +34,8 @@ function! s:CommandConstructor(command, name, ...)
   let commandObj._pane_name = function('<SNR>' . s:SID() . '_Command__pane_name')
   let commandObj.restart = function('<SNR>' . s:SID() . '_Command_restart')
   let commandObj.kill = function('<SNR>' . s:SID() . '_Command_kill')
+  let commandObj.running = function('<SNR>' . s:SID() . '_Command_running')
+  let commandObj.stopped = function('<SNR>' . s:SID() . '_Command_stopped')
   let commandObj.toggle = function('<SNR>' . s:SID() . '_Command_toggle')
   return commandObj
 endfunction
@@ -90,6 +92,14 @@ endfunction
 
 function! s:Command_kill() dict
   return self.pane().kill_wait()
+endfunction
+
+function! s:Command_running() dict
+  return self.pane().process_alive()
+endfunction
+
+function! s:Command_stopped() dict
+  return !self.running()
 endfunction
 
 function! s:Command_toggle() dict

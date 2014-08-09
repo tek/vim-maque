@@ -67,7 +67,6 @@ function! s:TmuxPaneSourceConstructor()
   let maqueUniteSourceObj = g:MaqueUniteSourceConstructor('tmux_pane', 'tmux panes managed by maque', s:actions)
   call extend(tmuxPaneSourceObj, maqueUniteSourceObj)
   let tmuxPaneSourceObj.syntax = 'uniteSource__MaqueTmuxPane'
-  let tmuxPaneSourceObj.filters = ['open_panes', 'ignored_panes']
   let tmuxPaneSourceObj.gather_candidates = function('<SNR>' . s:SID() . '_TmuxPaneSource_gather_candidates')
   let tmuxPaneSourceObj.format_candidate = function('<SNR>' . s:SID() . '_TmuxPaneSource_format_candidate')
   let tmuxPaneSourceObj.init_syntax = function('<SNR>' . s:SID() . '_TmuxPaneSource_init_syntax')
