@@ -3,7 +3,7 @@ def unite#kinds#maque_tmux_pane#define()
 end
 
 def unite#kinds#maque_tmux_pane#toggle(candidate)
-  maque#tmux#toggle(candidate.action__name)
+  maque#tmux#toggle_pane(candidate.action__name)
 end
 
 def unite#kinds#maque_tmux_pane#close(candidate)

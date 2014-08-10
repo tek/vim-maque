@@ -176,7 +176,7 @@ function! maque#tmux#kill_all(...) "{{{
 endfunction "}}}
 
 " toggle the specified pane, default to active
-function! maque#tmux#toggle(...) "{{{
+function! maque#tmux#toggle_pane(...) "{{{
   return call('maque#tmux#pane_action', ['toggle'] + a:000)
 endfunction "}}}
 

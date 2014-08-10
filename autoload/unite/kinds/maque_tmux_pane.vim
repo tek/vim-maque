@@ -7,7 +7,7 @@ function! unite#kinds#maque_tmux_pane#define()
 endfunction
 
 function! unite#kinds#maque_tmux_pane#toggle(candidate)
-  call maque#tmux#toggle(a:candidate.action__name)
+  call maque#tmux#toggle_pane(a:candidate.action__name)
 endfunction
 
 function! unite#kinds#maque_tmux_pane#close(candidate)

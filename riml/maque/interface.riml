@@ -1,8 +1,10 @@
-def maque#interface#command_mapping(mapping, cmd_line)
-  mapping = 'maque-' . mapping
+def maque#interface#command_mapping(mapping, cmd_line, args=0)
+  mapping = len(mapping) ? 'maque-' . mapping : 'maque'
   cmd_name = maque#util#command_name(mapping)
-  execute 'noremap <silent> <plug>(' . mapping . ') :' . cmd_name . '<cr>'
-  execute 'command! ' . cmd_name . ' ' . cmd_line
+  execute 'command! -nargs=' . args . ' ' . cmd_name . ' ' . cmd_line
+  if args == 0 || args == '*'
+    execute 'noremap <silent> <plug>(' . mapping . ') :' . cmd_name . '<cr>'
+  end
 end
 
 def maque#interface#unite_command_mapping(mapping, cmd_line)
@@ -19,4 +21,27 @@ def maque#interface#unite_source(name, variants)
     cmd_line = profile_param . ' ' . source_name
     maque#interface#unite_command_mapping(mapping, cmd_line)
   end
+end
+
+def maque#interface#tmux_command_mapping(mapping, cmd_line='', args='*')
+  prefixed_mapping = 'tmux-' . mapping
+  if !len(cmd_line)
+    cmd_line = 'call maque#tmux#' . substitute(mapping, '-', '_', 'g') .
+          \ '(<q-args>)'
+  end
+  return maque#interface#command_mapping(prefixed_mapping, cmd_line, args)
+end
+
+def maque#interface#maque_command_mapping(mapping, cmd_line='', args='0')
+  if !len(cmd_line)
+    cmd_line = 'call maque#' . substitute(mapping, '-', '_', 'g') .
+          \ '(<q-args>)'
+  end
+  return maque#interface#command_mapping(mapping, cmd_line, args)
+end
+
+def maque#interface#maque_make_command_mapping(mapping, args='0')
+  cmd_line = 'call maque#make_' . substitute(mapping, '-', '_', 'g') .
+        \ '(<q-args>)'
+  return maque#interface#maque_command_mapping(mapping, cmd_line, args)
 end

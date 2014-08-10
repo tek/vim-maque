@@ -213,7 +213,7 @@ function! maque#_add_service(args) abort "{{{
   endif
 endfunction "}}}
 
-function! maque#add_service_cmd(args) abort "{{{
+function! maque#add_service(args) abort "{{{
   return maque#util#schedule('maque#_add_service', [a:args])
 endfunction "}}}
 
