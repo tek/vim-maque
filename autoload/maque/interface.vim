@@ -80,3 +80,32 @@ function! maque#interface#maque_make_command_mapping(mapping, ...)
   let cmd_line = 'call maque#make_' . substitute(a:mapping, '-', '_', 'g') . '(<q-args>)'
   return maque#interface#maque_command_mapping(a:mapping, cmd_line, args)
 endfunction
+
+function! maque#interface#config_option(key, value, ...)
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let sub_prefix = remove(__splat_var_cpy, 0)
+  else
+    let sub_prefix = ''
+  endif
+  let prefix = 'maque_'
+  if len(sub_prefix)
+    let prefix = prefix . sub_prefix . '_'
+  endif
+  let var_name = 'g:' . prefix . a:key
+  if !exists(var_name)
+    execute 'let ' . var_name . ' =  a:value'
+  endif
+endfunction
+
+function! maque#interface#config_options(options, ...)
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let sub_prefix = remove(__splat_var_cpy, 0)
+  else
+    let sub_prefix = ''
+  endif
+  for name in keys(a:options)
+    call maque#interface#config_option(name, a:options[name], sub_prefix)
+  endfor
+endfunction

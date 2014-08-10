@@ -45,3 +45,18 @@ def maque#interface#maque_make_command_mapping(mapping, args='0')
         \ '(<q-args>)'
   return maque#interface#maque_command_mapping(mapping, cmd_line, args)
 end
+
+def maque#interface#config_option(key, value, sub_prefix='')
+  prefix = 'maque_'
+  prefix =  prefix . sub_prefix . '_' if len(sub_prefix)
+  var_name = 'g:' . prefix . key
+  if !exists(var_name)
+    execute 'let ' . var_name . ' =  a:value'
+  end
+end
+
+def maque#interface#config_options(options, sub_prefix='')
+  for name in keys(options)
+    maque#interface#config_option(name, options[name], sub_prefix)
+  end
+end
