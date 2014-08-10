@@ -156,3 +156,7 @@ endfunction "}}}
 function! maque#util#true() abort "{{{
   return 1
 endfunction "}}}
+
+function! maque#util#command_name(name) abort "{{{
+  return substitute(a:name, '\v%(^|[-_])(\l)', '\u\1', 'g')
+endfunction "}}}
