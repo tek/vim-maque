@@ -21,7 +21,7 @@ function! s:CommandConstructor(command, name, ...)
   if has_key(params, 'pane')
     let params['pane_name'] = remove(params, 'pane')
   endif
-  let attrs = {'_command': a:command, 'pane_name': 'main', 'handler': g:maque_handler, 'cmd_type': 'shell', 'pane_type': 'name', 'copy_to_main': 0, 'name': a:name}
+  let attrs = {'_command': a:command, 'pane_name': 'main', 'handler': g:maque_handler, 'cmd_type': 'shell', 'pane_type': 'name', 'copy_to_main': 0, 'name': a:name, 'compiler': ''}
   call extend(commandObj, attrs)
   call extend(commandObj, params)
   let commandObj.command = function('<SNR>' . s:SID() . '_Command_command')
@@ -60,6 +60,7 @@ function! s:Command_make() dict
   let g:maque_making_command = self.name
   silent doautocmd User MaqueCommandMake
   let pane = self.pane()
+  let pane.compiler = self.compiler
   if self.copy_to_main
     call maque#set_main_command(self)
   endif

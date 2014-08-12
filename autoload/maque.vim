@@ -193,28 +193,59 @@ function! s:pop(dict, key, ...) abort "{{{
 endfunction "}}}
 
 function! maque#process_service_args(args) abort "{{{
-  let cmd = a:args[0]
-  let params = get(a:args, 1, {})
-  let start = s:pop(params, 'start')
-  let name = s:pop(params, 'name', split(cmd, ' ')[0])
-  let layout = s:pop(params, 'layout', 'make')
-  return [name, cmd, start, layout, params]
+  let pane = get(a:args, 1, {})
+  let generic = {
+        \ 'command': a:args[0],
+        \ 'start': s:pop(pane, 'start'),
+        \ 'layout': s:pop(pane, 'layout', 'make'),
+        \ }
+  let generic.name = s:pop(pane, 'name', split(generic['command'], ' ')[0])
+  let cmd = {
+        \ 'compiler': s:pop(pane, 'compiler'),
+        \ 'name': generic['name'],
+        \ 'pane': generic['name'],
+        \ }
+  return [generic, pane, cmd]
+endfunction "}}}
+
+function! maque#create_service(generic, pane, cmd) abort "{{{
+  call maque#add_service_pane(a:generic.name, a:generic.layout, a:pane)
+  call maque#add_command(a:generic.name, a:generic.command, a:cmd)
+  if a:generic.start && maque#autostart_ok()
+    call maque#run_command(a:generic.name)
+  endif
 endfunction "}}}
 
 function! maque#_add_service(args) abort "{{{
   let [success, args] = maque#util#parse_args(a:args, 1, 2)
   if success
-    let [name, cmd, start, layout, params] = maque#process_service_args(args)
-    call maque#add_service_pane(name, layout, params)
-    call maque#add_command(name, cmd, { 'pane': name })
-    if start && maque#autostart_ok()
-      call maque#make_command(name)
-    endif
+    return call('maque#create_service', maque#process_service_args(args))
   endif
 endfunction "}}}
 
 function! maque#add_service(args) abort "{{{
   return maque#util#schedule('maque#_add_service', [a:args])
+endfunction "}}}
+
+function! maque#_add_captured_service(args) abort "{{{
+  let [success, args] = maque#util#parse_args(a:args, 1, 2)
+  if success
+    let [generic, pane, cmd] = maque#process_service_args(args)
+    let override = {
+          \ 'manual_termination': 1,
+          \ 'capture': 1,
+          \ }
+    augroup maque_services
+      execute 'autocmd User MaqueTmuxMake MaqueTmuxResetCapture ' .
+            \ generic.name
+    augroup END
+    let pane = extend(override, pane)
+    return maque#create_service(generic, pane, cmd)
+  end
+endfunction "}}}
+
+function! maque#add_captured_service(args) abort "{{{
+  return maque#util#schedule('maque#_add_captured_service', [a:args])
 endfunction "}}}
 
 function! maque#process_command_args(args) abort "{{{

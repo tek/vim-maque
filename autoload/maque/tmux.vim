@@ -33,11 +33,23 @@ endfunction "}}}
 
 " parse the active pane's last command's output into the quickfix list
 function! maque#tmux#parse(...) "{{{
-  let pane = a:0 ? g:maque_tmux_panes[a:1] : maque#tmux#error_pane()
+  let pane = maque#tmux#pane(get(a:000, 0, ''), maque#tmux#error_pane())
   if filereadable(pane.errorfile)
+    let override_compiler = len(pane.compiler) > 0
+    echom override_compiler
+    if override_compiler
+      let compiler_before = get(b:, 'current_compiler', '')
+      echom compiler_before
+      execute 'compiler ' . pane.compiler
+      echom pane.compiler
+    endif
     execute 'cgetfile '.pane.errorfile
     if g:maque_errors_in_status
       call g:maque_status.execute('cgetfile ' . pane.errorfile)
+    endif
+    if override_compiler && len(compiler_before)
+      echom 'reset'
+      execute 'compiler ' . compiler_before
     endif
     return 1
   endif
@@ -207,8 +219,8 @@ function! maque#tmux#restore(...) "{{{
   return call('maque#tmux#pane_action', ['restore'] + a:000)
 endfunction "}}}
 
-function! maque#tmux#pane(name) "{{{
-  return get(g:maque_tmux_panes, a:name)
+function! maque#tmux#pane(name, ...) "{{{
+  return get(g:maque_tmux_panes, a:name, get(a:000, 0))
 endfunction "}}}
 
 function! maque#tmux#layout(name) "{{{
@@ -243,7 +255,8 @@ function! maque#tmux#close_all() "{{{
 endfunction "}}}
 
 function! maque#tmux#error_pane() "{{{
-  return g:maque_tmux_error_pane == 'main' ? s:pane() : maque#tmux#pane(g:maque_tmux_error_pane)
+  return g:maque_tmux_error_pane == 'main' ? s:pane() :
+        \ maque#tmux#pane(g:maque_tmux_error_pane)
 endfunction "}}}
 
 function! maque#tmux#vim_id() abort "{{{

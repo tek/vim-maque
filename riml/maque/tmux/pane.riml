@@ -82,6 +82,7 @@ class Pane < g:View
           \ 'manual_termination': 0,
           \ 'layout': 0,
           \ 'minimal_shell': 0,
+          \ 'compiler': '',
           \ }
     extend(attrs, params)
     self.command_executable = ''

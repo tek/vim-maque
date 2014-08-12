@@ -35,6 +35,7 @@ let g:maque_mappings = [
       \ ['run-command', '', 1],
       \ ['toggle-command', '', 1],
       \ ['add-service', '', '+'],
+      \ ['add-captured-service', '', '+'],
       \ ['add-command', 'call maque#add_command_cmd(<q-args>)', '+'],
       \ ['query', 'call maque#query()<Bar>call maque#make()'],
       \ ]
