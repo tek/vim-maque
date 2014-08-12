@@ -23,26 +23,28 @@ def maque#interface#unite_source(name, variants)
   end
 end
 
+def tr(mapping)
+  return tr(mapping, '-', '_')
+end
+
 def maque#interface#tmux_command_mapping(mapping, cmd_line='', args='*')
   prefixed_mapping = 'tmux-' . mapping
   if !len(cmd_line)
-    cmd_line = 'call maque#tmux#' . substitute(mapping, '-', '_', 'g') .
-          \ '(<q-args>)'
+    cmd_line = 'call maque#tmux#' . s:tr(mapping) . '(<q-args>)'
   end
   return maque#interface#command_mapping(prefixed_mapping, cmd_line, args)
 end
 
 def maque#interface#maque_command_mapping(mapping, cmd_line='', args='0')
   if !len(cmd_line)
-    cmd_line = 'call maque#' . substitute(mapping, '-', '_', 'g') .
-          \ '(<q-args>)'
+    cmd_line = 'call maque#' . s:tr(mapping) . '(<q-args>)'
   end
   return maque#interface#command_mapping(mapping, cmd_line, args)
 end
 
 def maque#interface#maque_make_command_mapping(mapping, args='0')
-  cmd_line = 'call maque#make_' . substitute(mapping, '-', '_', 'g') .
-        \ '(<q-args>)'
+  spec = len(mapping) ? '_' . s:tr(mapping) : ''
+  cmd_line = 'call maque#make' . spec . '(<q-args>)'
   return maque#interface#maque_command_mapping(mapping, cmd_line, args)
 end
 

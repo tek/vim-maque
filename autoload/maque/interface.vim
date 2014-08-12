@@ -33,6 +33,10 @@ function! maque#interface#unite_source(name, variants)
   endfor
 endfunction
 
+function! s:tr(mapping)
+  return tr(a:mapping, '-', '_')
+endfunction
+
 function! maque#interface#tmux_command_mapping(mapping, ...)
   let __splat_var_cpy = copy(a:000)
   if !empty(__splat_var_cpy)
@@ -47,7 +51,7 @@ function! maque#interface#tmux_command_mapping(mapping, ...)
   endif
   let prefixed_mapping = 'tmux-' . a:mapping
   if !len(cmd_line)
-    let cmd_line = 'call maque#tmux#' . substitute(a:mapping, '-', '_', 'g') . '(<q-args>)'
+    let cmd_line = 'call maque#tmux#' . s:tr(a:mapping) . '(<q-args>)'
   endif
   return maque#interface#command_mapping(prefixed_mapping, cmd_line, args)
 endfunction
@@ -65,7 +69,7 @@ function! maque#interface#maque_command_mapping(mapping, ...)
     let args = '0'
   endif
   if !len(cmd_line)
-    let cmd_line = 'call maque#' . substitute(a:mapping, '-', '_', 'g') . '(<q-args>)'
+    let cmd_line = 'call maque#' . s:tr(a:mapping) . '(<q-args>)'
   endif
   return maque#interface#command_mapping(a:mapping, cmd_line, args)
 endfunction
@@ -77,7 +81,8 @@ function! maque#interface#maque_make_command_mapping(mapping, ...)
   else
     let args = '0'
   endif
-  let cmd_line = 'call maque#make_' . substitute(a:mapping, '-', '_', 'g') . '(<q-args>)'
+  let spec = len(a:mapping) ? '_' . s:tr(a:mapping) : ''
+  let cmd_line = 'call maque#make' . spec . '(<q-args>)'
   return maque#interface#maque_command_mapping(a:mapping, cmd_line, args)
 endfunction
 
