@@ -3,7 +3,7 @@ def unite#kinds#maque_command#define()
 end
 
 def unite#kinds#maque_command#make(candidate)
-  maque#make_command(candidate.action__name)
+  maque#run_command(candidate.action__name)
 end
 
 def unite#kinds#maque_command#set_main(candidate)

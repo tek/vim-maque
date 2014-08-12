@@ -31,7 +31,7 @@ function! ctrlp#maque#command#accept(mode, str) "{{{
     let name = matches[1]
     if a:mode == 'e'
       call ctrlp#exit()
-      call maque#make_command(name)
+      call maque#run_command(name)
     elseif a:mode == 'r'
       call ctrlp#exit()
       call maque#async('maque#restart_command', name)

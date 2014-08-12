@@ -7,7 +7,7 @@ function! maque#make(...) "{{{
       let g:maqueprg = a:1
     endif
   endif
-  return maque#make_command(command)
+  return maque#run_command(command)
 endfunction "}}}
 
 function! maque#make_aux(cmd, ...) "{{{
@@ -20,7 +20,7 @@ function! maque#make_aux(cmd, ...) "{{{
   endif
 endfunction "}}}
 
-function! maque#make_auto() "{{{
+function! maque#make_auto(...) "{{{
   if maque#set_makeprg()
     call maque#dispatch#focus()
     return maque#make()
@@ -147,7 +147,7 @@ function! maque#add_vim_command(name, cmd, ...) abort "{{{
   return maque#command(a:name)
 endfunction "}}}
 
-function! maque#make_command(name) "{{{
+function! maque#run_command(name) "{{{
   if has_key(maque#commands(), a:name)
     call maque#command(a:name).make()
   else
