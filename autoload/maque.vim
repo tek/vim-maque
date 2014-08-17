@@ -373,17 +373,17 @@ function! maque#load_maqueprg() abort "{{{
   endif
 endfunction "}}}
 
-function! maque#make_line() abort "{{{
+function! maque#make_line(...) abort "{{{
   call maque#ft#common#set_line()
   return maque#make()
 endfunction "}}}
 
-function! maque#make_file() abort "{{{
+function! maque#make_file(...) abort "{{{
   call maque#ft#common#set_file()
   return maque#make()
 endfunction "}}}
 
-function! maque#make_all() abort "{{{
+function! maque#make_all(...) abort "{{{
   call maque#set_params()
   return maque#make()
 endfunction "}}}
