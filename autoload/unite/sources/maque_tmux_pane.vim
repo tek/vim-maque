@@ -61,7 +61,7 @@ function! unite#sources#maque_tmux_pane#define()
   return g:unite_source_maque_tmux_pane
 endfunction
 
-let s:actions = ['kill', 'toggle', 'close', 'activate', 'parse', 'focus']
+let s:actions = ['kill', 'toggle', 'close', 'activate', 'parse', 'focus', 'reset']
 function! s:TmuxPaneSourceConstructor()
   let tmuxPaneSourceObj = {}
   let maqueUniteSourceObj = g:MaqueUniteSourceConstructor('tmux_pane', 'tmux panes managed by maque', s:actions)

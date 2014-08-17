@@ -4,7 +4,7 @@ def unite#sources#maque_tmux_pane#define()
   return g:unite_source_maque_tmux_pane
 end
 
-actions = ['kill', 'toggle', 'close', 'activate', 'parse', 'focus']
+actions = ['kill', 'toggle', 'close', 'activate', 'parse', 'focus', 'reset']
 
 class TmuxPaneSource < g:MaqueUniteSource
 

@@ -34,5 +34,9 @@ function! unite#kinds#maque_tmux_pane#focus(candidate)
   call maque#tmux#focus(a:candidate.action__name)
 endfunction
 
-let s:actions = {'toggle': {'func': function('unite#kinds#maque_tmux_pane#toggle'), 'description': 'open or close/minimize'}, 'close': {'func': function('unite#kinds#maque_tmux_pane#close'), 'description': 'close'}, 'parse': {'func': function('unite#kinds#maque_tmux_pane#parse'), 'description': 'parse output as errorfile'}, 'kill': {'func': function('unite#kinds#maque_tmux_pane#kill'), 'description': 'kill the running process'}, 'activate': {'func': function('unite#kinds#maque_tmux_pane#activate'), 'description': 'set as active pane'}, 'focus': {'func': function('unite#kinds#maque_tmux_pane#focus'), 'description': 'focus the pane'}}
+function! unite#kinds#maque_tmux_pane#reset(candidate)
+  call maque#tmux#reset_capture(a:candidate.action__name)
+endfunction
+
+let s:actions = {'toggle': {'func': function('unite#kinds#maque_tmux_pane#toggle'), 'description': 'open or close/minimize'}, 'close': {'func': function('unite#kinds#maque_tmux_pane#close'), 'description': 'close'}, 'parse': {'func': function('unite#kinds#maque_tmux_pane#parse'), 'description': 'parse output as errorfile'}, 'kill': {'func': function('unite#kinds#maque_tmux_pane#kill'), 'description': 'kill the running process'}, 'activate': {'func': function('unite#kinds#maque_tmux_pane#activate'), 'description': 'set as active pane'}, 'focus': {'func': function('unite#kinds#maque_tmux_pane#focus'), 'description': 'focus the pane'}, 'reset': {'func': function('unite#kinds#maque_tmux_pane#reset'), 'description': 'Reset the error output capture buffer'}}
 let g:unite_kind_maque_tmux_pane = {'name': 'maque_tmux_pane', 'default_action': 'toggle', 'action_table': s:actions, 'parents': []}

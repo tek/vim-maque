@@ -7,6 +7,7 @@ let g:maque_unite_tmux_pane_config_defaults = {
       \ 'mapping_activate': 'A',
       \ 'mapping_parse': 'P',
       \ 'mapping_focus': 'F',
+      \ 'mapping_reset': 'R',
       \ 'ignore': ['vim'],
       \ }
 

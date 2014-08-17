@@ -30,6 +30,10 @@ def unite#kinds#maque_tmux_pane#focus(candidate)
   maque#tmux#focus(candidate.action__name)
 end
 
+def unite#kinds#maque_tmux_pane#reset(candidate)
+  maque#tmux#reset_capture(candidate.action__name)
+end
+
 s:actions = {
       \ 'toggle': {
       \   'func': function('unite#kinds#maque_tmux_pane#toggle'),
@@ -54,6 +58,10 @@ s:actions = {
       \ 'focus': {
       \   'func': function('unite#kinds#maque_tmux_pane#focus'),
       \   'description': 'focus the pane',
+      \ },
+      \ 'reset': {
+      \   'func': function('unite#kinds#maque_tmux_pane#reset'),
+      \   'description': 'Reset the error output capture buffer',
       \ },
       \ }
 
