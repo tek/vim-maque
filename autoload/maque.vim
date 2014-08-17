@@ -201,7 +201,7 @@ function! maque#process_service_args(args) abort "{{{
         \ }
   let generic.name = s:pop(pane, 'name', split(generic['command'], ' ')[0])
   let cmd = {
-        \ 'compiler': s:pop(pane, 'compiler'),
+        \ 'compiler': s:pop(pane, 'compiler', ''),
         \ 'name': generic['name'],
         \ 'pane': generic['name'],
         \ }

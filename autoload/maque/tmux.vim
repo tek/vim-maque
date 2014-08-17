@@ -36,19 +36,15 @@ function! maque#tmux#parse(...) "{{{
   let pane = maque#tmux#pane(get(a:000, 0, ''), maque#tmux#error_pane())
   if filereadable(pane.errorfile)
     let override_compiler = len(pane.compiler) > 0
-    echom override_compiler
     if override_compiler
       let compiler_before = get(b:, 'current_compiler', '')
-      echom compiler_before
       execute 'compiler ' . pane.compiler
-      echom pane.compiler
     endif
     execute 'cgetfile '.pane.errorfile
     if g:maque_errors_in_status
       call g:maque_status.execute('cgetfile ' . pane.errorfile)
     endif
     if override_compiler && len(compiler_before)
-      echom 'reset'
       execute 'compiler ' . compiler_before
     endif
     return 1
