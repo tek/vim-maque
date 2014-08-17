@@ -10,7 +10,10 @@ class OpenPanes
   end
 
   defm filter(candidates, context)
-    return filter(candidates, 'maque#tmux#pane(v:val.action__name).open()')
+    maque#tmux#pane#enable_cache()
+    matches = filter(candidates, 'maque#tmux#pane(v:val.action__name).open()')
+    maque#tmux#pane#disable_cache()
+    return matches
   end
 end
 

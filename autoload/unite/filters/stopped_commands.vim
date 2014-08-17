@@ -23,7 +23,10 @@ function! s:StoppedCommandsConstructor()
 endfunction
 
 function! s:StoppedCommands_filter(candidates, context) dict
-  return filter(a:candidates, 'maque#command(v:val.action__name).stopped()')
+  call maque#tmux#pane#enable_cache()
+  let matches = filter(a:candidates, 'maque#command(v:val.action__name).stopped()')
+  call maque#tmux#pane#disable_cache()
+  return matches
 endfunction
 
 let g:maque_unite_filter_stopped_commands = s:StoppedCommandsConstructor()
