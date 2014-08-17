@@ -121,7 +121,7 @@ endfunction "}}}
 function! maque#set_params(...) "{{{
   let cmdline = maque#prefix(&makeprg) . &makeprg . ' ' . maque#args()
         \ . ' ' . get(a:000, 0, '')
-  let g:maqueprg = substitute(cmdline, '^\s\+|\s\+$', '', 'g')
+  let g:maqueprg = substitute(cmdline, '\v^\s+|\s+$|\s\zs\s+', '', 'g')
   return 1
 endfunction "}}}
 
