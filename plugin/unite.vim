@@ -1,4 +1,11 @@
 "{{{ options
+
+let g:maque_unite_config_defaults = {
+      \ 'default_params': '-auto-resize -no-empty -keep-focus',
+      \ }
+
+call maque#interface#config_options(g:maque_unite_config_defaults, 'unite')
+
 let g:maque_unite_tmux_pane_config_defaults = {
       \ 'mappings': 1,
       \ 'mapping_kill': 'K',

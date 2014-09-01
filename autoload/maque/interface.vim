@@ -19,7 +19,7 @@ endfunction
 
 function! maque#interface#unite_command_mapping(mapping, cmd_line)
   let mapping = 'unite-' . a:mapping
-  let cmd_line = 'Unite -auto-resize <args> ' . a:cmd_line
+  let cmd_line = 'Unite ' . g:maque_unite_default_params . ' <args> ' . a:cmd_line
   return maque#interface#command_mapping(mapping, cmd_line, '*')
 endfunction
 

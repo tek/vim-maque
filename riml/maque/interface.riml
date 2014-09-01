@@ -9,7 +9,7 @@ end
 
 def maque#interface#unite_command_mapping(mapping, cmd_line)
   mapping = 'unite-' . mapping
-  cmd_line = 'Unite -auto-resize <args> ' . cmd_line
+  cmd_line = 'Unite ' . g:maque_unite_default_params . ' <args> ' . cmd_line
   return maque#interface#command_mapping(mapping, cmd_line, '*')
 end
 
