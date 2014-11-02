@@ -269,8 +269,8 @@ function! maque#process_command_args(args) abort "{{{
   let cmd = a:args[0]
   let params = get(a:args, 1, {})
   let name = s:pop(params, 'name', split(cmd, ' ')[0])
-  if !has_key(params, 'pane')
-    let params['pane'] = 'main'
+  if !has_key(params, 'pane') && !has_key(params, 'pane_name')
+    let params['pane_name'] = 'main'
   endif
   return [name, cmd, params]
 endfunction "}}}
