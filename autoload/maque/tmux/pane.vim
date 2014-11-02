@@ -191,7 +191,7 @@ function! s:PaneConstructor(name, ...)
     let params = {}
   endif
   let paneObj = {}
-  let attrs = {'id': -1, 'errorfile': tempname(), '_splitter': 'tmux neww -d', 'eval_splitter': 0, 'capture': 1, 'autoclose': 0, '_last_killed': 0, '_killed': 0, 'shell_pid': 0, 'command_pid': 0, 'wait_before_autoclose': 2, 'create_minimized': 0, 'restore_on_make': 1, 'kill_running_on_make': 1, 'focus_on_make': 0, 'manual_termination': 0, 'layout': 0, 'minimal_shell': 0, 'compiler': ''}
+  let attrs = {'id': -1, 'errorfile': tempname(), '_splitter': 'tmux neww -d', 'eval_splitter': 0, 'capture': 1, 'autoclose': 0, '_last_killed': 0, '_killed': 0, 'shell_pid': 0, 'command_pid': 0, 'wait_before_autoclose': 2, 'create_minimized': 0, 'restore_on_make': 1, 'kill_running_on_make': 1, 'focus_on_make': 0, 'manual_termination': 0, 'layout': 0, 'minimal_shell': 0, 'compiler': '', 'nested': 0}
   call extend(attrs, params)
   let paneObj.command_executable = ''
   let paneObj.spawning_make = 0
@@ -498,7 +498,9 @@ function! s:Pane_splitter_params() dict
 endfunction
 
 function! s:Pane__handle_running_process() dict
-  if self.kill_running_on_make
+  if self.nested
+    return 1
+  elseif self.kill_running_on_make
     if self.kill_wait()
       return 1
     else

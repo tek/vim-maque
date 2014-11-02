@@ -83,6 +83,7 @@ class Pane < g:View
           \ 'layout': 0,
           \ 'minimal_shell': 0,
           \ 'compiler': '',
+          \ 'nested': 0,
           \ }
     extend(attrs, params)
     self.command_executable = ''
@@ -351,7 +352,9 @@ class Pane < g:View
   end
 
   defm _handle_running_process
-    if self.kill_running_on_make
+    if self.nested
+      return 1
+    elseif self.kill_running_on_make
       if self.kill_wait()
         return 1
       else

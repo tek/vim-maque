@@ -15,6 +15,7 @@ class Command
           \ 'copy_to_main': 0,
           \ 'name': name,
           \ 'compiler': '',
+          \ 'nested': 0,
           \ }
     extend(commandObj, attrs)
     extend(commandObj, params)
@@ -41,6 +42,7 @@ class Command
     :silent doautocmd User MaqueCommandMake
     pane = self.pane()
     pane.compiler = self.compiler
+    pane.nested = self.nested
     maque#set_main_command(self) if self.copy_to_main
     maque#make_pane(pane, self.command(), self.handler)
     :unlet g:maque_making_command
