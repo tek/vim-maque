@@ -20,6 +20,7 @@ let g:maque_config_defaults = {
       \ 'async': 1,
       \ 'use_make_fallback': 0,
       \ 'errors_in_status': 0,
+      \ 'qf_path_ignore': [],
       \ }
 
 call maque#interface#config_options(g:maque_config_defaults)

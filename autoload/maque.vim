@@ -92,6 +92,23 @@ function! maque#cycle() "{{{
   echo 'selected maque handler "'.g:maque_handler.'".'
 endfunction "}}}
 
+function! maque#qf_path_ignored(path) abort "{{{
+  for pat in g:maque_qf_path_ignore
+    if a:path =~ pat
+      return 1
+    endif
+  endfor
+endfunction "}}}
+
+function! maque#ignore_qf_buffer(num) abort "{{{
+  let path = fnamemodify(expand('#'.a:num), ':p')
+  if executable('realpath')
+    let path = split(maque#util#system('realpath '.path, 1), "\n")[0]
+  endif
+  return !maque#util#path_is_in_project(path) ||
+        \ maque#qf_path_ignored(path)
+endfunction "}}}
+
 function! maque#cwd_error_index() "{{{
   let last = g:maque_jump_to_error == 'last'
   let error_list = getqflist()
@@ -99,7 +116,7 @@ function! maque#cwd_error_index() "{{{
     call reverse(error_list)
   endif
   for error in error_list
-    if maque#util#buffer_is_in_project(error.bufnr)
+    if !maque#ignore_qf_buffer(error.bufnr)
       return index(getqflist(), error) + 1
     endif
   endfor

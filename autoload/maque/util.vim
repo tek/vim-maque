@@ -1,9 +1,5 @@
-function! maque#util#buffer_is_in_project(num) "{{{
-  let path = fnamemodify(expand('#'.a:num), ':p')
-  if executable('realpath')
-    let path = maque#util#system('realpath '.path, 1)
-  endif
-  return path =~ getcwd()
+function! maque#util#path_is_in_project(path) "{{{
+  return a:path =~ getcwd() && filereadable(a:path)
 endfunction "}}}
 
 function! maque#util#warn(msg) "{{{
