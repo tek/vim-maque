@@ -42,6 +42,7 @@ function! maque#tmux#parse(...) "{{{
     endif
     execute 'cgetfile '.pane.errorfile
     if g:maque_errors_in_status
+      call g:maque_status.execute('compiler ' . pane.compiler)
       call g:maque_status.execute('cgetfile ' . pane.errorfile)
     endif
     if override_compiler && len(compiler_before)
