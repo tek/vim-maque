@@ -7,5 +7,8 @@ if g:maque_set_ft_options
   elseif current_path =~ 'Gemfile'
     setlocal makeprg=bundle
     let b:maque_filetype = 'gemfile'
+  elseif current_path =~ 'db/seeds'
+    compiler rake
+    let b:maque_filetype = 'rake_db_seeds'
   endif
 endif
