@@ -212,6 +212,7 @@ function! s:PaneConstructor(name, ...)
   let paneObj.open = function('<SNR>' . s:SID() . '_Pane_open')
   let paneObj.close = function('<SNR>' . s:SID() . '_Pane_close')
   let paneObj.current_size = function('<SNR>' . s:SID() . '_Pane_current_size')
+  let paneObj.height = function('<SNR>' . s:SID() . '_Pane_height')
   let paneObj.current_position = function('<SNR>' . s:SID() . '_Pane_current_position')
   let paneObj.set_preferred_size = function('<SNR>' . s:SID() . '_Pane_set_preferred_size')
   let paneObj.resize = function('<SNR>' . s:SID() . '_Pane_resize')
@@ -231,6 +232,7 @@ function! s:PaneConstructor(name, ...)
   let paneObj.splitter_params = function('<SNR>' . s:SID() . '_Pane_splitter_params')
   let paneObj._handle_running_process = function('<SNR>' . s:SID() . '_Pane__handle_running_process')
   let paneObj.pane_id = function('<SNR>' . s:SID() . '_Pane_pane_id')
+  let paneObj.clear_log = function('<SNR>' . s:SID() . '_Pane_clear_log')
   return paneObj
 endfunction
 
@@ -393,6 +395,10 @@ function! s:Pane_current_size() dict
   return maque#tmux#pane#size(self.id)
 endfunction
 
+function! s:Pane_height() dict
+  return self.current_size()[1]
+endfunction
+
 function! s:Pane_current_position() dict
   return maque#tmux#pane#position(self.id)
 endfunction
@@ -516,6 +522,12 @@ endfunction
 
 function! s:Pane_pane_id() dict
   return self.id
+endfunction
+
+function! s:Pane_clear_log() dict
+  for i in range(self.height() - 1)
+    call self.send('')
+  endfor
 endfunction
 
 function! s:next_signal(idx)

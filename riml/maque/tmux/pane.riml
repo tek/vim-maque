@@ -241,6 +241,10 @@ class Pane < g:View
     return maque#tmux#pane#size(self.id)
   end
 
+  defm height
+    return self.current_size()[1]
+  end
+
   defm current_position
     return maque#tmux#pane#position(self.id)
   end
@@ -369,6 +373,12 @@ class Pane < g:View
 
   defm pane_id
     return self.id
+  end
+
+  defm clear_log
+    for i in range(self.height() - 1)
+      self.send('')
+    end
   end
 end
 

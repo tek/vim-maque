@@ -25,6 +25,11 @@ let g:maque_tmux_current_pane = ''
 let g:maque_tmux_exiting = 0
 
 "{{{ mappings & commands
+" syntax: [name, dispatch, args]
+" args corresponds to :command's -nargs parameter
+" dispatch is the callback that should be executed
+" if dispatch is not given, maque#tmux#<name>(...) is used
+" command and <plug> mapping are generated from name
 let g:maque_tmux_mappings = [
       \ ['focus'],
       \ ['kill'],
@@ -35,6 +40,8 @@ let g:maque_tmux_mappings = [
       \ ['minimize-layout'],
       \ ['reset-capture'],
       \ ['cycle-panes'],
+      \ ['cycle-panes'],
+      \ ['clear-log'],
       \ ['buffer',
       \  'call maque#tmux#create_buffer_pane(<q-args>)' .
       \  '<Bar>call maque#make_auto()'],

@@ -216,6 +216,11 @@ function! maque#tmux#restore(...) "{{{
   return call('maque#tmux#pane_action', ['restore'] + a:000)
 endfunction "}}}
 
+" restore the specified pane, default to active
+function! maque#tmux#clear_log(...) "{{{
+  return call('maque#tmux#pane_action', ['clear_log'] + a:000)
+endfunction "}}}
+
 function! maque#tmux#pane(name, ...) "{{{
   return get(g:maque_tmux_panes, a:name, get(a:000, 0))
 endfunction "}}}
