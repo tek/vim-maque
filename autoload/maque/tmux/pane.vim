@@ -525,9 +525,7 @@ function! s:Pane_pane_id() dict
 endfunction
 
 function! s:Pane_clear_log() dict
-  for i in range(self.height() - 1)
-    call self.send('')
-  endfor
+  call self.send(repeat("\n", self.height() - 2))
 endfunction
 
 function! s:next_signal(idx)

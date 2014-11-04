@@ -376,9 +376,7 @@ class Pane < g:View
   end
 
   defm clear_log
-    for i in range(self.height() - 1)
-      self.send('')
-    end
+    self.send(repeat("\n", self.height() - 2))
   end
 end
 
