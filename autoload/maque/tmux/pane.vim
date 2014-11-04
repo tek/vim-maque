@@ -191,7 +191,7 @@ function! s:PaneConstructor(name, ...)
     let params = {}
   endif
   let paneObj = {}
-  let attrs = {'id': -1, 'errorfile': tempname(), '_splitter': 'tmux neww -d', 'eval_splitter': 0, 'capture': 1, 'autoclose': 0, '_last_killed': 0, '_killed': 0, 'shell_pid': 0, 'command_pid': 0, 'wait_before_autoclose': 2, 'create_minimized': 0, 'restore_on_make': 1, 'kill_running_on_make': 1, 'focus_on_make': 0, 'manual_termination': 0, 'layout': 0, 'minimal_shell': 0, 'compiler': '', 'nested': 0}
+  let attrs = {'id': -1, 'errorfile': tempname(), '_splitter': 'tmux neww -d', 'eval_splitter': 0, 'capture': 1, 'autoclose': 0, '_last_killed': 0, '_killed': 0, 'shell_pid': 0, 'command_pid': 0, 'wait_before_autoclose': 2, 'create_minimized': 0, 'restore_on_make': 1, 'kill_running_on_make': 1, 'focus_on_make': 0, 'manual_termination': 0, 'layout': 0, 'minimal_shell': 0, 'compiler': '', 'nested': 0, 'quit_copy_mode': 1}
   call extend(attrs, params)
   let paneObj.command_executable = ''
   let paneObj.spawning_make = 0
@@ -291,6 +291,9 @@ function! s:Pane_make(cmd, ...) dict
   if self.ready_for_make()
     if self.minimized && self.restore_on_make
       call self.restore()
+    endif
+    if self.quit_copy_mode
+      call self.send('')
     endif
     call self.send(a:cmd)
     if capture

@@ -84,6 +84,7 @@ class Pane < g:View
           \ 'minimal_shell': 0,
           \ 'compiler': '',
           \ 'nested': 0,
+          \ 'quit_copy_mode': 1,
           \ }
     extend(attrs, params)
     self.command_executable = ''
@@ -143,6 +144,7 @@ class Pane < g:View
       if self.minimized && self.restore_on_make
         self.restore()
       end
+      self.send('') if self.quit_copy_mode
       self.send(cmd)
       if capture
         if !self.manual_termination
