@@ -146,7 +146,7 @@ endfunction
 
 function! s:parse_tmux_output(line)
   let values = split(a:line)
-  return {'id': values[0], 'pid': values[1] + 0, 'width': values[2] + 0, 'height': values[3] + 0, 'left': values[4] + 0, 'top': values[5] + 0}
+  return {'id': get(values, 0, ''), 'pid': get(values, 1, 1) + 0, 'width': get(values, 2, 0) + 0, 'height': get(values, 3, 0) + 0, 'left': get(values, 4, 0) + 0, 'top': get(values, 5, 0) + 0}
 endfunction
 
 function! maque#tmux#pane#all(...)
