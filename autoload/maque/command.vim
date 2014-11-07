@@ -101,7 +101,7 @@ function! s:Command_running() dict
 endfunction
 
 function! s:Command_stopped() dict
-  return !self.running()
+  return !self.running() || self.nested
 endfunction
 
 function! s:Command_toggle() dict

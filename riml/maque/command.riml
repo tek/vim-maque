@@ -82,7 +82,7 @@ class Command
   end
 
   defm stopped
-    return !self.running()
+    return !self.running() || self.nested
   end
 
   defm toggle
