@@ -229,9 +229,25 @@ function! maque#tmux#restore(...) "{{{
   return call('maque#tmux#pane_action', ['restore'] + a:000)
 endfunction "}}}
 
-" restore the specified pane, default to active
+" clear the specified pane, default to active
 function! maque#tmux#clear_log(...) "{{{
   return call('maque#tmux#pane_action', ['clear_log'] + a:000)
+endfunction "}}}
+
+" send input to the specified pane
+function! maque#tmux#send(name, msg) "{{{
+  return maque#tmux#call_pane({
+        \ 'name': a:name, 'action': 'send', 'args': [a:msg]})
+endfunction "}}}
+
+function! maque#tmux#_send_cmd(args) abort "{{{
+  let parts = split(a:args, '^\S\+\zs\s')
+  if len(parts) > 1
+    let [name, msg] = parts
+    return maque#tmux#send(name, msg)
+  else
+    call maque#util#warn('Usage: MaqueTmuxSend <pane> <message>')
+  endif
 endfunction "}}}
 
 function! maque#tmux#pane(name, ...) "{{{
