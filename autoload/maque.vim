@@ -319,6 +319,11 @@ function! maque#command(name) "{{{
   return maque#commands()[a:name]
 endfunction "}}}
 
+function! maque#making(...) abort "{{{
+  return exists('g:maque_making_command') &&
+        \ index(a:000, g:maque_making_command) != -1
+endfunction "}}}
+
 function! maque#pane(name, ...) "{{{
   let handler = get(a:000, 0, g:maque_handler)
   let Pane = maque#util#handler_function('pane', 'maque#dummy_pane', handler)
