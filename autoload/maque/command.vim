@@ -101,12 +101,12 @@ function! s:Command_running() dict
 endfunction
 
 function! s:Command_stopped() dict
-  return !self.running() || self.nested
+  return self.nested || !self.running()
 endfunction
 
 function! s:Command_toggle() dict
   let pane = self.pane()
-  if pane.process_alive()
+  if !self.nested && pane.process_alive()
     call pane.toggle()
   else
     call self.make()

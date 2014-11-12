@@ -82,12 +82,12 @@ class Command
   end
 
   defm stopped
-    return !self.running() || self.nested
+    return self.nested || !self.running()
   end
 
   defm toggle
     pane = self.pane()
-    if pane.process_alive()
+    if !self.nested && pane.process_alive()
       pane.toggle()
     else
       self.make()
