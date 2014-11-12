@@ -187,6 +187,10 @@ function! maque#tmux#minimize(...) "{{{
   return call('maque#tmux#pane_action', ['minimize'] + a:000)
 endfunction "}}}
 
+function! maque#tmux#minimize_pane(...) abort "{{{
+  return call('maque#tmux#minimize', a:000)
+endfunction "}}}
+
 " kill the process running in the active pane with all available signals until
 " it is dead
 function! maque#tmux#kill_all(...) "{{{
@@ -198,7 +202,7 @@ function! maque#tmux#toggle_pane(...) "{{{
   return call('maque#tmux#pane_action', ['toggle'] + a:000)
 endfunction "}}}
 
-" close the specified pane, default to active
+" open the specified pane, default to active
 function! maque#tmux#open(...) "{{{
   return call('maque#tmux#pane_action', ['open'] + a:000)
 endfunction "}}}
