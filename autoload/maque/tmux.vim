@@ -144,13 +144,20 @@ function! maque#tmux#add_pane_to_layout(name, pane) abort "{{{
   return a:pane
 endfunction "}}}
 
+function! maque#tmux#call_pane(params) abort "{{{
+  let name = get(a:params, 'name', '')
+  let action = get(a:params, 'action', 'open')
+  let args = get(a:params, 'args', [])
+  let pane = get(g:maque_tmux_panes, name, s:pane())
+  call maque#tmux#pane#enable_cache()
+  call call(pane[action], args, pane)
+  call maque#tmux#pane#disable_cache()
+endfunction "}}}
+
 function! maque#tmux#pane_action(action, ...) abort "{{{
   if !a:0 || a:1 == '' || has_key(g:maque_tmux_panes, a:1)
-    call maque#tmux#pane#enable_cache()
     let name = get(a:000, 0, '')
-    let pane = get(g:maque_tmux_panes, name, s:pane())
-    call call(pane[a:action], [], pane)
-    call maque#tmux#pane#disable_cache()
+    call maque#tmux#call_pane({'name': name, 'action': a:action})
   endif
 endfunction "}}}
 
