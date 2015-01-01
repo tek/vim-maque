@@ -14,7 +14,8 @@ function! maque#ft#scalatest#set_file() "{{{
       call maque#util#warn('No test class found')
     else
       let class = substitute(getline(lineno), 'class \(\w\+Test\)', '\1', '')
-      let g:maqueprg = 'test-only ' . package . '.' . class
+      let g:scalatest_class = package . '.' . class
+      let g:maqueprg = 'test-only ' . g:scalatest_class
       return 1
     endif
   endif
