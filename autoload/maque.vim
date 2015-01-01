@@ -21,9 +21,10 @@ function! maque#make_aux(cmd, ...) "{{{
 endfunction "}}}
 
 function! maque#make_auto(...) "{{{
+  let command = get(g:, 'maque_auto_command', 'main')
   if maque#set_makeprg()
     call maque#dispatch#focus()
-    return maque#make()
+    return maque#make(command)
   endif
 endfunction "}}}
 
