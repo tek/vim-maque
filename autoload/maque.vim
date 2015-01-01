@@ -143,7 +143,7 @@ function! maque#set_params(...) "{{{
   return 1
 endfunction "}}}
 
-function! maque#add_command(name, cmd, ...) "{{{
+function! maque#_add_command(name, cmd, ...) "{{{
   let args = a:0 ? a:1 : {}
   if has_key(maque#commands(), a:name)
     call maque#util#warn('command "'.a:name.'" already created!')
@@ -152,6 +152,10 @@ function! maque#add_command(name, cmd, ...) "{{{
     let commands[a:name] = maque#command#new(a:cmd, a:name, args)
   endif
   return maque#command(a:name)
+endfunction "}}}
+
+function! maque#add_command(...) abort "{{{
+  return maque#util#schedule('maque#_add_command', a:000)
 endfunction "}}}
 
 function! maque#add_vim_command(name, cmd, ...) abort "{{{
