@@ -6,6 +6,8 @@ function! maque#make(...) "{{{
     else
       let g:maqueprg = a:1
     endif
+  else
+    let command = g:maque_last_command
   endif
   return maque#run_command(command)
 endfunction "}}}
@@ -23,6 +25,7 @@ endfunction "}}}
 function! maque#make_auto(...) "{{{
   let command = get(g:, 'maque_auto_command', 'main')
   if maque#set_makeprg()
+    let g:maque_last_command = command
     call maque#dispatch#focus()
     return maque#make(command)
   endif
@@ -187,6 +190,7 @@ endfunction "}}}
 
 function! maque#set_main_command(command) abort "{{{
     let g:maqueprg = a:command.command()
+    let g:maque_last_command = a:command.name
 endfunction "}}}
 
 function! maque#set_main_command_name(name) "{{{
