@@ -358,7 +358,8 @@ function! maque#args() "{{{
 endfunction "}}}
 
 function! maque#prefix(cmd) abort "{{{
-  return get(g:, 'maque_prefix_' . a:cmd, '')
+  let cmd = substitute(a:cmd, '-', '_', 'g')
+  return maque#util#variable('maque_prefix_' . cmd)
 endfunction "}}}
 
 function! maque#prg() "{{{
