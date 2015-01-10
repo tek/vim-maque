@@ -406,12 +406,16 @@ function! maque#load_maqueprg() abort "{{{
 endfunction "}}}
 
 function! maque#make_line(...) abort "{{{
-  call maque#ft#common#set_line()
+  let Setter = maque#util#lookup('maque#ft#' . maque#filetype() . '#set_line',
+        \ 'maque#ft#common#set_line')
+  call call(Setter, [])
   return maque#make()
 endfunction "}}}
 
 function! maque#make_file(...) abort "{{{
-  call maque#ft#common#set_file()
+  let Setter = maque#util#lookup('maque#ft#' . maque#filetype() . '#set_file',
+        \ 'maque#ft#common#set_file')
+  call call(Setter, [])
   return maque#make()
 endfunction "}}}
 
