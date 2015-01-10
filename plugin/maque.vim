@@ -21,6 +21,8 @@ let g:maque_config_defaults = {
       \ 'use_make_fallback': 0,
       \ 'errors_in_status': 0,
       \ 'qf_path_ignore': [],
+      \ 'android_test_runner_default':
+        \ 'android.test.InstrumentationTestRunner',
       \ }
 
 call maque#interface#config_options(g:maque_config_defaults)
