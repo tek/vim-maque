@@ -140,10 +140,20 @@ function! maque#jump_to_error() "{{{
 endfunction "}}}
 
 function! maque#set_params(...) "{{{
-  let cmdline = maque#prefix(&makeprg) . &makeprg . ' ' . maque#args()
+  let makeprg = maque#makeprg()
+  let cmdline = maque#prefix(makeprg) . makeprg . ' ' . maque#args()
         \ . ' ' . get(a:000, 0, '')
   let g:maqueprg = substitute(cmdline, '\v^\s+|\s+$|\s\zs\s+', '', 'g')
   return 1
+endfunction "}}}
+
+function! maque#makeprg() abort "{{{
+  return maque#util#variable('maque_makeprg', &makeprg)
+endfunction "}}}
+
+function! maque#apply_makeprg(makeprg) abort "{{{
+  let b:maque_makeprg = a:makeprg
+  let &l:makeprg = a:makeprg
 endfunction "}}}
 
 function! maque#_add_command(name, cmd, ...) "{{{
