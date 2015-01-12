@@ -29,6 +29,5 @@ function! maque#ft#sbt_android_test#set_params(package, target) abort "{{{
   let runner = maque#util#variable('maque_android_test_runner')
   let test_spec = 'class ' . a:target
   let runner_spec = a:package . '/' . runner
-  let params = ['-w', '-e', test_spec, runner_spec]
-  call maque#set_params('am instrument ' . join(params, ' '))
+  call maque#set_params(test_spec . ' ' . runner_spec)
 endfunction "}}}

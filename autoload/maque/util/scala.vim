@@ -32,8 +32,8 @@ function! maque#util#scala#set_file(callback) "{{{
 endfunction "}}}
 
 function! maque#util#scala#set_android_test() abort "{{{
-  call maque#apply_makeprg('adb-shell')
   let b:maque_filetype = 'sbt_android_test'
+  call maque#apply_makeprg('android:test-only')
 endfunction "}}}
 
 function! maque#util#scala#set_scalatest() abort "{{{
