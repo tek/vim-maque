@@ -3,7 +3,7 @@ function! maque#ft#scalatest#set_makeprg() "{{{
 endfunction "}}}
 
 function! maque#ft#scalatest#set_file() "{{{
-  return maque#util#java#set_file('maque#ft#scalatest#set_class')
+  return maque#util#scala#set_file('maque#ft#scalatest#set_class')
 endfunction "}}}
 
 function! maque#ft#scalatest#set_class(package, class) abort "{{{
