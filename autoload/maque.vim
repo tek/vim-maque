@@ -148,7 +148,8 @@ function! maque#set_params(...) "{{{
 endfunction "}}}
 
 function! maque#makeprg() abort "{{{
-  return maque#util#variable('maque_makeprg', &makeprg)
+  let value = maque#util#variable('maque_makeprg')
+  return len(value) ? value : &makeprg
 endfunction "}}}
 
 function! maque#apply_makeprg(makeprg) abort "{{{
