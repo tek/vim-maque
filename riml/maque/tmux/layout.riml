@@ -203,3 +203,13 @@ end
 def maque#tmux#layout#new(name, args={})
   return new Layout(name, args)
 end
+
+class Window < Layout
+  defm creator
+    return 'neww -d'
+  end
+end
+
+def maque#tmux#layout#new_window(name, args={})
+  return new Window(name, args)
+end

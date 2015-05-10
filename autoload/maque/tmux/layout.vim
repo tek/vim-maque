@@ -375,3 +375,25 @@ function! maque#tmux#layout#new(name, ...)
   endif
   return s:LayoutConstructor(a:name, args)
 endfunction
+
+function! s:WindowConstructor(name, args)
+  let windowObj = {}
+  let layoutObj = s:LayoutConstructor(a:name, a:args)
+  call extend(windowObj, layoutObj)
+  let windowObj.creator = function('<SNR>' . s:SID() . '_Window_creator')
+  return windowObj
+endfunction
+
+function! s:Window_creator() dict
+  return 'neww -d'
+endfunction
+
+function! maque#tmux#layout#new_window(name, ...)
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let args = remove(__splat_var_cpy, 0)
+  else
+    let args = {}
+  endif
+  return s:WindowConstructor(a:name, args)
+endfunction

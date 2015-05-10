@@ -135,6 +135,17 @@ function! maque#tmux#add_layout(name, ...) "{{{
   return maque#layout(a:name)
 endfunction "}}}
 
+function! maque#tmux#add_window(name, ...) "{{{
+  if has_key(g:maque_tmux_layouts, a:name)
+    call maque#util#warn('layout "'.a:name.'" already created!')
+  else
+    let params = a:0 ? a:1 : {}
+    let g:maque_tmux_layouts[a:name] =
+          \ maque#tmux#layout#new_window(a:name, params)
+  endif
+  return maque#layout(a:name)
+endfunction "}}}
+
 function! maque#tmux#add_pane_to_layout(name, pane) abort "{{{
   if !has_key(g:maque_tmux_layouts, a:name)
     call maque#util#warn('layout "'.a:name.'" doesn''t exist!')
