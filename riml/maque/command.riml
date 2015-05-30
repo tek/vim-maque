@@ -15,10 +15,14 @@ class Command
           \ 'copy_to_main': 0,
           \ 'name': name,
           \ 'compiler': '',
-          \ 'nested': 0,
+          \ 'shell': '',
+          \ 'deps': []
           \ }
     extend(commandObj, attrs)
     extend(commandObj, params)
+    if len(self.shell) > 0 && has_key(g:maque_commands, self.shell)
+      self.deps += [self.shell]
+    end
   end
 
   defm command
@@ -37,19 +41,54 @@ class Command
     return self.command()
   end
 
+  defm run_in_shell
+    if len(self.shell) > 0
+      if has_key(g:maque_commands, self.shell)
+        return 1
+      else
+        maque#util#error('no such shell command: ' . self.shell .
+              \ '(' . self.name . ')')
+        return 0
+      end
+    else
+      return 0
+    end
+  end
+
+  defm shell_cmd
+    return maque#command(self.shell)
+  end
+
+  defm run_deps()
+    for n in self.deps
+      if has_key(g:maque_commands, n)
+        c = maque#command(self.shell)
+        c.ensure_running()
+      else
+        maque#util#error('no such command: ' . self.shell .
+              \ '(' . self.name . ' dependency)')
+      end
+    end
+  end
+
   defm make
     g:maque_making_command = self.name
     :silent doautocmd User MaqueCommandMake
+    self.run_deps()
     pane = self.pane()
     pane.compiler = self.compiler
-    pane.nested = self.nested
+    pane.nested = self.run_in_shell()
     maque#set_main_command(self) if self.copy_to_main
     maque#make_pane(pane, self.command(), self.handler)
-    :unlet g:maque_making_command
+    g:maque_making_command = ''
   end
 
   defm pane
-    return call(get(self, '_pane_' . self.pane_type), [], self)
+    if self.run_in_shell()
+      return self.shell_cmd().pane()
+    else
+      return call(get(self, '_pane_' . self.pane_type), [], self)
+    end
   end
 
   defm _pane_eval
@@ -63,6 +102,12 @@ class Command
 
   defm _pane_name
     return maque#pane(self.pane_name)
+  end
+
+  defm ensure_running
+    if !self.running()
+      self.make()
+    end
   end
 
   " kill the process running in the target pane, and, if this succeeds or there
@@ -82,12 +127,12 @@ class Command
   end
 
   defm stopped
-    return self.nested || !self.running()
+    return self.run_in_shell() || !self.running()
   end
 
   defm toggle
     pane = self.pane()
-    if !self.nested && pane.process_alive()
+    if !self.run_in_shell() && pane.process_alive()
       pane.toggle()
     else
       self.make()

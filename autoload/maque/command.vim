@@ -21,17 +21,24 @@ function! s:CommandConstructor(command, name, ...)
   if has_key(params, 'pane')
     let params['pane_name'] = remove(params, 'pane')
   endif
-  let attrs = {'_command': a:command, 'pane_name': 'main', 'handler': g:maque_handler, 'cmd_type': 'shell', 'pane_type': 'name', 'copy_to_main': 0, 'name': a:name, 'compiler': '', 'nested': 0}
+  let attrs = {'_command': a:command, 'pane_name': 'main', 'handler': g:maque_handler, 'cmd_type': 'shell', 'pane_type': 'name', 'copy_to_main': 0, 'name': a:name, 'compiler': '', 'shell': '', 'deps': []}
   call extend(commandObj, attrs)
   call extend(commandObj, params)
+  if len(commandObj.shell) ># 0 && has_key(g:maque_commands, commandObj.shell)
+    let commandObj.deps += [commandObj.shell]
+  endif
   let commandObj.command = function('<SNR>' . s:SID() . '_Command_command')
   let commandObj._command_eval = function('<SNR>' . s:SID() . '_Command__command_eval')
   let commandObj._command_shell = function('<SNR>' . s:SID() . '_Command__command_shell')
   let commandObj.cmd_compact = function('<SNR>' . s:SID() . '_Command_cmd_compact')
+  let commandObj.run_in_shell = function('<SNR>' . s:SID() . '_Command_run_in_shell')
+  let commandObj.shell_cmd = function('<SNR>' . s:SID() . '_Command_shell_cmd')
+  let commandObj.run_deps = function('<SNR>' . s:SID() . '_Command_run_deps')
   let commandObj.make = function('<SNR>' . s:SID() . '_Command_make')
   let commandObj.pane = function('<SNR>' . s:SID() . '_Command_pane')
   let commandObj._pane_eval = function('<SNR>' . s:SID() . '_Command__pane_eval')
   let commandObj._pane_name = function('<SNR>' . s:SID() . '_Command__pane_name')
+  let commandObj.ensure_running = function('<SNR>' . s:SID() . '_Command_ensure_running')
   let commandObj.restart = function('<SNR>' . s:SID() . '_Command_restart')
   let commandObj.kill = function('<SNR>' . s:SID() . '_Command_kill')
   let commandObj.running = function('<SNR>' . s:SID() . '_Command_running')
@@ -56,21 +63,54 @@ function! s:Command_cmd_compact() dict
   return self.command()
 endfunction
 
+function! s:Command_run_in_shell() dict
+  if len(self.shell) ># 0
+    if has_key(g:maque_commands, self.shell)
+      return 1
+    else
+      call maque#util#error('no such shell command: ' . self.shell . '(' . self.name . ')')
+      return 0
+    endif
+  else
+    return 0
+  endif
+endfunction
+
+function! s:Command_shell_cmd() dict
+  return maque#command(self.shell)
+endfunction
+
+function! s:Command_run_deps() dict
+  for n in self.deps
+    if has_key(g:maque_commands, n)
+      let c = maque#command(self.shell)
+      call c.ensure_running()
+    else
+      call maque#util#error('no such command: ' . self.shell . '(' . self.name . ' dependency)')
+    endif
+  endfor
+endfunction
+
 function! s:Command_make() dict
   let g:maque_making_command = self.name
   silent doautocmd User MaqueCommandMake
+  call self.run_deps()
   let pane = self.pane()
   let pane.compiler = self.compiler
-  let pane.nested = self.nested
+  let pane.nested = self.run_in_shell()
   if self.copy_to_main
     call maque#set_main_command(self)
   endif
   call maque#make_pane(pane, self.command(), self.handler)
-  unlet g:maque_making_command
+  let g:maque_making_command = ''
 endfunction
 
 function! s:Command_pane() dict
-  return call(get(self, '_pane_' . self.pane_type), [], self)
+  if self.run_in_shell()
+    return self.shell_cmd().pane()
+  else
+    return call(get(self, '_pane_' . self.pane_type), [], self)
+  endif
 endfunction
 
 function! s:Command__pane_eval() dict
@@ -84,6 +124,12 @@ endfunction
 
 function! s:Command__pane_name() dict
   return maque#pane(self.pane_name)
+endfunction
+
+function! s:Command_ensure_running() dict
+  if !self.running()
+    call self.make()
+  endif
 endfunction
 
 function! s:Command_restart() dict
@@ -101,12 +147,12 @@ function! s:Command_running() dict
 endfunction
 
 function! s:Command_stopped() dict
-  return self.nested || !self.running()
+  return self.run_in_shell() || !self.running()
 endfunction
 
 function! s:Command_toggle() dict
   let pane = self.pane()
-  if !self.nested && pane.process_alive()
+  if !self.run_in_shell() && pane.process_alive()
     call pane.toggle()
   else
     call self.make()
