@@ -147,6 +147,7 @@ function! maque#util#run_scheduled_tasks() abort "{{{
   for info in g:_maque_scheduled_tasks
     call call(info[0], info[1])
   endfor
+  silent doautocmd User MaqueCompletedScheduledTasks
 endfunction "}}}
 
 function! maque#util#true() abort "{{{
