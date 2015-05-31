@@ -2,15 +2,21 @@ riml_include 'view.riml'
 
 use_cache = 0
 cached_panes = {}
+cache_valid = 0
 
 def maque#tmux#pane#enable_cache
   maque#tmux#pane#disable_cache()
   maque#tmux#pane#all()
   s:use_cache = 1
+  s:cache_valid = 1
 end
 
 def maque#tmux#pane#disable_cache
   s:use_cache = 0
+end
+
+def maque#tmux#pane#invalidate_cache
+  s:cache_valid = 0
 end
 
 def parse_tmux_output(line)
@@ -27,7 +33,7 @@ end
 
 def maque#tmux#pane#all(*args)
   force = get(args, 0)
-  if !s:use_cache || force
+  if !s:use_cache || force || !s:cache_valid
     cmd = 'list-panes -a -F "#{pane_id} #{pane_pid} #{pane_width}' .
           \ ' #{pane_height} #{pane_left} #{pane_top}"'
     lines = split(maque#tmux#command_output(cmd), "\n")

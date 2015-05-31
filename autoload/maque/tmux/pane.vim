@@ -134,14 +134,20 @@ endfunction
 
 let s:use_cache = 0
 let s:cached_panes = {}
+let s:cache_valid = 0
 function! maque#tmux#pane#enable_cache()
   call maque#tmux#pane#disable_cache()
   call maque#tmux#pane#all()
   let s:use_cache = 1
+  let s:cache_valid = 1
 endfunction
 
 function! maque#tmux#pane#disable_cache()
   let s:use_cache = 0
+endfunction
+
+function! maque#tmux#pane#invalidate_cache()
+  let s:cache_valid = 0
 endfunction
 
 function! s:parse_tmux_output(line)
@@ -151,7 +157,7 @@ endfunction
 
 function! maque#tmux#pane#all(...)
   let force = get(a:000, 0)
-  if !s:use_cache || force
+  if !s:use_cache || force || !s:cache_valid
     let cmd = 'list-panes -a -F "#{pane_id} #{pane_pid} #{pane_width}' . ' #{pane_height} #{pane_left} #{pane_top}"'
     let lines = split(maque#tmux#command_output(cmd), "\n")
     let s:cached_panes = {}
