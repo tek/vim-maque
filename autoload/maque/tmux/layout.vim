@@ -20,7 +20,7 @@ function! g:ViewConstructor(name, ...)
   endif
   let viewObj = {}
   let viewObj.name = a:name
-  let attrs = {'_original_size': [0, 0], 'minimized': 0, 'minimized_size': 2, 'minimize_on_toggle': get(g:, 'maque_tmux_minimize_on_toggle', 0), 'focus_on_restore': 0, 'vertical': 1, 'size': 0}
+  let attrs = {'_original_size': [0, 0], 'minimized': 0, 'minimized_size': 2, 'minimize_on_toggle': get(g:, 'maque_tmux_minimize_on_toggle', 0), 'focus_on_restore': 0, 'vertical': 1, 'size': 0, 'position': 0.5}
   call extend(attrs, params)
   let attrs.minimized_size = max([attrs.minimized_size, 2])
   call extend(viewObj, attrs)
@@ -138,6 +138,12 @@ function! maque#tmux#layout#cmp_pane_height(p1, p2)
   return pos1 ==# pos2 ? 0 : pos1 ># pos2 ? 1 : -1
 endfunction
 
+function! maque#tmux#layout#cmp_view_order(p1, p2)
+  let o1 = a:p1.position
+  let o2 = a:p2.position
+  return o1 ==# o2 ? 0 : o1 ># o2 ? 1 : -1
+endfunction
+
 function! s:LayoutConstructor(name, args)
   let layoutObj = {}
   let viewObj = g:ViewConstructor(a:name, a:args)
@@ -150,6 +156,7 @@ function! s:LayoutConstructor(name, args)
   let layoutObj.create_pane = function('<SNR>' . s:SID() . '_Layout_create_pane')
   let layoutObj.pack = function('<SNR>' . s:SID() . '_Layout_pack')
   let layoutObj.pack_pane = function('<SNR>' . s:SID() . '_Layout_pack_pane')
+  let layoutObj.order_panes = function('<SNR>' . s:SID() . '_Layout_order_panes')
   let layoutObj.close = function('<SNR>' . s:SID() . '_Layout_close')
   let layoutObj.open = function('<SNR>' . s:SID() . '_Layout_open')
   let layoutObj.focus = function('<SNR>' . s:SID() . '_Layout_focus')
@@ -165,6 +172,7 @@ function! s:LayoutConstructor(name, args)
   let layoutObj.post_create = function('<SNR>' . s:SID() . '_Layout_post_create')
   let layoutObj.create_kids = function('<SNR>' . s:SID() . '_Layout_create_kids')
   let layoutObj.create_and_wait = function('<SNR>' . s:SID() . '_Layout_create_and_wait')
+  let layoutObj.open_panes_sorted = function('<SNR>' . s:SID() . '_Layout_open_panes_sorted')
   let layoutObj.ref_pane = function('<SNR>' . s:SID() . '_Layout_ref_pane')
   let layoutObj.pane_id = function('<SNR>' . s:SID() . '_Layout_pane_id')
   let layoutObj.current_size = function('<SNR>' . s:SID() . '_Layout_current_size')
@@ -184,16 +192,13 @@ function! s:Layout_open_panes(layoutObj)
   return panes
 endfunction
 
-function! s:Layout_open_panes_sorted(layoutObj)
-  return sort(s:Layout_open_panes(a:layoutObj), 'maque#tmux#layout#cmp_pane_height')
-endfunction
-
 function! s:Layout_any_pane(layoutObj)
   return s:Layout_open_panes(a:layoutObj)[0]
 endfunction
 
 function! s:Layout_add(pane) dict
   call add(self.panes, a:pane)
+  call sort(self.panes, 'maque#tmux#layout#cmp_view_order')
   let a:pane.layout = self
 endfunction
 
@@ -227,6 +232,7 @@ endfunction
 
 function! s:Layout_pack() dict
   if !g:maque_tmux_exiting
+    call self.order_panes()
     let stretch_size = self.stretch_size()
     for pane in s:Layout_open_panes(self)
       call self.pack_pane(pane, stretch_size)
@@ -239,6 +245,27 @@ function! s:Layout_pack_pane(pane, stretch_size) dict
     call a:pane.set_preferred_size()
   else
     call a:pane.apply_size(a:stretch_size)
+  endif
+endfunction
+
+function! s:Layout_order_panes() dict
+  let panes = self.open_panes_sorted()
+  if len(panes) ># 1
+    for i in range(1, len(panes) - 1)
+      let current = panes[i]
+      let j = i - 1
+      let swapped = 1
+      while j >=# 0 && swapped
+        if current.position <# panes[j].position
+          call maque#tmux#pane#swap(current, panes[j])
+          let panes[j + 1] = panes[j]
+          let panes[j] = current
+        else
+          let swapped = 0
+        endif
+        let j = j - 1
+      endwhile
+    endfor
   endif
 endfunction
 
@@ -329,8 +356,12 @@ function! s:Layout_create_and_wait(...) dict
   endwhile
 endfunction
 
+function! s:Layout_open_panes_sorted() dict
+  return sort(s:Layout_open_panes(self), 'maque#tmux#layout#cmp_pane_height')
+endfunction
+
 function! s:Layout_ref_pane() dict
-  let panes = s:Layout_open_panes_sorted(self)
+  let panes = self.open_panes_sorted()
   return panes[0]
 endfunction
 

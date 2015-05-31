@@ -6,6 +6,12 @@ def maque#tmux#layout#cmp_pane_height(p1, p2)
   return pos1 == pos2 ? 0 : pos1 > pos2 ? 1 : -1
 end
 
+def maque#tmux#layout#cmp_view_order(p1, p2)
+  o1 = p1.position
+  o2 = p2.position
+  return o1 == o2 ? 0 : o1 > o2 ? 1 : -1
+end
+
 class Layout < g:View
 
   def initialize(name, args)
@@ -17,6 +23,7 @@ class Layout < g:View
 
   defm add(pane)
     add(self.panes, pane)
+    sort(self.panes, 'maque#tmux#layout#cmp_view_order')
     pane.layout = self
   end
 
@@ -50,6 +57,7 @@ class Layout < g:View
 
   defm pack
     if !g:maque_tmux_exiting
+      self.order_panes()
       stretch_size = self.stretch_size()
       for pane in self.open_panes()
         self.pack_pane(pane, stretch_size)
@@ -62,6 +70,27 @@ class Layout < g:View
       pane.set_preferred_size()
     else
       pane.apply_size(stretch_size)
+    end
+  end
+
+  defm order_panes
+    panes = self.open_panes_sorted()
+    if len(panes) > 1
+      for i in range(1, len(panes) - 1)
+        current = panes[i]
+        j = i - 1
+        swapped = 1
+        while j >= 0 && swapped
+          if current.position < panes[j].position
+            maque#tmux#pane#swap(current, panes[j])
+            panes[j+1] = panes[j]
+            panes[j] = current
+          else
+            swapped = 0
+          end
+          j = j - 1
+        end
+      end
     end
   end
 
@@ -154,7 +183,7 @@ class Layout < g:View
     return panes
   end
 
-  def open_panes_sorted
+  defm open_panes_sorted
     return sort(self.open_panes(), 'maque#tmux#layout#cmp_pane_height')
   end
 

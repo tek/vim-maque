@@ -10,6 +10,7 @@ class g:View
           \ 'focus_on_restore': 0,
           \ 'vertical': 1,
           \ 'size': 0,
+          \ 'position': 0.5,
           \ }
     extend(attrs, params)
     attrs.minimized_size = max([attrs.minimized_size, 2])
