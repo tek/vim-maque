@@ -66,6 +66,11 @@ def maque#tmux#pane#position(id)
   end
 end
 
+def maque#tmux#pane#swap(p1, p2)
+  maque#tmux#command('swap-pane -d -s ' . p1.id . ' -t' . p2.id)
+  maque#tmux#pane#invalidate_cache()
+end
+
 class Pane < g:View
 
   def initialize(name, params={})

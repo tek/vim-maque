@@ -189,6 +189,11 @@ function! maque#tmux#pane#position(id)
   endif
 endfunction
 
+function! maque#tmux#pane#swap(p1, p2)
+  call maque#tmux#command('swap-pane -d -s ' . a:p1.id . ' -t' . a:p2.id)
+  call maque#tmux#pane#invalidate_cache()
+endfunction
+
 function! s:PaneConstructor(name, ...)
   let __splat_var_cpy = copy(a:000)
   if !empty(__splat_var_cpy)
