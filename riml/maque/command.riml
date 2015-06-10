@@ -71,12 +71,20 @@ class Command
     end
   end
 
+  defm effective_compiler
+    if self.run_in_shell()
+      return self.shell_cmd().compiler
+    else
+      return self.compiler
+    end
+  end
+
   defm make
     g:maque_making_command = self.name
     :silent doautocmd User MaqueCommandMake
     self.run_deps()
     pane = self.pane()
-    pane.compiler = self.compiler
+    pane.compiler = self.effective_compiler()
     pane.nested = self.run_in_shell()
     maque#set_main_command(self) if self.copy_to_main
     maque#make_pane(pane, self.command(), self.handler)

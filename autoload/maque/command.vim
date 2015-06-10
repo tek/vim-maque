@@ -34,6 +34,7 @@ function! s:CommandConstructor(command, name, ...)
   let commandObj.run_in_shell = function('<SNR>' . s:SID() . '_Command_run_in_shell')
   let commandObj.shell_cmd = function('<SNR>' . s:SID() . '_Command_shell_cmd')
   let commandObj.run_deps = function('<SNR>' . s:SID() . '_Command_run_deps')
+  let commandObj.effective_compiler = function('<SNR>' . s:SID() . '_Command_effective_compiler')
   let commandObj.make = function('<SNR>' . s:SID() . '_Command_make')
   let commandObj.pane = function('<SNR>' . s:SID() . '_Command_pane')
   let commandObj._pane_eval = function('<SNR>' . s:SID() . '_Command__pane_eval')
@@ -91,12 +92,20 @@ function! s:Command_run_deps() dict
   endfor
 endfunction
 
+function! s:Command_effective_compiler() dict
+  if self.run_in_shell()
+    return self.shell_cmd().compiler
+  else
+    return self.compiler
+  endif
+endfunction
+
 function! s:Command_make() dict
   let g:maque_making_command = self.name
   silent doautocmd User MaqueCommandMake
   call self.run_deps()
   let pane = self.pane()
-  let pane.compiler = self.compiler
+  let pane.compiler = self.effective_compiler()
   let pane.nested = self.run_in_shell()
   if self.copy_to_main
     call maque#set_main_command(self)
