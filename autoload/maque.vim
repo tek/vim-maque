@@ -406,7 +406,7 @@ endfunction "}}}
 
 function! maque#load_maqueprg() abort "{{{
   if exists('g:Maque_maqueprg_save')
-    if !exists('g:maqueprg')
+    if !exists('g:maqueprg') || !len(g:maqueprg)
       let g:maqueprg = g:Maque_maqueprg_save
     endif
     unlet g:Maque_maqueprg_save
