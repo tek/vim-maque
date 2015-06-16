@@ -7,7 +7,7 @@ endfunction "}}}
 function! maque#util#scala#test_class() abort "{{{
   let lineno = search('\v<class \w+(Test|Spec)', 'bcnw')
   return lineno == 0 ? '' :
-        \ substitute(getline(lineno), '.*\<class \(\w\+Test\).*', '\1', '')
+        \ substitute(getline(lineno), '\v.*<class (\w+Test|Spec).*', '\1', '')
 endfunction "}}}
 
 function! maque#util#scala#current_function() abort "{{{
