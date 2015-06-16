@@ -11,16 +11,6 @@ function! maque#make(...) "{{{
   return maque#run_command(command)
 endfunction "}}}
 
-function! maque#make_aux(cmd, ...) "{{{
-  let handler = get(a:000, 0, g:maque_handler)
-  let Handler = maque#util#handler_function('make_aux', '', handler)
-  if type(Handler) == 2
-    return Handler(a:cmd)
-  else
-    call maque#util#warn('no handler for aux cmds!')
-  endif
-endfunction "}}}
-
 function! maque#make_auto(...) "{{{
   if maque#set_makeprg()
     call maque#dispatch#focus()

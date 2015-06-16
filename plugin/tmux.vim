@@ -1,7 +1,6 @@
 "{{{ options
 let g:maque_tmux_config_defaults = {
       \ 'main_split_cmd': 'split-window -h -d',
-      \ 'aux_split_cmd': 'split-window -v -d -p 20',
       \ 'bg_split_cmd': 'new-window -d',
       \ 'filter_escape_sequences': 1,
       \ 'pane_escape_filter': "sed -u -e \"s/\r//g\" -e \"s/\e[[0-9;]*m//g\"",

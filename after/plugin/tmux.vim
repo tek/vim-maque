@@ -27,15 +27,6 @@ if g:maque_tmux_default_panes && !exists('g:maque_tmux_panes_created')
         \ 'autoclose': 0,
         \ }
         \ )
-  let aux = maque#tmux#add_pane_in_layout('aux', 'vim', {
-        \ 'eval_splitter': 1,
-        \ '_splitter': 'g:maque_tmux_aux_split_cmd',
-        \ 'capture': 0,
-        \ 'autoclose': 1,
-        \ 'size': 15,
-        \ 'minimal_shell': 1,
-        \ }
-        \ )
   call maque#tmux#add_pane('bg', {
         \ 'eval_splitter': 1,
         \ '_splitter': 'g:maque_tmux_bg_split_cmd',

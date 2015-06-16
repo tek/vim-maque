@@ -71,11 +71,6 @@ to the output and opening the quickfix list.
 Arbitrary panes can be created, to be associated with multiple commands, to
 provide different handling of commands for different purposes.
 
-For example, in the standard configuration, the 'aux' pane is a small pane
-designated for oneshot-commands inspired by the standard dispatch-pane, where
-you can deploy commands like "bundle install" without any output capturing
-and persistence.
-
 Pane interaction:~
 
 There are several features for interaction with tmux panes:
@@ -98,8 +93,8 @@ Dispatching a long running process with error capturing like:
 Defining a pane and command with these parameters in a project specfic config
 like this:
 >
-  call maque#tmux#add_pane('aux2', { '_splitter': 'tmux neww -d' })
-  call maque#add_command('thin', 'thin start', { 'pane': 'aux2', })
+  call maque#tmux#add_pane('bg', { '_splitter': 'tmux neww -d' })
+  call maque#create_command('thin', 'thin start', { 'pane': 'bg', })
 <
 
 and then invoking it using:

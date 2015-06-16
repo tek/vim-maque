@@ -8,10 +8,6 @@ function! maque#tmux#make(cmd) "{{{
   call maque#tmux#make_pane(s:pane(), a:cmd)
 endfunction "}}}
 
-function! maque#tmux#make_aux(cmd) "{{{
-  call maque#tmux#make_pane(s:aux_pane(), a:cmd)
-endfunction "}}}
-
 " run the commandline 'a:cmd' in the pane named 'a:pane'
 function! maque#tmux#make_in(pane, cmd) "{{{
   call maque#tmux#make_pane(g:maque_tmux_panes[a:pane], a:cmd)
@@ -331,10 +327,6 @@ endfunction "}}}
 
 function! s:layout() abort "{{{
   return get(g:maque_tmux_layouts, 'make')
-endfunction "}}}
-
-function! s:aux_pane() "{{{
-  return get(g:maque_tmux_panes, 'aux', s:pane())
 endfunction "}}}
 
 function! s:buffer() "{{{
