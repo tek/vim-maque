@@ -94,7 +94,7 @@ class Pane < g:View
           \ 'layout': 0,
           \ 'minimal_shell': 0,
           \ 'compiler': '',
-          \ 'nested': 0,
+          \ 'shell': 0,
           \ 'quit_copy_mode': 1,
           \ }
     extend(attrs, params)
@@ -369,7 +369,7 @@ class Pane < g:View
   end
 
   defm _handle_running_process
-    if self.nested
+    if self.shell
       return 1
     elseif self.kill_running_on_make
       if self.kill_wait()

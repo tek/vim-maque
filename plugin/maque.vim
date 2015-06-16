@@ -42,7 +42,8 @@ let g:maque_mappings = [
       \ ['toggle-command', '', 1],
       \ ['add-service', '', '+'],
       \ ['add-captured-service', '', '+'],
-      \ ['add-command', 'call maque#add_command_cmd(<q-args>)', '+'],
+      \ ['add-shell', '', '+'],
+      \ ['add-command', 'call maque#create_command_cmd(<q-args>)', '+'],
       \ ['query', 'call maque#query()<Bar>call maque#make()'],
       \ ]
 

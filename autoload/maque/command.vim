@@ -21,19 +21,20 @@ function! s:CommandConstructor(command, name, ...)
   if has_key(params, 'pane')
     let params['pane_name'] = remove(params, 'pane')
   endif
-  let attrs = {'_command': a:command, 'pane_name': 'main', 'handler': g:maque_handler, 'cmd_type': 'shell', 'pane_type': 'name', 'remember': 0, 'name': a:name, 'compiler': '', 'shell': '', 'deps': []}
+  let attrs = {'_command': a:command, 'pane_name': 'main', 'handler': g:maque_handler, 'cmd_type': 'shell', 'pane_type': 'name', 'remember': 0, 'name': a:name, 'compiler': '', 'shell': '', 'deps': [], 'envs': [], 'current_env': 0}
   call extend(commandObj, attrs)
   call extend(commandObj, params)
   let commandObj.command = function('<SNR>' . s:SID() . '_Command_command')
   let commandObj._command_eval = function('<SNR>' . s:SID() . '_Command__command_eval')
   let commandObj._command_shell = function('<SNR>' . s:SID() . '_Command__command_shell')
   let commandObj.cmd_compact = function('<SNR>' . s:SID() . '_Command_cmd_compact')
-  let commandObj.all_deps = function('<SNR>' . s:SID() . '_Command_all_deps')
   let commandObj.run_in_shell = function('<SNR>' . s:SID() . '_Command_run_in_shell')
   let commandObj.shell_cmd = function('<SNR>' . s:SID() . '_Command_shell_cmd')
   let commandObj.run_deps = function('<SNR>' . s:SID() . '_Command_run_deps')
-  let commandObj.effective_compiler = function('<SNR>' . s:SID() . '_Command_effective_compiler')
   let commandObj.make = function('<SNR>' . s:SID() . '_Command_make')
+  let commandObj.make_cmdline = function('<SNR>' . s:SID() . '_Command_make_cmdline')
+  let commandObj.shell_make = function('<SNR>' . s:SID() . '_Command_shell_make')
+  let commandObj.make_directly = function('<SNR>' . s:SID() . '_Command_make_directly')
   let commandObj.pane = function('<SNR>' . s:SID() . '_Command_pane')
   let commandObj._pane_eval = function('<SNR>' . s:SID() . '_Command__pane_eval')
   let commandObj._pane_name = function('<SNR>' . s:SID() . '_Command__pane_name')
@@ -62,14 +63,6 @@ function! s:Command_cmd_compact() dict
   return self.command()
 endfunction
 
-function! s:Command_all_deps() dict
-  let deps = self.deps
-  if len(self.shell) ># 0 && has_key(g:maque_commands, self.shell)
-    let deps += [self.shell]
-  endif
-  return deps
-endfunction
-
 function! s:Command_run_in_shell() dict
   if len(self.shell) ># 0
     if has_key(g:maque_commands, self.shell)
@@ -88,44 +81,48 @@ function! s:Command_shell_cmd() dict
 endfunction
 
 function! s:Command_run_deps() dict
-  for n in self.all_deps()
+  for n in self.deps
     if has_key(g:maque_commands, n)
-      let c = maque#command(self.shell)
-      call c.ensure_running()
+      call maque#command(n).ensure_running()
     else
-      call maque#util#error('no such command: ' . self.shell . '(' . self.name . ' dependency)')
+      call maque#util#error('no such command: ' . n . '(' . self.name . ' dependency)')
     endif
   endfor
 endfunction
 
-function! s:Command_effective_compiler() dict
+function! s:Command_make() dict
+  call self.make_cmdline(self.command())
+endfunction
+
+function! s:Command_make_cmdline(cmdline) dict
   if self.run_in_shell()
-    return self.shell_cmd().compiler
+    call self.shell_cmd().shell_make(a:cmdline)
   else
-    return self.compiler
+    call self.make_directly(a:cmdline)
+  endif
+  if self.remember
+    call maque#set_last_command(self)
   endif
 endfunction
 
-function! s:Command_make() dict
+function! s:Command_shell_make(cmdline) dict
+  let pane = self.pane()
+  call self.ensure_running()
+  call self.make_cmdline(a:cmdline)
+endfunction
+
+function! s:Command_make_directly(cmdline) dict
   let g:maque_making_command = self.name
   silent doautocmd User MaqueCommandMake
   call self.run_deps()
   let pane = self.pane()
-  let pane.compiler = self.effective_compiler()
-  let pane.nested = self.run_in_shell()
-  if self.remember
-    call maque#set_last_command(self)
-  endif
-  call maque#make_pane(pane, self.command(), self.handler)
+  let pane.compiler = self.compiler
+  call maque#make_pane(pane, a:cmdline, self.handler)
   let g:maque_making_command = ''
 endfunction
 
 function! s:Command_pane() dict
-  if self.run_in_shell()
-    return self.shell_cmd().pane()
-  else
-    return call(get(self, '_pane_' . self.pane_type), [], self)
-  endif
+  return call(get(self, '_pane_' . self.pane_type), [], self)
 endfunction
 
 function! s:Command__pane_eval() dict
@@ -276,4 +273,23 @@ endfunction
 
 function! maque#command#new_vim_command(...)
   return call('s:VimCommandConstructor', a:000)
+endfunction
+
+function! s:ShellConstructor(...)
+  let shellObj = {}
+  let commandObj = call('s:CommandConstructor', a:000)
+  call extend(shellObj, commandObj)
+  let shellObj.make_directly = function('<SNR>' . s:SID() . '_Shell_make_directly')
+  let shellObj.Command_make_directly = function('<SNR>' . s:SID() . '_Command_make_directly')
+  return shellObj
+endfunction
+
+function! s:Shell_make_directly(cmdline) dict
+  let pane = self.pane()
+  let pane.shell = 1
+  call self.Command_make_directly(a:cmdline)
+endfunction
+
+function! maque#command#new_shell(...)
+  return call('s:ShellConstructor', a:000)
 endfunction

@@ -1,0 +1,464 @@
+def maque#make(cmd='')
+  comm = g:maque_last_command
+  if len(cmd)
+    if has_key(maque#commands(), cmd)
+      comm = cmd
+    else
+      comm = 'main'
+      g:maqueprg = cmd
+    end
+  end
+  return maque#run_command(comm)
+end
+
+def maque#make_auto(*args)
+  if maque#set_makeprg()
+    maque#dispatch#focus()
+    return maque#make('auto')
+  end
+end
+
+def maque#make_pane(pane, cmd, handler=g:maque_handler)
+  s:Handler = maque#util#handler_function('make_pane', '', handler)
+  if type(s:Handler) == 2
+    s:Handler(pane, cmd)
+  else
+    maque#util#warn('no handler for executing commands in a pane!')
+  end
+end
+
+def maque#set_makeprg()
+  s:Setter = maque#util#lookup(
+        \ 'b:maque_makeprg_setter',
+        \ 'g:maque_makeprg_setter',
+        \ 'maque#ft#'.maque#filetype().'#set_makeprg',
+        \ 'maque#set_generic_makeprg'
+        \ )
+  return s:Setter()
+end
+
+def maque#set_generic_makeprg()
+  if &makeprg != 'make' || g:maque_use_make_fallback
+    maque#util#warn('no makeprg setter found! Using generic settings.')
+    return maque#set_params()
+  else
+    maque#util#warn('no makeprg setter found! Aborting.')
+  end
+end
+
+def maque#remove_errorfile()
+  :exe 'silent !'.'rm -f '.&ef
+  :redraw!
+end
+
+def maque#query()
+  fname = input('File name: ', '', 'file')
+  maque#set_params(fname)
+end
+
+def maque#handle_errors() abort
+  if empty(getqflist())
+    maque#util#warn('no errors!')
+  else
+    if g:maque_errors_in_status
+      g:maque_status.execute('copen')
+    else
+      copen
+    end
+    maque#jump_to_error()
+  end
+end
+
+def maque#parse(*args)
+  if call('maque#'.g:maque_handler.'#parse', args)
+    return maque#handle_errors()
+  end
+end
+
+def maque#cycle()
+  h_index = index(g:maque_handlers, g:maque_handler)
+  h_index = (h_index + 1) % len(g:maque_handlers)
+  g:maque_handler = g:maque_handlers[h_index]
+  echo 'selected maque handler "'.g:maque_handler.'".'
+end
+
+def maque#qf_path_ignored(path) abort
+  for pat in g:maque_qf_path_ignore
+    if path =~ pat
+      return 1
+    end
+  endfor
+end
+
+def maque#ignore_qf_buffer(num) abort
+  path = fnamemodify(expand('#'.num), ':p')
+  if executable('realpath')
+    path = split(maque#util#system('realpath '.path, 1), "\n")[0]
+  end
+  return !maque#util#path_is_in_project(path) ||
+        \ maque#qf_path_ignored(path)
+end
+
+def maque#cwd_error_index()
+  last = (g:maque_jump_to_error == 'last')
+  error_list = getqflist()
+  if last
+    reverse(error_list)
+  end
+  for error in error_list
+    if !maque#ignore_qf_buffer(error.bufnr)
+      return index(getqflist(), error) + 1
+    end
+  end
+  return last ? len(error_list) : 1
+end
+
+def maque#jump_to_error()
+  if len(g:maque_jump_to_error)
+    if g:maque_seek_cwd_error
+      index = maque#cwd_error_index()
+      execute 'cc! '.index
+    else
+      execute 'c'.g:maque_jump_to_error
+    end
+    :normal! zv
+  end
+end
+
+def maque#set_params(args='')
+  makeprg = maque#makeprg()
+  cmdline = maque#prefix(makeprg) . makeprg . ' ' . maque#args()
+        \ . ' ' . args
+  g:maqueprg = substitute(cmdline, '\v^\s+|\s+$|\s\zs\s+', '', 'g')
+  return 1
+end
+
+def maque#makeprg() abort
+  value = maque#util#variable('maque_makeprg')
+  return len(value) ? value : &makeprg
+end
+
+def maque#apply_makeprg(makeprg) abort
+  b:maque_makeprg = makeprg
+  &l:makeprg = makeprg
+end
+
+def maque#insert_command(cmd, args={}) abort
+  name = cmd.name
+  if has_key(maque#commands(), name)
+    maque#util#warn('command "' . name . '" already exists!')
+  else
+    commands = maque#commands()
+    commands[name] = cmd
+  end
+  return maque#command(name)
+end
+
+def maque#_create_command(name, cmd, args={})
+  return maque#insert_command(maque#command#new(cmd, name, args))
+end
+
+def maque#create_command(*args) abort
+  return maque#util#schedule('maque#_create_command', args)
+end
+
+def maque#init_command(generic, pane, command) abort
+  maque#add_service_pane(generic.name, generic.layout, pane)
+  if generic.start && maque#autostart_ok()
+    maque#run_command(command.name)
+  end
+end
+
+def maque#add_vim_command(name, cmd, args={}) abort
+  if has_key(maque#commands(), name)
+    maque#util#warn('command "'.name.'" already created!')
+  else
+    commands = maque#commands()
+    commands[name] = maque#command#new_vim_command(cmd, name, args)
+  end
+  return maque#command(name)
+end
+
+def maque#run_command(name)
+  if has_key(maque#commands(), name)
+    maque#command(name).make()
+  else
+    maque#util#warn('no such command: '.name)
+  end
+end
+
+def maque#toggle_command(name) abort
+  if has_key(maque#commands(), name)
+    maque#command(name).toggle()
+  else
+    maque#util#warn('no such command: '.name)
+  end
+end
+
+def maque#set_last_command(command) abort
+    g:maque_last_command = command.name
+end
+
+def maque#set_main_command_name(name)
+  if has_key(maque#commands(), name)
+    return maque#set_last_command(maque#commands()[name])
+  else
+    maque#util#warn('no such command: '.name)
+  end
+end
+
+def maque#add_service_pane(name, layout, params) abort
+  s:Handler = maque#util#handler_function('add_service_pane_in_layout', '')
+  if type(s:Handler) == 2
+    s:Handler(name, layout, params)
+  else
+    maque#util#warn('no handler for executing service in a pane!')
+  end
+end
+
+def s:pop(dic, key, default=0) abort
+  value = get(dic, key, default)
+  if has_key(dic, key)
+    :unlet a:dic[a:key]
+  end
+  return value
+end
+
+def maque#process_service_args(args) abort
+  pane = get(args, 1, {})
+  generic = {
+        \ 'command': args[0],
+        \ 'start': s:pop(pane, 'start'),
+        \ 'layout': s:pop(pane, 'layout', 'make'),
+        \ }
+  generic.name = s:pop(pane, 'name', split(generic['command'], ' ')[0])
+  cmd = {
+        \ 'compiler': s:pop(pane, 'compiler', ''),
+        \ 'name': generic['name'],
+        \ 'pane': generic['name'],
+        \ }
+  return [generic, pane, cmd]
+end
+
+def maque#create_service(generic, pane, cmd) abort
+  comm = maque#_create_command(generic.name, generic.command, cmd)
+  maque#init_command(generic, pane, comm)
+end
+
+def maque#_add_service(args) abort
+  [success, new_args] = maque#util#parse_args(args, 1, 2)
+  if success
+    return call('maque#create_service', maque#process_service_args(new_args))
+  end
+end
+
+def maque#add_service(args) abort
+  return maque#util#schedule('maque#_add_service', [args])
+end
+
+def maque#captured_service_params(generic, pane, cmd) abort
+  override = {
+        \ 'manual_termination': 1,
+        \ 'capture': 1,
+        \ }
+  :augroup maque_services
+    :exe 'autocmd User MaqueTmuxMake MaqueTmuxResetCapture ' . a:generic.name
+  :augroup END
+  new_pane = extend(override, pane)
+  return [generic, new_pane, cmd]
+end
+
+def maque#create_captured_service(generic, pane, cmd) abort
+  return call('maque#create_service',
+        \ maque#captured_service_params(generic, pane, cmd))
+end
+
+def maque#_add_captured_service(args) abort
+  [success, args] = maque#util#parse_args(args, 1, 2)
+  if success
+    return call('maque#create_captured_service',
+          \ maque#process_service_args(args))
+  end
+end
+
+def maque#add_captured_service(args) abort
+  return maque#util#schedule('maque#_add_captured_service', [args])
+end
+
+def maque#create_shell(generic, pane, cmd) abort
+  [new_generic, new_pane, new_cmd] =
+        \ maque#captured_service_params(generic, pane, cmd)
+  comm = maque#command#new_shell(new_generic.command, new_generic.name,
+        \ new_cmd)
+  maque#insert_command(comm)
+  return maque#init_command(new_generic, new_pane, comm)
+end
+
+def maque#_add_shell(args) abort
+  [success, new_args] = maque#util#parse_args(args, 1, 2)
+  if success
+    return call('maque#create_shell', maque#process_service_args(new_args))
+  end
+end
+
+def maque#add_shell(args) abort
+  return maque#util#schedule('maque#_add_shell', [args])
+end
+
+def maque#process_command_args(args) abort
+  cmd = args[0]
+  params = get(args, 1, {})
+  name = s:pop(params, 'name', split(cmd, ' ')[0])
+  if !has_key(params, 'pane') && !has_key(params, 'pane_name')
+    params['pane_name'] = 'main'
+  end
+  return [name, cmd, params]
+end
+
+def maque#create_command_cmd(args) abort
+  [success, new_args] = maque#util#parse_args(args, 1, 2)
+  if success
+    [name, cmd, params] = maque#process_command_args(new_args)
+    maque#create_command(name, cmd, params)
+  end
+end
+
+def maque#initialized() abort
+  s:Handler = maque#util#handler_function('initialized', 'maque#util#true')
+  return s:Handler()
+end
+
+def maque#dummy_pane(*args)
+  pane = { 'name': g:maque_handler }
+
+  def pane.description()
+    return 'dummy pane ('.self.name .')'
+  end
+
+  def pane.create()
+  end
+
+  def pane.make(*args)
+    return maque#make(*args)
+  end
+
+  def pane.toggle(*args) abort
+    return 0
+  end
+
+  return pane
+end
+
+def maque#commands()
+  if !exists('g:maque_commands')
+    g:maque_commands = {}
+  end
+  return g:maque_commands
+end
+
+def maque#command(name)
+  return maque#commands()[name]
+end
+
+def maque#making(*names) abort
+  return exists('g:maque_making_command') &&
+        \ index(names, g:maque_making_command) != -1
+end
+
+def maque#pane(name, handler=g:maque_handler)
+  s:Pane = maque#util#handler_function('pane', 'maque#dummy_pane', handler)
+  return s:Pane(name)
+end
+
+" TODO dummy_layout
+def maque#layout(name, handler=g:maque_handler)
+  s:Layout = maque#util#handler_function('layout', 'maque#dummy_layout',
+        \ handler)
+  return Layout(name)
+end
+
+def maque#current_pane(handler=g:maque_handler)
+  s:Pane = maque#util#handler_function('current_pane', 'maque#dummy_pane',
+        \ handler)
+  return s:Pane()
+end
+
+def maque#args()
+  return maque#util#variable('maque_args_'.&makeprg)
+end
+
+def maque#prefix(cmd) abort
+  cmd = substitute(cmd, '[-:]', '_', 'g')
+  return maque#util#variable('maque_prefix_' . cmd)
+end
+
+def maque#auto_prg()
+  if !exists('g:maqueprg')
+    maque#set_params('')
+  end
+  return g:maqueprg
+end
+
+def maque#filetype()
+  return exists('b:maque_filetype') ? b:maque_filetype : &filetype
+end
+
+def maque#restart_command(name)
+  if has_key(maque#commands(), name)
+    maque#command(name).restart()
+  else
+    maque#util#warn('no such command: '.name)
+  end
+end
+
+def maque#kill_command(name)
+  if has_key(maque#commands(), name)
+    maque#command(name).kill()
+  else
+    maque#util#warn('no such command: '.name)
+  end
+end
+
+def maque#save_maqueprg() abort
+  if exists('g:maqueprg')
+    g:Maque_maqueprg_save = g:maqueprg
+    g:Maque_last_command_save = g:maque_last_command
+  end
+  :exe 'silent! doautocmd VimLeavePre obsession'
+end
+
+def maque#load_maqueprg() abort
+  if exists('g:Maque_maqueprg_save')
+    if !exists('g:maqueprg') || !len(g:maqueprg)
+      g:maqueprg = g:Maque_maqueprg_save
+    end
+    unlet g:Maque_maqueprg_save
+  end
+  if exists('g:Maque_last_command_save')
+    g:maque_last_command = g:Maque_last_command_save
+    unlet g:Maque_last_command_save
+  end
+end
+
+def maque#make_line(*args) abort
+  Setter = maque#util#lookup('maque#ft#' . maque#filetype() . '#set_line',
+        \ 'maque#ft#common#set_line')
+  call(Setter, [])
+  return maque#make()
+end
+
+def maque#make_file(*args) abort
+  Setter = maque#util#lookup('maque#ft#' . maque#filetype() . '#set_file',
+        \ 'maque#ft#common#set_file')
+  call(Setter, [])
+  return maque#make()
+end
+
+def maque#make_all(*args) abort
+  maque#set_params()
+  return maque#make()
+end
+
+def maque#autostart_ok() abort
+  return !argc()
+end

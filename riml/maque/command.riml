@@ -38,14 +38,6 @@ class Command
     return self.command()
   end
 
-  defm all_deps
-    deps = self.deps
-    if len(self.shell) > 0 && has_key(g:maque_commands, self.shell)
-      deps += [self.shell]
-    end
-    return deps
-  end
-
   defm run_in_shell
     if len(self.shell) > 0
       if has_key(g:maque_commands, self.shell)
@@ -65,43 +57,47 @@ class Command
   end
 
   defm run_deps()
-    for n in self.all_deps()
+    for n in self.deps
       if has_key(g:maque_commands, n)
-        c = maque#command(self.shell)
-        c.ensure_running()
+        maque#command(n).ensure_running()
       else
-        maque#util#error('no such command: ' . self.shell .
-              \ '(' . self.name . ' dependency)')
+        maque#util#error('no such command: ' . n . '(' . self.name .
+              \ ' dependency)')
       end
     end
   end
 
-  defm effective_compiler
-    if self.run_in_shell()
-      return self.shell_cmd().compiler
-    else
-      return self.compiler
-    end
+  defm make
+    self.make_cmdline(self.command())
   end
 
-  defm make
+  defm make_cmdline(cmdline)
+    if self.run_in_shell()
+      self.shell_cmd().shell_make(cmdline)
+    else
+      self.make_directly(cmdline)
+    end
+    maque#set_last_command(self) if self.remember
+  end
+
+  defm shell_make(cmdline)
+    pane = self.pane()
+    self.ensure_running()
+    self.make_cmdline(cmdline)
+  end
+
+  defm make_directly(cmdline)
     g:maque_making_command = self.name
     :silent doautocmd User MaqueCommandMake
     self.run_deps()
     pane = self.pane()
-    pane.compiler = self.effective_compiler()
-    pane.nested = self.run_in_shell()
-    maque#set_last_command(self) if self.remember
-    maque#make_pane(pane, self.command(), self.handler)
+    pane.compiler = self.compiler
+    maque#make_pane(pane, cmdline, self.handler)
     g:maque_making_command = ''
   end
 
   defm pane
-    if self.run_in_shell()
-      return self.shell_cmd().pane()
-    else
-      return call(get(self, '_pane_' . self.pane_type), [], self)
-    end
+    return call(get(self, '_pane_' . self.pane_type), [], self)
   end
 
   defm _pane_eval
@@ -247,4 +243,21 @@ end
 
 def maque#command#new_vim_command(*args)
   return new VimCommand(*args)
+end
+
+class Shell < Command
+
+  def initialize(*args)
+    super(*args)
+  end
+
+  defm make_directly(cmdline)
+    pane = self.pane()
+    pane.shell = 1
+    super(cmdline)
+  end
+end
+
+def maque#command#new_shell(*args)
+  return new Shell(*args)
 end
