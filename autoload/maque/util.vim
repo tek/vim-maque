@@ -29,7 +29,7 @@ function! maque#util#is_autoload(name) "{{{
     " undefined function from the same autoload path
   endtry
 endfunction "}}}
- 
+
 " Determine the first argument denoting an existing function and return a
 " funcref, or -1 if unsuccessful.
 " Several resolution methods are employed, a function is returned if:
@@ -60,7 +60,7 @@ function! maque#util#output_lines(cmd) "{{{
   let output = maque#util#system(a:cmd, 1)
   return split(output, "\n")
 endfunction "}}}
-  
+
 function! maque#util#child_pids(pid) "{{{
   let rex = '^\s*\(\d\+\) \(\w\+\)\s*$'
   let lines = maque#util#output_lines('ps h -o pid,comm --ppid '.a:pid)
@@ -147,7 +147,8 @@ function! maque#util#run_scheduled_tasks() abort "{{{
   for info in g:_maque_scheduled_tasks
     call call(info[0], info[1])
   endfor
-  silent doautocmd User MaqueCompletedScheduledTasks
+  let g:_maque_scheduled_tasks = []
+  silent doautocmd User MaqueInitializedPre
 endfunction "}}}
 
 function! maque#util#true() abort "{{{

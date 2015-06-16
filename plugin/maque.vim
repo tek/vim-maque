@@ -28,6 +28,7 @@ let g:maque_config_defaults = {
 call maque#interface#config_options(g:maque_config_defaults)
 
 let g:maqueprg = ''
+let g:maque_mainprg = ''
 
 "}}}
 

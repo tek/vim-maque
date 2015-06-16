@@ -21,16 +21,14 @@ function! s:CommandConstructor(command, name, ...)
   if has_key(params, 'pane')
     let params['pane_name'] = remove(params, 'pane')
   endif
-  let attrs = {'_command': a:command, 'pane_name': 'main', 'handler': g:maque_handler, 'cmd_type': 'shell', 'pane_type': 'name', 'copy_to_main': 0, 'name': a:name, 'compiler': '', 'shell': '', 'deps': []}
+  let attrs = {'_command': a:command, 'pane_name': 'main', 'handler': g:maque_handler, 'cmd_type': 'shell', 'pane_type': 'name', 'remember': 0, 'name': a:name, 'compiler': '', 'shell': '', 'deps': []}
   call extend(commandObj, attrs)
   call extend(commandObj, params)
-  if len(commandObj.shell) ># 0 && has_key(g:maque_commands, commandObj.shell)
-    let commandObj.deps += [commandObj.shell]
-  endif
   let commandObj.command = function('<SNR>' . s:SID() . '_Command_command')
   let commandObj._command_eval = function('<SNR>' . s:SID() . '_Command__command_eval')
   let commandObj._command_shell = function('<SNR>' . s:SID() . '_Command__command_shell')
   let commandObj.cmd_compact = function('<SNR>' . s:SID() . '_Command_cmd_compact')
+  let commandObj.all_deps = function('<SNR>' . s:SID() . '_Command_all_deps')
   let commandObj.run_in_shell = function('<SNR>' . s:SID() . '_Command_run_in_shell')
   let commandObj.shell_cmd = function('<SNR>' . s:SID() . '_Command_shell_cmd')
   let commandObj.run_deps = function('<SNR>' . s:SID() . '_Command_run_deps')
@@ -64,6 +62,14 @@ function! s:Command_cmd_compact() dict
   return self.command()
 endfunction
 
+function! s:Command_all_deps() dict
+  let deps = self.deps
+  if len(self.shell) ># 0 && has_key(g:maque_commands, self.shell)
+    let deps += [self.shell]
+  endif
+  return deps
+endfunction
+
 function! s:Command_run_in_shell() dict
   if len(self.shell) ># 0
     if has_key(g:maque_commands, self.shell)
@@ -82,7 +88,7 @@ function! s:Command_shell_cmd() dict
 endfunction
 
 function! s:Command_run_deps() dict
-  for n in self.deps
+  for n in self.all_deps()
     if has_key(g:maque_commands, n)
       let c = maque#command(self.shell)
       call c.ensure_running()
@@ -107,8 +113,8 @@ function! s:Command_make() dict
   let pane = self.pane()
   let pane.compiler = self.effective_compiler()
   let pane.nested = self.run_in_shell()
-  if self.copy_to_main
-    call maque#set_main_command(self)
+  if self.remember
+    call maque#set_last_command(self)
   endif
   call maque#make_pane(pane, self.command(), self.handler)
   let g:maque_making_command = ''

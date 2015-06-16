@@ -12,7 +12,7 @@ class Command
           \ 'handler': g:maque_handler,
           \ 'cmd_type': 'shell',
           \ 'pane_type': 'name',
-          \ 'copy_to_main': 0,
+          \ 'remember': 0,
           \ 'name': name,
           \ 'compiler': '',
           \ 'shell': '',
@@ -20,9 +20,6 @@ class Command
           \ }
     extend(commandObj, attrs)
     extend(commandObj, params)
-    if len(self.shell) > 0 && has_key(g:maque_commands, self.shell)
-      self.deps += [self.shell]
-    end
   end
 
   defm command
@@ -39,6 +36,14 @@ class Command
 
   defm cmd_compact
     return self.command()
+  end
+
+  defm all_deps
+    deps = self.deps
+    if len(self.shell) > 0 && has_key(g:maque_commands, self.shell)
+      deps += [self.shell]
+    end
+    return deps
   end
 
   defm run_in_shell
@@ -60,7 +65,7 @@ class Command
   end
 
   defm run_deps()
-    for n in self.deps
+    for n in self.all_deps()
       if has_key(g:maque_commands, n)
         c = maque#command(self.shell)
         c.ensure_running()
@@ -86,7 +91,7 @@ class Command
     pane = self.pane()
     pane.compiler = self.effective_compiler()
     pane.nested = self.run_in_shell()
-    maque#set_main_command(self) if self.copy_to_main
+    maque#set_last_command(self) if self.remember
     maque#make_pane(pane, self.command(), self.handler)
     g:maque_making_command = ''
   end

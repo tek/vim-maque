@@ -1,13 +1,12 @@
 function! maque#make(...) "{{{
-  let command = 'main'
+  let command = g:maque_last_command
   if a:0 && len(a:1)
     if has_key(maque#commands(), a:1)
       let command = a:1
     else
+      let command = 'main'
       let g:maqueprg = a:1
     endif
-  else
-    let command = g:maque_last_command
   endif
   return maque#run_command(command)
 endfunction "}}}
@@ -23,11 +22,9 @@ function! maque#make_aux(cmd, ...) "{{{
 endfunction "}}}
 
 function! maque#make_auto(...) "{{{
-  let command = get(g:, 'maque_auto_command', 'main')
   if maque#set_makeprg()
-    let g:maque_last_command = command
     call maque#dispatch#focus()
-    return maque#make(command)
+    return maque#make('auto')
   endif
 endfunction "}}}
 
@@ -199,14 +196,13 @@ function! maque#toggle_command(name) abort "{{{
   endif
 endfunction "}}}
 
-function! maque#set_main_command(command) abort "{{{
-    let g:maqueprg = a:command.command()
+function! maque#set_last_command(command) abort "{{{
     let g:maque_last_command = a:command.name
 endfunction "}}}
 
 function! maque#set_main_command_name(name) "{{{
   if has_key(maque#commands(), a:name)
-    return maque#set_main_command(maque#commands()[a:name])
+    return maque#set_last_command(maque#commands()[a:name])
   else
     call maque#util#warn('no such command: '.a:name)
   endif
@@ -373,7 +369,7 @@ function! maque#prefix(cmd) abort "{{{
   return maque#util#variable('maque_prefix_' . cmd)
 endfunction "}}}
 
-function! maque#prg() "{{{
+function! maque#auto_prg() "{{{
   if !exists('g:maqueprg')
     call maque#set_params('')
   endif
@@ -403,6 +399,7 @@ endfunction "}}}
 function! maque#save_maqueprg() abort "{{{
   if exists('g:maqueprg')
     let g:Maque_maqueprg_save = g:maqueprg
+    let g:Maque_last_command_save = g:maque_last_command
   endif
   silent! doautocmd VimLeavePre obsession
 endfunction "}}}
@@ -413,6 +410,10 @@ function! maque#load_maqueprg() abort "{{{
       let g:maqueprg = g:Maque_maqueprg_save
     endif
     unlet g:Maque_maqueprg_save
+  endif
+  if exists('g:Maque_last_command_save')
+    let g:maque_last_command = g:Maque_last_command_save
+    unlet g:Maque_last_command_save
   endif
 endfunction "}}}
 

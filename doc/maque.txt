@@ -41,7 +41,7 @@ COMMANDS                                                        *maque-command*
 A command is a data structure consisting of an executable command line, which
 can be dynamicaly evaluated, and a dispatch target with the same property.
 
-The most significant command is the 'main' command, which is assembled upon
+The most significant command is the 'auto' command, which is assembled upon
 invocation of a maqueprg setter, which defines a command line, mainly
 intended to invoke unit tests like rspec examples, nosetest units or an
 arbitray command running the associated executable to your current test file.
@@ -63,7 +63,7 @@ flexibly and conveniently with the current situation's parameters.
 
 Pane association:~
 
-The 'main' pane is associated with the 'main' command, which results in every
+The 'main' pane is associated with the 'auto' command, which results in every
 unit test assembled through the maque interface being dispatched in a split
 pane, with output capturing for further processing by applying 'errorformat'
 to the output and opening the quickfix list.

@@ -26,7 +26,7 @@ let g:maque_unite_command_config_defaults = {
       \ 'mapping_make': 'M',
       \ 'mapping_set_main': 'S',
       \ 'mapping_toggle': 'T',
-      \ 'ignore': ['main', 'status'],
+      \ 'ignore': ['main', 'auto', 'status'],
       \ }
 
 call maque#interface#config_options(g:maque_unite_command_config_defaults,
