@@ -314,9 +314,9 @@ function! maque#create_captured_service(generic, pane, cmd) abort
 endfunction
 
 function! maque#_add_captured_service(args) abort
-  let [success, a:args] = maque#util#parse_args(a:args, 1, 2)
+  let [success, new_args] = maque#util#parse_args(a:args, 1, 2)
   if success
-    return call('maque#create_captured_service', maque#process_service_args(a:args))
+    return call('maque#create_captured_service', maque#process_service_args(new_args))
   endif
 endfunction
 

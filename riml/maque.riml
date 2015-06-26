@@ -282,10 +282,10 @@ def maque#create_captured_service(generic, pane, cmd) abort
 end
 
 def maque#_add_captured_service(args) abort
-  [success, args] = maque#util#parse_args(args, 1, 2)
+  [success, new_args] = maque#util#parse_args(args, 1, 2)
   if success
     return call('maque#create_captured_service',
-          \ maque#process_service_args(args))
+          \ maque#process_service_args(new_args))
   end
 end
 
