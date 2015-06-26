@@ -148,16 +148,14 @@ class Pane < g:View
     end
   end
 
-  defm make(cmd, *args)
-    capture = get(args, 0, self.capture)
-    autoclose = get(args, 1, self.autoclose)
-    if self.ready_for_make()
+  defm make(cmd, replace=1)
+    if self.ready_for_make(replace)
       if self.minimized && self.restore_on_make
         self.restore()
       end
       self.send('') if self.quit_copy_mode
       self.send(cmd)
-      if capture
+      if self.capture
         if !self.manual_termination
           " send the pipe canceling command now, so that it executes as soon as the
           " make command is finished
@@ -169,7 +167,7 @@ class Pane < g:View
         " doesn't contain the command line
         self.pipe_to_file()
       end
-      if autoclose
+      if self.autoclose
         self.send(' sleep '.self.wait_before_autoclose .'; exit')
       end
       if self.focus_on_make
@@ -352,9 +350,10 @@ class Pane < g:View
   " initialization subprocesses, if any, for commands.
   " For that purpose, the 'spawning_make' flag is set in the special function
   " create_and_make, and used here to prevent killing the process.
-  defm ready_for_make
+  defm ready_for_make(replace=true)
     return self.open() && (self.spawning_make ||
           \ !self.process_alive() ||
+          \ !replace ||
           \ self._handle_running_process())
   end
 

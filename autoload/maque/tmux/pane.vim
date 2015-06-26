@@ -299,9 +299,13 @@ function! s:Pane_create_and_wait(...) dict
 endfunction
 
 function! s:Pane_make(cmd, ...) dict
-  let capture = get(a:000, 0, self.capture)
-  let autoclose = get(a:000, 1, self.autoclose)
-  if self.ready_for_make()
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let replace = remove(__splat_var_cpy, 0)
+  else
+    let replace = 1
+  endif
+  if self.ready_for_make(replace)
     if self.minimized && self.restore_on_make
       call self.restore()
     endif
@@ -309,13 +313,13 @@ function! s:Pane_make(cmd, ...) dict
       call self.send('')
     endif
     call self.send(a:cmd)
-    if capture
+    if self.capture
       if !self.manual_termination
         call self.send(' tmux ' . self.pipe_cmd())
       endif
       call self.pipe_to_file()
     endif
-    if autoclose
+    if self.autoclose
       call self.send(' sleep ' . self.wait_before_autoclose . '; exit')
     endif
     if self.focus_on_make
@@ -501,8 +505,14 @@ function! s:Pane_process_alive() dict
   return self.set_command_pid() ># 0
 endfunction
 
-function! s:Pane_ready_for_make() dict
-  return self.open() && (self.spawning_make || !self.process_alive() || self._handle_running_process())
+function! s:Pane_ready_for_make(...) dict
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let replace = remove(__splat_var_cpy, 0)
+  else
+    let replace = 1
+  endif
+  return self.open() && (self.spawning_make || !self.process_alive() || !replace || self._handle_running_process())
 endfunction
 
 function! s:Pane_in_layout() dict

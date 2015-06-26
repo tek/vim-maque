@@ -18,10 +18,10 @@ def maque#make_auto(*args)
   end
 end
 
-def maque#make_pane(pane, cmd, handler=g:maque_handler)
+def maque#make_pane(pane, cmd, handler=g:maque_handler, replace=true)
   s:Handler = maque#util#handler_function('make_pane', '', handler)
   if type(s:Handler) == 2
-    s:Handler(pane, cmd)
+    s:Handler(pane, cmd, replace)
   else
     maque#util#warn('no handler for executing commands in a pane!')
   end
@@ -182,6 +182,14 @@ end
 def maque#run_command(name)
   if has_key(maque#commands(), name)
     maque#command(name).make()
+  else
+    maque#util#warn('no such command: '.name)
+  end
+end
+
+def maque#queue_command(name)
+  if has_key(maque#commands(), name)
+    maque#command(name).queue()
   else
     maque#util#warn('no such command: '.name)
   end

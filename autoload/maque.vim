@@ -35,9 +35,14 @@ function! maque#make_pane(pane, cmd, ...)
   else
     let handler = g:maque_handler
   endif
+  if !empty(__splat_var_cpy)
+    let replace = remove(__splat_var_cpy, 0)
+  else
+    let replace = 1
+  endif
   let s:Handler = maque#util#handler_function('make_pane', '', handler)
   if type(s:Handler) ==# 2
-    call s:Handler(a:pane, a:cmd)
+    call s:Handler(a:pane, a:cmd, replace)
   else
     call maque#util#warn('no handler for executing commands in a pane!')
   endif
@@ -215,6 +220,14 @@ endfunction
 function! maque#run_command(name)
   if has_key(maque#commands(), a:name)
     call maque#command(a:name).make()
+  else
+    call maque#util#warn('no such command: ' . a:name)
+  endif
+endfunction
+
+function! maque#queue_command(name)
+  if has_key(maque#commands(), a:name)
+    call maque#command(a:name).queue()
   else
     call maque#util#warn('no such command: ' . a:name)
   endif

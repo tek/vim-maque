@@ -67,33 +67,38 @@ class Command
     end
   end
 
-  defm make
-    self.make_cmdline(self.command())
+  defm make(replace=true)
+    self.make_cmdline(self.command(), replace)
   end
 
-  defm make_cmdline(cmdline)
+  defm make_cmdline(cmdline, replace=true)
     if self.run_in_shell()
-      self.shell_cmd().shell_make(cmdline)
+      self.shell_cmd().shell_make(cmdline, replace)
     else
-      self.make_directly(cmdline)
+      self.make_directly(cmdline, replace)
     end
     maque#set_last_command(self) if self.remember
   end
 
-  defm shell_make(cmdline)
-    pane = self.pane()
+  defm shell_make(cmdline, replace=true)
     self.ensure_running()
-    self.make_cmdline(cmdline)
+    pane = self.pane()
+    pane.shell = 1
+    self.make_cmdline(cmdline, replace)
   end
 
-  defm make_directly(cmdline)
+  defm make_directly(cmdline, replace=true)
     g:maque_making_command = self.name
     :silent doautocmd User MaqueCommandMake
     self.run_deps()
     pane = self.pane()
     pane.compiler = self.compiler
-    maque#make_pane(pane, cmdline, self.handler)
+    maque#make_pane(pane, cmdline, self.handler, replace)
     g:maque_making_command = ''
+  end
+
+  defm queue
+    self.make(false)
   end
 
   defm pane

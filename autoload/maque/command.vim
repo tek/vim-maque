@@ -35,6 +35,7 @@ function! s:CommandConstructor(command, name, ...)
   let commandObj.make_cmdline = function('<SNR>' . s:SID() . '_Command_make_cmdline')
   let commandObj.shell_make = function('<SNR>' . s:SID() . '_Command_shell_make')
   let commandObj.make_directly = function('<SNR>' . s:SID() . '_Command_make_directly')
+  let commandObj.queue = function('<SNR>' . s:SID() . '_Command_queue')
   let commandObj.pane = function('<SNR>' . s:SID() . '_Command_pane')
   let commandObj._pane_eval = function('<SNR>' . s:SID() . '_Command__pane_eval')
   let commandObj._pane_name = function('<SNR>' . s:SID() . '_Command__pane_name')
@@ -90,35 +91,64 @@ function! s:Command_run_deps() dict
   endfor
 endfunction
 
-function! s:Command_make() dict
-  call self.make_cmdline(self.command())
+function! s:Command_make(...) dict
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let replace = remove(__splat_var_cpy, 0)
+  else
+    let replace = 1
+  endif
+  call self.make_cmdline(self.command(), replace)
 endfunction
 
-function! s:Command_make_cmdline(cmdline) dict
-  if self.run_in_shell()
-    call self.shell_cmd().shell_make(a:cmdline)
+function! s:Command_make_cmdline(cmdline, ...) dict
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let replace = remove(__splat_var_cpy, 0)
   else
-    call self.make_directly(a:cmdline)
+    let replace = 1
+  endif
+  if self.run_in_shell()
+    call self.shell_cmd().shell_make(a:cmdline, replace)
+  else
+    call self.make_directly(a:cmdline, replace)
   endif
   if self.remember
     call maque#set_last_command(self)
   endif
 endfunction
 
-function! s:Command_shell_make(cmdline) dict
-  let pane = self.pane()
+function! s:Command_shell_make(cmdline, ...) dict
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let replace = remove(__splat_var_cpy, 0)
+  else
+    let replace = 1
+  endif
   call self.ensure_running()
-  call self.make_cmdline(a:cmdline)
+  let pane = self.pane()
+  let pane.shell = 1
+  call self.make_cmdline(a:cmdline, replace)
 endfunction
 
-function! s:Command_make_directly(cmdline) dict
+function! s:Command_make_directly(cmdline, ...) dict
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let replace = remove(__splat_var_cpy, 0)
+  else
+    let replace = 1
+  endif
   let g:maque_making_command = self.name
   silent doautocmd User MaqueCommandMake
   call self.run_deps()
   let pane = self.pane()
   let pane.compiler = self.compiler
-  call maque#make_pane(pane, a:cmdline, self.handler)
+  call maque#make_pane(pane, a:cmdline, self.handler, replace)
   let g:maque_making_command = ''
+endfunction
+
+function! s:Command_queue() dict
+  call self.make(0)
 endfunction
 
 function! s:Command_pane() dict

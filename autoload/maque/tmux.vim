@@ -16,12 +16,13 @@ endfunction "}}}
 " run the commandline 'a:cmd' in the pane object 'a:pane'
 " uses the tmux pane cache to avoid multiple invocations of `tmux list-panes`
 " with identical results
-function! maque#tmux#make_pane(pane, cmd) "{{{
+function! maque#tmux#make_pane(pane, cmd, ...) "{{{
+  let replace = a:0 ? a:1 : 1
   let g:maque_making_pane = a:pane.name
   let g:maque_making_cmdline = a:cmd
   silent doautocmd User MaqueTmuxMake
   call maque#tmux#pane#enable_cache()
-  call a:pane.create_and_make(a:cmd)
+  call a:pane.create_and_make(a:cmd, replace)
   call maque#tmux#pane#disable_cache()
   unlet g:maque_making_pane
   unlet g:maque_making_cmdline

@@ -39,6 +39,7 @@ let g:maque_mappings = [
       \ ['cycle'],
       \ ['parse', '', '?'],
       \ ['run-command', '', 1],
+      \ ['queue-command', '', 1],
       \ ['toggle-command', '', 1],
       \ ['add-service', '', '+'],
       \ ['add-captured-service', '', '+'],
