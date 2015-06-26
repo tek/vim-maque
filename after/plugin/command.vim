@@ -11,6 +11,7 @@ if g:maque_add_default_commands && !exists('g:maque_remote')
         \ 'cmd_type': 'eval',
         \ 'pane_type': 'eval',
         \ 'pane_name': 'maque#current_pane()',
+        \ 'remember': 1,
         \ }
         \ )
   let g:maque_status =
