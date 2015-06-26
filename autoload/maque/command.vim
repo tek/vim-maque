@@ -309,15 +309,7 @@ function! s:ShellConstructor(...)
   let shellObj = {}
   let commandObj = call('s:CommandConstructor', a:000)
   call extend(shellObj, commandObj)
-  let shellObj.make_directly = function('<SNR>' . s:SID() . '_Shell_make_directly')
-  let shellObj.Command_make_directly = function('<SNR>' . s:SID() . '_Command_make_directly')
   return shellObj
-endfunction
-
-function! s:Shell_make_directly(cmdline) dict
-  let pane = self.pane()
-  let pane.shell = 1
-  call self.Command_make_directly(a:cmdline)
 endfunction
 
 function! maque#command#new_shell(...)

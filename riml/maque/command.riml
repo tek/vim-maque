@@ -255,12 +255,6 @@ class Shell < Command
   def initialize(*args)
     super(*args)
   end
-
-  defm make_directly(cmdline)
-    pane = self.pane()
-    pane.shell = 1
-    super(cmdline)
-  end
 end
 
 def maque#command#new_shell(*args)
