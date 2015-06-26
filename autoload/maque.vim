@@ -15,7 +15,7 @@ function! maque#make(...)
       let comm = cmd
     else
       let comm = 'main'
-      let g:maqueprg = cmd
+      let g:maque_mainprg = cmd
     endif
   endif
   return maque#run_command(comm)

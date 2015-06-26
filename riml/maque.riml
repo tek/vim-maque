@@ -5,7 +5,7 @@ def maque#make(cmd='')
       comm = cmd
     else
       comm = 'main'
-      g:maqueprg = cmd
+      g:maque_mainprg = cmd
     end
   end
   return maque#run_command(comm)
