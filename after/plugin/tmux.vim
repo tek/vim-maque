@@ -44,5 +44,14 @@ if g:maque_tmux_default_panes && !exists('g:maque_tmux_panes_created')
         \ }
         \ )
   let g:maque_tmux_current_pane = 'main'
-  silent doautocmd User MaqueTmuxPanesCreated
+  let cmd = 'doautocmd User MaqueTmuxPanesCreated'
+  try
+    if maque#util#want_debug()
+      execute cmd
+    else
+      execute 'silent ' . cmd
+    endif
+  catch //
+    call maque#util#error(v:exception)
+  endtry
 endif
