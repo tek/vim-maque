@@ -9,6 +9,23 @@ function! maque#util#warn(msg) "{{{
   echohl None
 endfunction "}}}
 
+function! maque#util#error(msg) "{{{
+  redraw
+  echohl ErrorMsg
+  echom 'maque: '.a:msg
+  echohl None
+endfunction "}}}
+
+function! maque#util#debug(msg) "{{{
+  if maque#util#want_debug()
+    echom 'maque: '.a:msg
+  endif
+endfunction "}}}
+
+function! maque#util#want_debug() abort "{{{
+  return exists('$MAQUE_DEBUG')
+endfunction "}}}
+
 " Determine if the argument is an existing function in an autoload/ directory:
 " - It must have a # in it
 " - If it doesn't exist, its runtime path is sourced.
