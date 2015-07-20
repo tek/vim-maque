@@ -10,5 +10,7 @@ if g:maque_set_ft_options
   elseif current_path =~ 'db/seeds'
     compiler rake
     let b:maque_filetype = 'rake_db_seeds'
+  elseif current_path =~ '\<recipes/'
+    let b:maque_filetype = 'chef_recipe'
   endif
 endif
