@@ -398,8 +398,10 @@ class VimPane < Pane
   end
 
   defm open
-    self.id = maque#tmux#vim_id() if self.id == -1
-    return super()
+    unless maque#tmux#is_valid_id(self.id)
+      self.id = maque#tmux#wait_for_vim_id()
+    end
+    return 1
   end
 end
 

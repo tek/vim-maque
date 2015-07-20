@@ -576,15 +576,14 @@ function! s:VimPaneConstructor(...)
   let paneObj = s:PaneConstructor('vim', params)
   call extend(vimPaneObj, paneObj)
   let vimPaneObj.open = function('<SNR>' . s:SID() . '_VimPane_open')
-  let vimPaneObj.Pane_open = function('<SNR>' . s:SID() . '_Pane_open')
   return vimPaneObj
 endfunction
 
 function! s:VimPane_open() dict
-  if self.id ==# -1
-    let self.id = maque#tmux#vim_id()
+  if !(maque#tmux#is_valid_id(self.id))
+    let self.id = maque#tmux#wait_for_vim_id()
   endif
-  return self.Pane_open()
+  return 1
 endfunction
 
 function! maque#tmux#pane#new_vim(...)
