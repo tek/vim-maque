@@ -20,6 +20,7 @@ class Layout < g:View
     self.direction = get(a:args, 'direction', 'vertical')
     self.layout = 0
     self.id = 'layout ' . a:name
+    self.last_panes = []
   end
 
   defm add(pane)
@@ -45,7 +46,7 @@ class Layout < g:View
     if self.in_layout()
       self.layout.create_kids()
     end
-    panes_before = maque#tmux#pane#all()
+    self.last_panes = maque#tmux#pane#all()
     unless pane.open()
       maque#util#debug(
             \ 'creating pane ' . a:pane.name . ' from layout ' . self.name)
@@ -57,7 +58,7 @@ class Layout < g:View
         maque#util#debug('layout ' . self.name . ' was closed, creating')
         self.create()
       end
-      pane.determine_id(panes_before)
+      pane.determine_id(self.last_panes)
       pane.post_create()
       self.pack()
     end

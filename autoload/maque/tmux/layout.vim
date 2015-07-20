@@ -151,6 +151,8 @@ function! s:LayoutConstructor(name, args)
   let layoutObj.panes = []
   let layoutObj.direction = get(a:args, 'direction', 'vertical')
   let layoutObj.layout = 0
+  let layoutObj.id = 'layout ' . a:name
+  let layoutObj.last_panes = []
   let layoutObj.add = function('<SNR>' . s:SID() . '_Layout_add')
   let layoutObj.create = function('<SNR>' . s:SID() . '_Layout_create')
   let layoutObj.create_pane = function('<SNR>' . s:SID() . '_Layout_create_pane')
@@ -205,8 +207,10 @@ endfunction
 function! s:Layout_create() dict
   if !(self.open())
     if self.in_layout() && len(self.panes) ># 0
+      call maque#util#debug('creating layout ' . self.name . ' via ' . self.layout.name)
       call self.layout.create_pane(self.panes[0])
     else
+      call maque#util#debug('creating layout ' . self.name . ' freely')
       call maque#tmux#command_output(self.creator())
     endif
   endif
@@ -216,15 +220,18 @@ function! s:Layout_create_pane(pane) dict
   if self.in_layout()
     call self.layout.create_kids()
   endif
-  let panes_before = maque#tmux#pane#all()
+  let self.last_panes = maque#tmux#pane#all()
   if !(a:pane.open())
+    call maque#util#debug('creating pane ' . a:pane.name . ' from layout ' . self.name)
     if self.open()
+      call maque#util#debug('layout ' . self.name . ' was already open, splitting')
       call self.split(a:pane)
       call maque#tmux#pane('vim').focus()
     else
+      call maque#util#debug('layout ' . self.name . ' was closed, creating')
       call self.create()
     endif
-    call a:pane.determine_id(panes_before)
+    call a:pane.determine_id(self.last_panes)
     call a:pane.post_create()
     call self.pack()
   endif
