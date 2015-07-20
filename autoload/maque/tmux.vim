@@ -301,8 +301,8 @@ endfunction "}}}
 
 function! maque#tmux#vim_id() abort "{{{
   let pid = getpid()
-  let panes = maque#tmux#pane#all()
   call maque#util#debug('Vim pid: ' . pid)
+  let panes = maque#tmux#pane#all(1)
   for pane in values(panes)
     let children = maque#util#child_pids(pane.pid)
     if len(children) && children[0][0] == pid
