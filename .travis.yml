@@ -4,7 +4,7 @@ rvm:
 script: rake ci
 before_script:
   - sudo apt-get install -qq libevent-dev libncurses-dev
-  - git clone git://git.code.sf.net/p/tmux/tmux-code tmux
+  - git clone https://github.com/tmux/tmux tmux
   - cd tmux
   - sh autogen.sh
   - ./configure && make && sudo make install
