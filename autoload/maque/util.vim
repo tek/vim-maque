@@ -1,5 +1,5 @@
 function! maque#util#path_is_in_project(path) "{{{
-  return a:path =~ getcwd() && filereadable(a:path)
+  return a:path =~ getcwd() && (filereadable(a:path) || isdirectory(a:path))
 endfunction "}}}
 
 function! maque#util#warn(msg) "{{{
