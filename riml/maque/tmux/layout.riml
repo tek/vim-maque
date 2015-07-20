@@ -19,6 +19,7 @@ class Layout < g:View
     self.panes = []
     self.direction = get(a:args, 'direction', 'vertical')
     self.layout = 0
+    self.id = 'layout ' . a:name
   end
 
   defm add(pane)
