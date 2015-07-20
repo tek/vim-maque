@@ -140,15 +140,6 @@ class Pane < g:View
     end
   end
 
-  defm create_and_wait(timeout=1)
-    self.create()
-    counter = 0
-    while (!self.open()) && (counter < timeout * 10)
-      :sleep 100m
-      counter += 1
-    end
-  end
-
   defm make(cmd, replace=1)
     if self.ready_for_make(replace)
       if self.minimized && self.restore_on_make

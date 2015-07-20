@@ -36,6 +36,7 @@ function! g:ViewConstructor(name, ...)
   let viewObj.layout_position = function('<SNR>' . s:SID() . '_View_layout_position')
   let viewObj.pack_layout = function('<SNR>' . s:SID() . '_View_pack_layout')
   let viewObj.pack = function('<SNR>' . s:SID() . '_View_pack')
+  let viewObj.create_and_wait = function('<SNR>' . s:SID() . '_View_create_and_wait')
   return viewObj
 endfunction
 
@@ -132,6 +133,21 @@ endfunction
 function! s:View_pack() dict
 endfunction
 
+function! s:View_create_and_wait(...) dict
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let timeout = remove(__splat_var_cpy, 0)
+  else
+    let timeout = 5
+  endif
+  call self.create()
+  let counter = 0
+  while (!self.open()) && (counter <# timeout * 10)
+    sleep 100m
+    let counter += 1
+  endwhile
+endfunction
+
 let s:use_cache = 0
 let s:cached_panes = {}
 let s:cache_valid = 0
@@ -212,7 +228,6 @@ function! s:PaneConstructor(name, ...)
   let paneObj.create_free = function('<SNR>' . s:SID() . '_Pane_create_free')
   let paneObj.determine_id = function('<SNR>' . s:SID() . '_Pane_determine_id')
   let paneObj.post_create = function('<SNR>' . s:SID() . '_Pane_post_create')
-  let paneObj.create_and_wait = function('<SNR>' . s:SID() . '_Pane_create_and_wait')
   let paneObj.make = function('<SNR>' . s:SID() . '_Pane_make')
   let paneObj.create_and_make = function('<SNR>' . s:SID() . '_Pane_create_and_make')
   let paneObj.kill = function('<SNR>' . s:SID() . '_Pane_kill')
@@ -249,6 +264,7 @@ endfunction
 
 function! s:Pane_create() dict
   if !(self.open())
+    call maque#util#debug('creating pane ' . self.name)
     if self.in_layout()
       call self.layout.create_pane(self)
     else
@@ -281,21 +297,6 @@ function! s:Pane_post_create() dict
     call self.send(' cd ' . getcwd())
     call self.set_shell_pid()
   endif
-endfunction
-
-function! s:Pane_create_and_wait(...) dict
-  let __splat_var_cpy = copy(a:000)
-  if !empty(__splat_var_cpy)
-    let timeout = remove(__splat_var_cpy, 0)
-  else
-    let timeout = 1
-  endif
-  call self.create()
-  let counter = 0
-  while (!self.open()) && (counter <# timeout * 10)
-    sleep 100m
-    let counter += 1
-  endwhile
 endfunction
 
 function! s:Pane_make(cmd, ...) dict

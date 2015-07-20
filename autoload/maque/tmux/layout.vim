@@ -36,6 +36,7 @@ function! g:ViewConstructor(name, ...)
   let viewObj.layout_position = function('<SNR>' . s:SID() . '_View_layout_position')
   let viewObj.pack_layout = function('<SNR>' . s:SID() . '_View_pack_layout')
   let viewObj.pack = function('<SNR>' . s:SID() . '_View_pack')
+  let viewObj.create_and_wait = function('<SNR>' . s:SID() . '_View_create_and_wait')
   return viewObj
 endfunction
 
@@ -132,6 +133,21 @@ endfunction
 function! s:View_pack() dict
 endfunction
 
+function! s:View_create_and_wait(...) dict
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let timeout = remove(__splat_var_cpy, 0)
+  else
+    let timeout = 5
+  endif
+  call self.create()
+  let counter = 0
+  while (!self.open()) && (counter <# timeout * 10)
+    sleep 100m
+    let counter += 1
+  endwhile
+endfunction
+
 function! maque#tmux#layout#cmp_pane_height(p1, p2)
   let pos1 = a:p1.layout_position()
   let pos2 = a:p2.layout_position()
@@ -173,7 +189,6 @@ function! s:LayoutConstructor(name, args)
   let layoutObj.determine_id = function('<SNR>' . s:SID() . '_Layout_determine_id')
   let layoutObj.post_create = function('<SNR>' . s:SID() . '_Layout_post_create')
   let layoutObj.create_kids = function('<SNR>' . s:SID() . '_Layout_create_kids')
-  let layoutObj.create_and_wait = function('<SNR>' . s:SID() . '_Layout_create_and_wait')
   let layoutObj.open_panes_sorted = function('<SNR>' . s:SID() . '_Layout_open_panes_sorted')
   let layoutObj.ref_pane = function('<SNR>' . s:SID() . '_Layout_ref_pane')
   let layoutObj.pane_id = function('<SNR>' . s:SID() . '_Layout_pane_id')
@@ -346,21 +361,6 @@ function! s:Layout_create_kids() dict
       call pane.create_and_wait()
     endif
   endfor
-endfunction
-
-function! s:Layout_create_and_wait(...) dict
-  let __splat_var_cpy = copy(a:000)
-  if !empty(__splat_var_cpy)
-    let timeout = remove(__splat_var_cpy, 0)
-  else
-    let timeout = 5
-  endif
-  call self.create()
-  let counter = 0
-  while (!self.open()) && (counter <# timeout * 10)
-    sleep 100m
-    let counter += 1
-  endwhile
 endfunction
 
 function! s:Layout_open_panes_sorted() dict

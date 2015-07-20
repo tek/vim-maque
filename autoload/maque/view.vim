@@ -35,6 +35,7 @@ function! g:ViewConstructor(name, ...)
   let viewObj.layout_position = function('<SNR>' . s:SID() . '_View_layout_position')
   let viewObj.pack_layout = function('<SNR>' . s:SID() . '_View_pack_layout')
   let viewObj.pack = function('<SNR>' . s:SID() . '_View_pack')
+  let viewObj.create_and_wait = function('<SNR>' . s:SID() . '_View_create_and_wait')
   return viewObj
 endfunction
 
@@ -129,4 +130,19 @@ function! s:View_pack_layout() dict
 endfunction
 
 function! s:View_pack() dict
+endfunction
+
+function! s:View_create_and_wait(...) dict
+  let __splat_var_cpy = copy(a:000)
+  if !empty(__splat_var_cpy)
+    let timeout = remove(__splat_var_cpy, 0)
+  else
+    let timeout = 5
+  endif
+  call self.create()
+  let counter = 0
+  while (!self.open()) && (counter <# timeout * 10)
+    sleep 100m
+    let counter += 1
+  endwhile
 endfunction
