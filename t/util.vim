@@ -40,9 +40,9 @@ end
 
 describe 'buffer path test'
 
-  it 'should determine a buffer to be within the current project'
-    edit plugin/maque.vim
-    Expect maque#util#buffer_is_in_project(1) == 1
+  it 'should determine a path to be within the current project'
+    let path = fnamemodify('plugin/maque.vim', ':p')
+    Expect maque#util#path_is_in_project(path) == 1
   end
 
 end

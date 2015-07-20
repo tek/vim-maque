@@ -73,7 +73,7 @@ describe 'pane.make'
   it 'should run the command if the pane is open'
     let s:pane_open = 1
     let command_buffer = s:make()
-    Expect match(command_buffer, g:cmd) == 0
+    Expect match(command_buffer, g:cmd) == 1
   end
 
   it 'should not run the command if the pane is closed'

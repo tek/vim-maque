@@ -8,9 +8,13 @@ function! s:setup_test_dir() "{{{
   let g:outside1 = g:tempdir.'/outside1'
   let g:outside2 = '../outside2'
   exe 'edit' g:inside1
+  w
   exe 'edit' g:inside2
+  w
   exe 'edit' g:outside1
+  w
   exe 'edit' g:tempdir.'/outside2'
+  w
   exe 'cd' g:cwd
 
   let trace = [g:outside1, g:outside2, g:inside1, g:outside2, g:inside2,
@@ -21,6 +25,7 @@ endfunction "}}}
 
 describe 'error parsing'
   before
+    let g:maque_qf_path_ignore = []
     call s:setup_test_dir()
   end
 
@@ -32,10 +37,10 @@ describe 'error parsing'
   it 'checks the test environment'
     exe 'cd' g:cwd
     Expect empty(getqflist()) == 0
-    Expect expand('#1:p') == g:inside1
-    Expect expand('#2:p') == g:inside2
-    Expect expand('#3:p') == g:outside1
-    Expect expand('#4:p') == fnamemodify(g:outside2, ':p')
+    Expect expand('#4:p') == g:inside1
+    Expect expand('#5:p') == g:inside2
+    Expect expand('#6:p') == g:outside1
+    Expect expand('#7:p') == fnamemodify(g:outside2, ':p')
   end
 
   it 'finds the first error in the current project dir'
