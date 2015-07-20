@@ -127,7 +127,14 @@ class Layout < g:View
   end
 
   defm target_pane_param
-    return '-t ' . self.pane_id()
+    return '-t ' . self.ensure_id()
+  end
+
+  defm ensure_id
+    unless maque#tmux#is_valid_id(self.pane_id())
+      throw 'layout ' . self.name . ' has no associated pane id!'
+    end
+    return self.pane_id()
   end
 
   defm set_preferred_size

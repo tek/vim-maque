@@ -180,6 +180,7 @@ function! s:LayoutConstructor(name, args)
   let layoutObj.focus = function('<SNR>' . s:SID() . '_Layout_focus')
   let layoutObj.split = function('<SNR>' . s:SID() . '_Layout_split')
   let layoutObj.target_pane_param = function('<SNR>' . s:SID() . '_Layout_target_pane_param')
+  let layoutObj.ensure_id = function('<SNR>' . s:SID() . '_Layout_ensure_id')
   let layoutObj.set_preferred_size = function('<SNR>' . s:SID() . '_Layout_set_preferred_size')
   let layoutObj.current_size = function('<SNR>' . s:SID() . '_Layout_current_size')
   let layoutObj.resize = function('<SNR>' . s:SID() . '_Layout_resize')
@@ -314,7 +315,14 @@ function! s:Layout_split(pane) dict
 endfunction
 
 function! s:Layout_target_pane_param() dict
-  return '-t ' . self.pane_id()
+  return '-t ' . self.ensure_id()
+endfunction
+
+function! s:Layout_ensure_id() dict
+  if !(maque#tmux#is_valid_id(self.pane_id()))
+    throw 'layout ' . self.name . ' has no associated pane id!'
+  endif
+  return self.pane_id()
 endfunction
 
 function! s:Layout_set_preferred_size() dict
