@@ -30,8 +30,11 @@ class Layout < g:View
   defm create
     unless self.open()
       if self.in_layout() && len(self.panes) > 0
+        maque#util#debug('creating layout ' . self.name . ' via ' .
+              \ self.layout.name)
         self.layout.create_pane(self.panes[0])
       else
+        maque#util#debug('creating layout ' . self.name . ' freely')
         maque#tmux#command_output(self.creator())
       end
     end
@@ -43,10 +46,14 @@ class Layout < g:View
     end
     panes_before = maque#tmux#pane#all()
     unless pane.open()
+      maque#util#debug(
+            \ 'creating pane ' . a:pane.name . ' from layout ' . self.name)
       if self.open()
+        maque#util#debug('layout ' . self.name . ' was already open, splitting')
         self.split(pane)
         maque#tmux#pane('vim').focus()
       else
+        maque#util#debug('layout ' . self.name . ' was closed, creating')
         self.create()
       end
       pane.determine_id(panes_before)

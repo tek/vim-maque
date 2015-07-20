@@ -273,6 +273,7 @@ endfunction "}}}
 " internals
 
 function! maque#tmux#command(cmd, ...) "{{{
+  call maque#util#debug(a:cmd)
   let blocking = get(a:000, 0)
   return maque#util#system('tmux '.a:cmd, blocking)
 endfunction "}}}
@@ -301,6 +302,7 @@ endfunction "}}}
 function! maque#tmux#vim_id() abort "{{{
   let pid = getpid()
   let panes = maque#tmux#pane#all()
+  call maque#util#debug('Vim pid: ' . pid)
   for pane in values(panes)
     let children = maque#util#child_pids(pane.pid)
     if len(children) && children[0][0] == pid

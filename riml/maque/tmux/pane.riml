@@ -105,6 +105,7 @@ class Pane < g:View
 
   defm create
     unless self.open()
+      maque#util#debug('creating pane ' . self.name)
       if self.in_layout()
         self.layout.create_pane(self)
       else
