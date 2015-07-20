@@ -309,6 +309,15 @@ function! maque#tmux#vim_id() abort "{{{
   endfor
 endfunction "}}}
 
+function! maque#tmux#wait_for_vim_id() abort "{{{
+  call maque#util#wait_until("maque#tmux#is_valid_id(maque#tmux#vim_id())", 2)
+  let id = maque#tmux#vim_id()
+  if !maque#tmux#is_valid_id(id)
+    throw 'could not determine vim''s pane id'
+  endif
+  return id
+endfunction "}}}
+
 function! maque#tmux#initialized() abort "{{{
   return exists('g:maque_tmux_layout_done')
 endfunction "}}}
@@ -316,6 +325,10 @@ endfunction "}}}
 function! maque#tmux#finish_init() abort "{{{
   let g:maque_tmux_panes_created = 1
   call maque#util#run_scheduled_tasks()
+endfunction "}}}
+
+function! maque#tmux#is_valid_id(id) abort "{{{
+  return a:id =~ '^%\d\+$'
 endfunction "}}}
 
 function! s:pane() "{{{
