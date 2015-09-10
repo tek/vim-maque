@@ -29,10 +29,11 @@ let g:maque_tmux_exiting = 0
 " args corresponds to :command's -nargs parameter
 " dispatch is the callback that should be executed
 " if dispatch is not given, maque#tmux#<name>(...) is used
-" command and <plug> mapping are generated from name
+" command and <plug> mappings are generated from name
 let g:maque_tmux_mappings = [
       \ ['focus'],
       \ ['kill'],
+      \ ['kill_wait'],
       \ ['close'],
       \ ['toggle-pane'],
       \ ['toggle-layout'],
