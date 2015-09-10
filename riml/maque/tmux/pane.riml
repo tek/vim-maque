@@ -28,6 +28,7 @@ def parse_tmux_output(line)
         \ 'height': get(values, 3, 0) + 0,
         \ 'left': get(values, 4, 0) + 0,
         \ 'top': get(values, 5, 0) + 0,
+        \ 'mode': get(values, 6, 0) + 0,
         \ }
 end
 
@@ -35,7 +36,7 @@ def maque#tmux#pane#all(*args)
   force = get(args, 0)
   if !s:use_cache || force || !s:cache_valid
     cmd = 'list-panes -a -F "#{pane_id} #{pane_pid} #{pane_width}' .
-          \ ' #{pane_height} #{pane_left} #{pane_top}"'
+          \ ' #{pane_height} #{pane_left} #{pane_top} #{pane_in_mode}"'
     lines = split(maque#tmux#command_output(cmd), "\n")
     s:cached_panes = {}
     for line in lines
@@ -95,12 +96,16 @@ class Pane < g:View
           \ 'minimal_shell': 0,
           \ 'compiler': '',
           \ 'shell': 0,
-          \ 'quit_copy_mode': 1,
           \ }
     extend(attrs, params)
     self.command_executable = ''
     self.spawning_make = 0
     super(name, attrs)
+  end
+
+  defm metadata
+    panes = maque#tmux#pane#all()
+    return get(panes, self.id)
   end
 
   defm create
@@ -145,7 +150,7 @@ class Pane < g:View
       if self.minimized && self.restore_on_make
         self.restore()
       end
-      self.send('') if self.quit_copy_mode
+      self.quit_copy_mode()
       self.send(cmd)
       if self.capture
         if !self.manual_termination
@@ -379,6 +384,16 @@ class Pane < g:View
 
   defm clear_log
     self.send(repeat("\n", self.height() - 2))
+  end
+
+  defm copy_mode
+    maque#tmux#command('copy-mode -t ' . self.id)
+  end
+
+  defm quit_copy_mode
+    if self.open() && get(self.metadata(), 'mode')
+      self.send_keys('c-c')
+    end
   end
 end
 

@@ -168,13 +168,13 @@ endfunction
 
 function! s:parse_tmux_output(line)
   let values = split(a:line)
-  return {'id': get(values, 0, ''), 'pid': get(values, 1, 1) + 0, 'width': get(values, 2, 0) + 0, 'height': get(values, 3, 0) + 0, 'left': get(values, 4, 0) + 0, 'top': get(values, 5, 0) + 0}
+  return {'id': get(values, 0, ''), 'pid': get(values, 1, 1) + 0, 'width': get(values, 2, 0) + 0, 'height': get(values, 3, 0) + 0, 'left': get(values, 4, 0) + 0, 'top': get(values, 5, 0) + 0, 'mode': get(values, 6, 0) + 0}
 endfunction
 
 function! maque#tmux#pane#all(...)
   let force = get(a:000, 0)
   if !s:use_cache || force || !s:cache_valid
-    let cmd = 'list-panes -a -F "#{pane_id} #{pane_pid} #{pane_width}' . ' #{pane_height} #{pane_left} #{pane_top}"'
+    let cmd = 'list-panes -a -F "#{pane_id} #{pane_pid} #{pane_width}' . ' #{pane_height} #{pane_left} #{pane_top} #{pane_in_mode}"'
     let lines = split(maque#tmux#command_output(cmd), "\n")
     let s:cached_panes = {}
     for line in lines
@@ -218,12 +218,13 @@ function! s:PaneConstructor(name, ...)
     let params = {}
   endif
   let paneObj = {}
-  let attrs = {'id': -1, 'errorfile': tempname(), '_splitter': 'tmux neww -d', 'eval_splitter': 0, 'capture': 1, 'autoclose': 0, '_last_killed': 0, '_killed': 0, 'shell_pid': 0, 'command_pid': 0, 'wait_before_autoclose': 2, 'create_minimized': 0, 'restore_on_make': 1, 'kill_running_on_make': 1, 'focus_on_make': 0, 'manual_termination': 0, 'layout': 0, 'minimal_shell': 0, 'compiler': '', 'shell': 0, 'quit_copy_mode': 1}
+  let attrs = {'id': -1, 'errorfile': tempname(), '_splitter': 'tmux neww -d', 'eval_splitter': 0, 'capture': 1, 'autoclose': 0, '_last_killed': 0, '_killed': 0, 'shell_pid': 0, 'command_pid': 0, 'wait_before_autoclose': 2, 'create_minimized': 0, 'restore_on_make': 1, 'kill_running_on_make': 1, 'focus_on_make': 0, 'manual_termination': 0, 'layout': 0, 'minimal_shell': 0, 'compiler': '', 'shell': 0}
   call extend(attrs, params)
   let paneObj.command_executable = ''
   let paneObj.spawning_make = 0
   let viewObj = g:ViewConstructor(a:name, attrs)
   call extend(paneObj, viewObj)
+  let paneObj.metadata = function('<SNR>' . s:SID() . '_Pane_metadata')
   let paneObj.create = function('<SNR>' . s:SID() . '_Pane_create')
   let paneObj.create_free = function('<SNR>' . s:SID() . '_Pane_create_free')
   let paneObj.determine_id = function('<SNR>' . s:SID() . '_Pane_determine_id')
@@ -259,7 +260,14 @@ function! s:PaneConstructor(name, ...)
   let paneObj._handle_running_process = function('<SNR>' . s:SID() . '_Pane__handle_running_process')
   let paneObj.pane_id = function('<SNR>' . s:SID() . '_Pane_pane_id')
   let paneObj.clear_log = function('<SNR>' . s:SID() . '_Pane_clear_log')
+  let paneObj.copy_mode = function('<SNR>' . s:SID() . '_Pane_copy_mode')
+  let paneObj.quit_copy_mode = function('<SNR>' . s:SID() . '_Pane_quit_copy_mode')
   return paneObj
+endfunction
+
+function! s:Pane_metadata() dict
+  let panes = maque#tmux#pane#all()
+  return get(panes, self.id)
 endfunction
 
 function! s:Pane_create() dict
@@ -310,9 +318,7 @@ function! s:Pane_make(cmd, ...) dict
     if self.minimized && self.restore_on_make
       call self.restore()
     endif
-    if self.quit_copy_mode
-      call self.send('')
-    endif
+    call self.quit_copy_mode()
     call self.send(a:cmd)
     if self.capture
       if !self.manual_termination
@@ -548,6 +554,16 @@ endfunction
 
 function! s:Pane_clear_log() dict
   call self.send(repeat("\n", self.height() - 2))
+endfunction
+
+function! s:Pane_copy_mode() dict
+  call maque#tmux#command('copy-mode -t ' . self.id)
+endfunction
+
+function! s:Pane_quit_copy_mode() dict
+  if self.open() && get(self.metadata(), 'mode')
+    call self.send_keys('c-c')
+  endif
 endfunction
 
 function! s:next_signal(idx)
