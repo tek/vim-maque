@@ -17,8 +17,15 @@ function! maque#util#error(msg) "{{{
 endfunction "}}}
 
 function! maque#util#debug(msg) "{{{
+  let stamped = strftime('%H:%M:%S') . ' | ' . a:msg
   if maque#util#want_debug()
-    echom 'maque: '.a:msg
+    if maque#util#want('log_file')
+      redir >> maque_log
+      echo stamped
+      redir END
+    else
+      echom 'maque: ' . stamped
+    endif
   endif
 endfunction "}}}
 

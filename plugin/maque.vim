@@ -1,5 +1,3 @@
-let g:maque_log_file = 1
-
 "{{{ dependencies
 if exists(':NeoBundleDepends')
   NeoBundleDepends 'Shougo/vimproc.vim'
