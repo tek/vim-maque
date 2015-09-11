@@ -26,9 +26,6 @@ Panes are abstractions of shells that can have the following manifestations:
 Native:~
 Use vim's |:make|
 
-Conque:~
-use |conque_term#open| to run the command in a conque buffer
-
 Dispatch:~
 use http://github.com/tpope/vim-dispatch to run the command
 
@@ -140,11 +137,6 @@ tmux:
   |maque_tmux_filter_escape_sequences|.Remove color codes from output.
   |maque_tmux_current_pane|............Name of the current target pane.
 
-conque:
-  |maque_leave_conque|.......Go back to the original window.
-  |maque_conque_horizontal|..Split direction for the conque term.
-  |maque_conque_term_nowrap|.Deactivate line wrapping.
-
 dispatch:
   |maque_dispatch_command|...Command to use for dispatch.vim.
 
@@ -171,7 +163,7 @@ way to customize it is to define a setter function.
                                                            *'g:maque_handlers'*
 These values are used for |:MaqueCycle|.
 >
-  let g:maque_handlers = ['tmux', 'dispatch', 'conque', 'native']
+  let g:maque_handlers = ['tmux', 'dispatch', 'native']
 <
 
                                                      *'g:maque_seek_cwd_error'*
@@ -192,21 +184,6 @@ These values are used for |:MaqueCycle|.
                                        *'g:maque_tmux_filter_escape_sequences'*
 >
   let g:maque_tmux_filter_escape_sequences = 1
-<
-
-                                                       *'g:maque_leave_conque'*
->
-  let g:maque_leave_conque = 1
-<
-
-                                                  *'g:maque_conque_horizontal'*
->
-  let g:maque_conque_horizontal = 1
-<
-
-                                                 *'g:maque_conque_term_nowrap'*
->
-  let g:maque_conque_term_nowrap = 0
 <
 
                                                    *'g:maque_dispatch_command'*

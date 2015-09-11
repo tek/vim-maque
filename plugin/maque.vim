@@ -6,13 +6,10 @@ endif
 
 "{{{ options
 let g:maque_config_defaults = {
-      \ 'leave_conque': 1,
       \ 'handler': 'tmux',
-      \ 'conque_horizontal': 1,
-      \ 'conque_term_nowrap': 0,
       \ 'makeprg_set': 0,
       \ 'jump_to_error': 'first',
-      \ 'handlers': ['tmux', 'dispatch', 'conque', 'native'],
+      \ 'handlers': ['tmux', 'dispatch', 'native'],
       \ 'seek_cwd_error': 1,
       \ 'dispatch_command': 'Dispatch',
       \ 'set_ft_options': 0,
