@@ -28,6 +28,7 @@ function! g:ViewConstructor(name, ...)
   let viewObj.minimize = function('<SNR>' . s:SID() . '_View_minimize')
   let viewObj.restore = function('<SNR>' . s:SID() . '_View_restore')
   let viewObj.apply_size = function('<SNR>' . s:SID() . '_View_apply_size')
+  let viewObj.set_size = function('<SNR>' . s:SID() . '_View_set_size')
   let viewObj._vertical = function('<SNR>' . s:SID() . '_View__vertical')
   let viewObj.fixed_size = function('<SNR>' . s:SID() . '_View_fixed_size')
   let viewObj.effective_size = function('<SNR>' . s:SID() . '_View_effective_size')
@@ -96,6 +97,11 @@ function! s:View_apply_size(size, ...) dict
   else
     call self.resize(a:size, secondary)
   endif
+endfunction
+
+function! s:View_set_size(size) dict
+  let self.size = a:size
+  call self.pack_layout()
 endfunction
 
 function! s:View__vertical() dict

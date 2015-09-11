@@ -37,6 +37,11 @@ function! s:tr(mapping)
   return tr(a:mapping, '-', '_')
 endfunction
 
+function! s:fun_call(path, args)
+  let arg_str = a:args ==# '0' ? '' : '<q-args>'
+  return 'call maque#' . s:tr(a:path) . '(' . arg_str . ')'
+endfunction
+
 function! maque#interface#tmux_command_mapping(mapping, ...)
   let __splat_var_cpy = copy(a:000)
   if !empty(__splat_var_cpy)
@@ -51,7 +56,7 @@ function! maque#interface#tmux_command_mapping(mapping, ...)
   endif
   let prefixed_mapping = 'tmux-' . a:mapping
   if !len(cmd_line)
-    let cmd_line = 'call maque#tmux#' . s:tr(a:mapping) . '(<q-args>)'
+    let cmd_line = s:fun_call('tmux#' . a:mapping, args)
   endif
   return maque#interface#command_mapping(prefixed_mapping, cmd_line, args)
 endfunction
@@ -69,7 +74,7 @@ function! maque#interface#maque_command_mapping(mapping, ...)
     let args = '0'
   endif
   if !len(cmd_line)
-    let cmd_line = 'call maque#' . s:tr(a:mapping) . '(<q-args>)'
+    let cmd_line = s:fun_call(a:mapping, args)
   endif
   return maque#interface#command_mapping(a:mapping, cmd_line, args)
 endfunction
@@ -81,8 +86,8 @@ function! maque#interface#maque_make_command_mapping(mapping, ...)
   else
     let args = '0'
   endif
-  let spec = len(a:mapping) ? '_' . s:tr(a:mapping) : ''
-  let cmd_line = 'call maque#make' . spec . '(<q-args>)'
+  let spec = len(a:mapping) ? '_' . a:mapping : ''
+  let cmd_line = s:fun_call('make' . spec, args)
   return maque#interface#maque_command_mapping(a:mapping, cmd_line, args)
 endfunction
 

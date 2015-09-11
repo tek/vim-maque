@@ -29,6 +29,7 @@ function! g:ViewConstructor(name, ...)
   let viewObj.minimize = function('<SNR>' . s:SID() . '_View_minimize')
   let viewObj.restore = function('<SNR>' . s:SID() . '_View_restore')
   let viewObj.apply_size = function('<SNR>' . s:SID() . '_View_apply_size')
+  let viewObj.set_size = function('<SNR>' . s:SID() . '_View_set_size')
   let viewObj._vertical = function('<SNR>' . s:SID() . '_View__vertical')
   let viewObj.fixed_size = function('<SNR>' . s:SID() . '_View_fixed_size')
   let viewObj.effective_size = function('<SNR>' . s:SID() . '_View_effective_size')
@@ -97,6 +98,11 @@ function! s:View_apply_size(size, ...) dict
   else
     call self.resize(a:size, secondary)
   endif
+endfunction
+
+function! s:View_set_size(size) dict
+  let self.size = a:size
+  call self.pack_layout()
 endfunction
 
 function! s:View__vertical() dict
@@ -168,7 +174,6 @@ function! s:LayoutConstructor(name, args)
   let layoutObj.direction = get(a:args, 'direction', 'vertical')
   let layoutObj.layout = 0
   let layoutObj.id = 'layout ' . a:name
-  let layoutObj.last_panes = []
   let layoutObj.add = function('<SNR>' . s:SID() . '_Layout_add')
   let layoutObj.create = function('<SNR>' . s:SID() . '_Layout_create')
   let layoutObj.create_pane = function('<SNR>' . s:SID() . '_Layout_create_pane')
@@ -186,8 +191,8 @@ function! s:LayoutConstructor(name, args)
   let layoutObj.resize = function('<SNR>' . s:SID() . '_Layout_resize')
   let layoutObj.splitter = function('<SNR>' . s:SID() . '_Layout_splitter')
   let layoutObj.creator = function('<SNR>' . s:SID() . '_Layout_creator')
+  let layoutObj.splitw = function('<SNR>' . s:SID() . '_Layout_splitw')
   let layoutObj.in_layout = function('<SNR>' . s:SID() . '_Layout_in_layout')
-  let layoutObj.determine_id = function('<SNR>' . s:SID() . '_Layout_determine_id')
   let layoutObj.post_create = function('<SNR>' . s:SID() . '_Layout_post_create')
   let layoutObj.create_kids = function('<SNR>' . s:SID() . '_Layout_create_kids')
   let layoutObj.open_panes_sorted = function('<SNR>' . s:SID() . '_Layout_open_panes_sorted')
@@ -236,7 +241,6 @@ function! s:Layout_create_pane(pane) dict
   if self.in_layout()
     call self.layout.create_kids()
   endif
-  let self.last_panes = maque#tmux#pane#all()
   if !(a:pane.open())
     call maque#util#debug('creating pane ' . a:pane.name . ' from layout ' . self.name)
     if self.open()
@@ -247,7 +251,6 @@ function! s:Layout_create_pane(pane) dict
       call maque#util#debug('layout ' . self.name . ' was closed, creating')
       call self.create()
     endif
-    call a:pane.determine_id(self.last_panes)
     call a:pane.post_create()
     call self.pack()
   endif
@@ -311,7 +314,11 @@ endfunction
 
 function! s:Layout_split(pane) dict
   let splitter = self.splitter() . ' ' . self.target_pane_param() . ' ' . a:pane.splitter_params()
-  call maque#tmux#command_output(splitter)
+  let id = maque#tmux#command_output(splitter)
+  call maque#tmux#pane#invalidate_cache()
+  let clean = substitute(id, '\(%\d\+\).*', '\1', '')
+  call maque#util#debug('created pane ' . clean)
+  call a:pane.set_id(clean)
 endfunction
 
 function! s:Layout_target_pane_param() dict
@@ -346,18 +353,20 @@ function! s:Layout_resize(width, height) dict
 endfunction
 
 function! s:Layout_splitter() dict
-  return self.layout_vertical() ? 'splitw -v -d' : 'splitw -h -d'
+  return self.splitw(self.layout_vertical())
 endfunction
 
 function! s:Layout_creator() dict
-  return self.layout_vertical() ? 'splitw -h -d' : 'splitw -v -d'
+  return s:splitw(!self.layout_vertical())
+endfunction
+
+function! s:Layout_splitw(vertical) dict
+  let dir = a:vertical ? '-v' : '-h'
+  return 'splitw -d ' . dir
 endfunction
 
 function! s:Layout_in_layout() dict
   return type(self.layout) !=# type(0)
-endfunction
-
-function! s:Layout_determine_id(...) dict
 endfunction
 
 function! s:Layout_post_create() dict

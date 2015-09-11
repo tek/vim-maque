@@ -8,7 +8,6 @@ def maque#tmux#pane#enable_cache
   maque#tmux#pane#disable_cache()
   maque#tmux#pane#all()
   s:use_cache = 1
-  s:cache_valid = 1
 end
 
 def maque#tmux#pane#disable_cache
@@ -39,6 +38,7 @@ def maque#tmux#pane#all(*args)
           \ ' #{pane_height} #{pane_left} #{pane_top} #{pane_in_mode}"'
     lines = split(maque#tmux#command_output(cmd), "\n")
     s:cached_panes = {}
+    s:cache_valid = 1
     for line in lines
       data = parse_tmux_output(line)
       s:cached_panes[data.id] = data
@@ -121,17 +121,17 @@ class Pane < g:View
 
   defm create_free
     unless self.open()
-      panes_before = maque#tmux#pane#all()
-      maque#util#system(self.splitter(), 1)
-      self.determine_id(panes_before)
+      id = maque#util#system(self.splitter(), 1)
+      maque#tmux#pane#invalidate_cache()
+      clean = substitute(id, '\(%\d\+\).*', '\1', '')
+      maque#util#debug('created pane ' . clean . ' freely')
+      pane.set_id(clean)
       self.post_create()
     end
   end
 
-  defm determine_id(panes_before)
-    matcher = 'index(keys(a:panes_before), v:val) == -1'
-    matches = filter(keys(maque#tmux#pane#all(1)), matcher)
-    self.id = len(matches) > 0 ? matches[0] : -1
+  defm set_id(id)
+    self.id = id
   end
 
   defm post_create
@@ -146,6 +146,7 @@ class Pane < g:View
   end
 
   defm make(cmd, replace=1)
+    maque#util#debug('pane ' . self.name . ' making ''' . cmd . '''')
     if self.ready_for_make(replace)
       if self.minimized && self.restore_on_make
         self.restore()
@@ -225,7 +226,7 @@ class Pane < g:View
 
   " send input to the target pane
   defm send_keys(cmd)
-    maque#tmux#command('send-keys -t '.self.id .' '.cmd)
+    maque#tmux#command('send-keys -t ' . self.id .' ' . cmd, 1)
   end
 
   defm open
@@ -359,7 +360,7 @@ class Pane < g:View
   end
 
   defm splitter_params
-    params = ''
+    params = '-F ''#{pane_id}'' -P'
     params .= ' "' . g:maque_tmux_minimal_shell . '"' if self.minimal_shell
     return params
   end
@@ -417,6 +418,10 @@ class VimPane < Pane
       self.id = maque#tmux#wait_for_vim_id()
     end
     return 1
+  end
+
+  " prevent destruction of master pane
+  defm close
   end
 end
 

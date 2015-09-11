@@ -27,24 +27,29 @@ def tr(mapping)
   return tr(mapping, '-', '_')
 end
 
+def fun_call(path, args)
+  arg_str = args == '0' ? '' : '<q-args>'
+  return 'call maque#' . s:tr(path) . '(' . arg_str . ')'
+end
+
 def maque#interface#tmux_command_mapping(mapping, cmd_line='', args='*')
   prefixed_mapping = 'tmux-' . mapping
   if !len(cmd_line)
-    cmd_line = 'call maque#tmux#' . s:tr(mapping) . '(<q-args>)'
+    cmd_line = fun_call('tmux#' . mapping, args)
   end
   return maque#interface#command_mapping(prefixed_mapping, cmd_line, args)
 end
 
 def maque#interface#maque_command_mapping(mapping, cmd_line='', args='0')
   if !len(cmd_line)
-    cmd_line = 'call maque#' . s:tr(mapping) . '(<q-args>)'
+    cmd_line = fun_call(mapping, args)
   end
   return maque#interface#command_mapping(mapping, cmd_line, args)
 end
 
 def maque#interface#maque_make_command_mapping(mapping, args='0')
-  spec = len(mapping) ? '_' . s:tr(mapping) : ''
-  cmd_line = 'call maque#make' . spec . '(<q-args>)'
+  spec = len(mapping) ? '_' . mapping : ''
+  cmd_line = fun_call('make' . spec, args)
   return maque#interface#maque_command_mapping(mapping, cmd_line, args)
 end
 

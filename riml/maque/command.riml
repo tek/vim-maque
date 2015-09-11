@@ -16,7 +16,9 @@ class Command
           \ 'name': name,
           \ 'compiler': '',
           \ 'shell': '',
-          \ 'deps': []
+          \ 'deps': [],
+          \ 'envs': [],
+          \ 'current_env': 0,
           \ }
     extend(commandObj, attrs)
     extend(commandObj, params)
@@ -89,7 +91,7 @@ class Command
 
   defm make_directly(cmdline, replace=true)
     g:maque_making_command = self.name
-    :silent doautocmd User MaqueCommandMake
+    maque#util#silent('doautocmd User MaqueCommandMake')
     self.run_deps()
     pane = self.pane()
     pane.compiler = self.compiler
@@ -120,6 +122,7 @@ class Command
 
   defm ensure_running
     if !self.running()
+      :echo 'ensure_running launching command ' . self.name
       self.make()
     end
   end
@@ -259,4 +262,41 @@ end
 
 def maque#command#new_shell(*args)
   return new Shell(*args)
+end
+
+def maque#command#init()
+  if maque#util#want('add_default_commands') &&
+        \ maque#util#not_want('remote', 'default_commands_added')
+    maque#command#start_default_commands()
+    " maque#util#silent('doautocmd User MaqueCommandsCreated')
+  endif
+end
+
+def maque#command#start_default_commands()
+  g:maque_main_vim = maque#command#new_main_vim()
+  maque#create_command('auto', 'maque#auto_prg()', {
+        \ 'cmd_type': 'eval',
+        \ 'pane_type': 'eval',
+        \ 'pane_name': 'maque#current_pane()',
+        \ 'remember': 1,
+        \ }
+        \ )
+  maque#create_command('main', 'g:maque_mainprg', {
+        \ 'cmd_type': 'eval',
+        \ 'pane_type': 'eval',
+        \ 'pane_name': 'maque#current_pane()',
+        \ 'remember': 1,
+        \ }
+        \ )
+  g:maque_status = maque#command#new_vim('status', {'pane_name': 'status'})
+  commands = maque#commands()
+  commands['status'] = g:maque_status
+  g:maque_default_commands_added = 1
+end
+
+def maque#command#quit()
+  :unlet! g:maque_main_vim
+  :unlet! g:maque_status
+  :unlet! g:maque_auto
+  g:maque_commands = {}
 end

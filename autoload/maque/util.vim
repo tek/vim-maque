@@ -26,6 +26,26 @@ function! maque#util#want_debug() abort "{{{
   return exists('$MAQUE_DEBUG')
 endfunction "}}}
 
+" returns true if all of the arguments are existing, true variables
+function! maque#util#want(...) abort "{{{
+  for opt in a:000
+    if !get(g:, 'maque_' . opt)
+      return 0
+    endif
+  endfor
+  return 1
+endfunction "}}}
+
+" returns true if all of the arguments are nonexisting or false variables
+function! maque#util#not_want(...) abort "{{{
+  for opt in a:000
+    if get(g:, 'maque_' . opt)
+      return 0
+    endif
+  endfor
+  return 1
+endfunction "}}}
+
 " Determine if the argument is an existing function in an autoload/ directory:
 " - It must have a # in it
 " - If it doesn't exist, its runtime path is sourced.
@@ -165,7 +185,6 @@ function! maque#util#run_scheduled_tasks() abort "{{{
     call call(info[0], info[1])
   endfor
   let g:_maque_scheduled_tasks = []
-  silent doautocmd User MaqueInitializedPre
 endfunction "}}}
 
 function! maque#util#true() abort "{{{
@@ -174,4 +193,19 @@ endfunction "}}}
 
 function! maque#util#command_name(name) abort "{{{
   return substitute(a:name, '\v%(^|[-_])(\l)', '\u\1', 'g')
+endfunction "}}}
+
+function! maque#util#exec_handler(fun) abort "{{{
+  let s:Handler = maque#util#handler_function(a:fun, '', g:maque_handler)
+  if type(s:Handler) == 2
+    call s:Handler()
+  end
+endfunction "}}}
+
+function! maque#util#silent(cmd) abort "{{{
+  if maque#util#want_debug()
+    execute a:cmd
+  else
+    execute 'silent ' . a:cmd
+  endif
 endfunction "}}}

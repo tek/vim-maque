@@ -1,3 +1,5 @@
+let g:maque_log_file = 1
+
 "{{{ dependencies
 if exists(':NeoBundleDepends')
   NeoBundleDepends 'Shougo/vimproc.vim'
@@ -6,6 +8,7 @@ endif
 
 "{{{ options
 let g:maque_config_defaults = {
+      \ 'autostart': 1,
       \ 'handler': 'tmux',
       \ 'makeprg_set': 0,
       \ 'jump_to_error': 'first',
@@ -33,7 +36,8 @@ let g:_maque_scheduled_tasks = []
 
 "{{{ mappings & commands
 let g:maque_mappings = [
-      \ ['cycle'],
+      \ ['reset', '', 0],
+      \ ['cycle', '', 0],
       \ ['parse', '', '?'],
       \ ['run-command', '', 1],
       \ ['queue-command', '', 1],
@@ -58,6 +62,6 @@ endfor
 
 augroup maque "{{{
   autocmd!
-  autocmd VimLeavePre * call maque#save_maqueprg()
-  autocmd VimEnter * call maque#load_maqueprg()
+  autocmd VimLeavePre * call maque#shutdown()
+  autocmd VimEnter * call maque#startup()
 augroup END "}}}

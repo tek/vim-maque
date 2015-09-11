@@ -29,6 +29,7 @@ function! g:ViewConstructor(name, ...)
   let viewObj.minimize = function('<SNR>' . s:SID() . '_View_minimize')
   let viewObj.restore = function('<SNR>' . s:SID() . '_View_restore')
   let viewObj.apply_size = function('<SNR>' . s:SID() . '_View_apply_size')
+  let viewObj.set_size = function('<SNR>' . s:SID() . '_View_set_size')
   let viewObj._vertical = function('<SNR>' . s:SID() . '_View__vertical')
   let viewObj.fixed_size = function('<SNR>' . s:SID() . '_View_fixed_size')
   let viewObj.effective_size = function('<SNR>' . s:SID() . '_View_effective_size')
@@ -99,6 +100,11 @@ function! s:View_apply_size(size, ...) dict
   endif
 endfunction
 
+function! s:View_set_size(size) dict
+  let self.size = a:size
+  call self.pack_layout()
+endfunction
+
 function! s:View__vertical() dict
   if self.in_layout()
     return self.layout.layout_vertical()
@@ -155,7 +161,6 @@ function! maque#tmux#pane#enable_cache()
   call maque#tmux#pane#disable_cache()
   call maque#tmux#pane#all()
   let s:use_cache = 1
-  let s:cache_valid = 1
 endfunction
 
 function! maque#tmux#pane#disable_cache()
@@ -177,6 +182,7 @@ function! maque#tmux#pane#all(...)
     let cmd = 'list-panes -a -F "#{pane_id} #{pane_pid} #{pane_width}' . ' #{pane_height} #{pane_left} #{pane_top} #{pane_in_mode}"'
     let lines = split(maque#tmux#command_output(cmd), "\n")
     let s:cached_panes = {}
+    let s:cache_valid = 1
     for line in lines
       let data = s:parse_tmux_output(line)
       let s:cached_panes[data.id] = data
@@ -227,7 +233,7 @@ function! s:PaneConstructor(name, ...)
   let paneObj.metadata = function('<SNR>' . s:SID() . '_Pane_metadata')
   let paneObj.create = function('<SNR>' . s:SID() . '_Pane_create')
   let paneObj.create_free = function('<SNR>' . s:SID() . '_Pane_create_free')
-  let paneObj.determine_id = function('<SNR>' . s:SID() . '_Pane_determine_id')
+  let paneObj.set_id = function('<SNR>' . s:SID() . '_Pane_set_id')
   let paneObj.post_create = function('<SNR>' . s:SID() . '_Pane_post_create')
   let paneObj.make = function('<SNR>' . s:SID() . '_Pane_make')
   let paneObj.create_and_make = function('<SNR>' . s:SID() . '_Pane_create_and_make')
@@ -283,17 +289,17 @@ endfunction
 
 function! s:Pane_create_free() dict
   if !(self.open())
-    let panes_before = maque#tmux#pane#all()
-    call maque#util#system(self.splitter(), 1)
-    call self.determine_id(panes_before)
+    let id = maque#util#system(self.splitter(), 1)
+    call maque#tmux#pane#invalidate_cache()
+    let clean = substitute(id, '\(%\d\+\).*', '\1', '')
+    call maque#util#debug('created pane ' . clean . ' freely')
+    call pane.set_id(clean)
     call self.post_create()
   endif
 endfunction
 
-function! s:Pane_determine_id(panes_before) dict
-  let matcher = 'index(keys(a:panes_before), v:val) == -1'
-  let matches = filter(keys(maque#tmux#pane#all(1)), matcher)
-  let self.id = len(matches) ># 0 ? matches[0] : -1
+function! s:Pane_set_id(id) dict
+  let self.id = a:id
 endfunction
 
 function! s:Pane_post_create() dict
@@ -314,6 +320,7 @@ function! s:Pane_make(cmd, ...) dict
   else
     let replace = 1
   endif
+  call maque#util#debug('pane ' . self.name . ' making ''' . a:cmd . '''')
   if self.ready_for_make(replace)
     if self.minimized && self.restore_on_make
       call self.restore()
@@ -396,7 +403,7 @@ function! s:Pane_send(cmd) dict
 endfunction
 
 function! s:Pane_send_keys(cmd) dict
-  call maque#tmux#command('send-keys -t ' . self.id . ' ' . a:cmd)
+  call maque#tmux#command('send-keys -t ' . self.id . ' ' . a:cmd, 1)
 endfunction
 
 function! s:Pane_open() dict
@@ -527,7 +534,7 @@ function! s:Pane_in_layout() dict
 endfunction
 
 function! s:Pane_splitter_params() dict
-  let params = ''
+  let params = '-F ''#{pane_id}'' -P'
   if self.minimal_shell
     let params .= ' "' . g:maque_tmux_minimal_shell . '"'
   endif
@@ -592,6 +599,7 @@ function! s:VimPaneConstructor(...)
   let paneObj = s:PaneConstructor('vim', params)
   call extend(vimPaneObj, paneObj)
   let vimPaneObj.open = function('<SNR>' . s:SID() . '_VimPane_open')
+  let vimPaneObj.close = function('<SNR>' . s:SID() . '_VimPane_close')
   return vimPaneObj
 endfunction
 
@@ -600,6 +608,9 @@ function! s:VimPane_open() dict
     let self.id = maque#tmux#wait_for_vim_id()
   endif
   return 1
+endfunction
+
+function! s:VimPane_close() dict
 endfunction
 
 function! maque#tmux#pane#new_vim(...)

@@ -246,8 +246,9 @@ function! maque#set_last_command(command) abort
 endfunction
 
 function! maque#set_main_command_name(name)
-  if has_key(maque#commands(), a:name)
-    return maque#set_last_command(maque#commands()[a:name])
+  let cmds = maque#commands()
+  if has_key(cmds, a:name)
+    return maque#set_last_command(cmds[a:name])
   else
     call maque#util#warn('no such command: ' . a:name)
   endif
@@ -470,7 +471,6 @@ function! maque#save_maqueprg() abort
     let g:Maque_maqueprg_save = g:maqueprg
     let g:Maque_last_command_save = g:maque_last_command
   endif
-  exe 'silent! doautocmd VimLeavePre obsession'
 endfunction
 
 function! maque#load_maqueprg() abort
@@ -505,4 +505,35 @@ endfunction
 
 function! maque#autostart_ok() abort
   return !argc()
+endfunction
+
+function! maque#reset() abort
+  call maque#quit()
+  unlet! g:maque_default_commands_added
+  unlet! g:maque_tmux_default_panes_created
+  call maque#init()
+endfunction
+
+function! maque#init() abort
+  call maque#load_maqueprg()
+  call maque#command#init()
+  call maque#util#exec_handler('init')
+endfunction
+
+function! maque#quit()
+  let g:maque_quitting = 1
+  call maque#save_maqueprg()
+  call maque#command#quit()
+  call maque#util#exec_handler('quit')
+  let g:maque_quitting = 0
+endfunction
+
+function! maque#startup()
+  if maque#util#want('autostart')
+    call maque#init()
+  endif
+endfunction
+
+function! maque#shutdown()
+  call maque#quit()
 endfunction

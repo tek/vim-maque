@@ -20,7 +20,6 @@ class Layout < g:View
     self.direction = get(a:args, 'direction', 'vertical')
     self.layout = 0
     self.id = 'layout ' . a:name
-    self.last_panes = []
   end
 
   defm add(pane)
@@ -46,7 +45,6 @@ class Layout < g:View
     if self.in_layout()
       self.layout.create_kids()
     end
-    self.last_panes = maque#tmux#pane#all()
     unless pane.open()
       maque#util#debug(
             \ 'creating pane ' . a:pane.name . ' from layout ' . self.name)
@@ -58,7 +56,6 @@ class Layout < g:View
         maque#util#debug('layout ' . self.name . ' was closed, creating')
         self.create()
       end
-      pane.determine_id(self.last_panes)
       pane.post_create()
       self.pack()
     end
@@ -123,7 +120,11 @@ class Layout < g:View
   defm split(pane)
     splitter = self.splitter() . ' ' . self.target_pane_param() . ' ' .
           \ pane.splitter_params()
-    maque#tmux#command_output(splitter)
+    id = maque#tmux#command_output(splitter)
+    maque#tmux#pane#invalidate_cache()
+    clean = substitute(id, '\(%\d\+\).*', '\1', '')
+    maque#util#debug('created pane ' . clean)
+    pane.set_id(clean)
   end
 
   defm target_pane_param
@@ -159,18 +160,20 @@ class Layout < g:View
   end
 
   defm splitter
-    return self.layout_vertical() ? 'splitw -v -d' : 'splitw -h -d'
+    return self.splitw(self.layout_vertical())
   end
 
   defm creator
-    return self.layout_vertical() ? 'splitw -h -d' : 'splitw -v -d'
+    return splitw(!self.layout_vertical())
+  end
+
+  defm splitw(vertical)
+    dir = vertical ? '-v' : '-h'
+    return 'splitw -d ' . dir
   end
 
   defm in_layout
     return type(self.layout) != type(0)
-  end
-
-  defm determine_id(*args)
   end
 
   defm post_create

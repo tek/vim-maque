@@ -67,6 +67,11 @@ class g:View
     end
   end
 
+  defm set_size(size)
+    self.size = size
+    self.pack_layout()
+  end
+
   defm _vertical
     if self.in_layout()
       return self.layout.layout_vertical()
