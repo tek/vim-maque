@@ -426,17 +426,14 @@ function! maque#tmux#initialized() abort "{{{
   return maque#util#want('tmux_panes_created')
 endfunction "}}}
 
-function! maque#tmux#panes_created_autocmd() abort "{{{
-endfunction "}}}
-
 function! maque#tmux#init() abort "{{{
   if !maque#tmux#initialized()
     call maque#tmux#create_basic_layout()
+    call maque#tmux#setup_metadata()
     if maque#util#want('tmux_default_panes')
       call maque#tmux#create_default_panes()
       call maque#util#silent('doautocmd User MaqueTmuxDefaultPanesCreated')
     endif
-    call maque#tmux#setup_metadata()
     let g:maque_tmux_panes_created = 1
     call maque#util#silent('doautocmd User MaqueTmuxPanesCreated')
   endif
