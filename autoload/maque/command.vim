@@ -37,8 +37,8 @@ function! s:CommandConstructor(command, name, ...)
   let commandObj.make_directly = function('<SNR>' . s:SID() . '_Command_make_directly')
   let commandObj.queue = function('<SNR>' . s:SID() . '_Command_queue')
   let commandObj.pane = function('<SNR>' . s:SID() . '_Command_pane')
-  let commandObj._pane_eval = function('<SNR>' . s:SID() . '_Command__pane_eval')
-  let commandObj._pane_name = function('<SNR>' . s:SID() . '_Command__pane_name')
+  let commandObj._pane_by_eval = function('<SNR>' . s:SID() . '_Command__pane_by_eval')
+  let commandObj._pane_by_name = function('<SNR>' . s:SID() . '_Command__pane_by_name')
   let commandObj.ensure_running = function('<SNR>' . s:SID() . '_Command_ensure_running')
   let commandObj.restart = function('<SNR>' . s:SID() . '_Command_restart')
   let commandObj.kill = function('<SNR>' . s:SID() . '_Command_kill')
@@ -152,19 +152,25 @@ function! s:Command_queue() dict
 endfunction
 
 function! s:Command_pane() dict
-  return call(get(self, '_pane_' . self.pane_type), [], self)
+  let p = call(get(self, '_pane_by_' . self.pane_type), [], self)
+  try
+    let n = p.name
+  catch //
+    throw 'command ''' . self.name . ''' is missing its pane ''' . self.pane_name . ''''
+  endtry
+  return p
 endfunction
 
-function! s:Command__pane_eval() dict
+function! s:Command__pane_by_eval() dict
   try
     return eval(self.pane_name)
   catch
     echo v:exception
-    return self._pane_name
+    return self._pane_by_name
   endtry
 endfunction
 
-function! s:Command__pane_name() dict
+function! s:Command__pane_by_name() dict
   return maque#pane(self.pane_name)
 endfunction
 

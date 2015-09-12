@@ -104,19 +104,26 @@ class Command
   end
 
   defm pane
-    return call(get(self, '_pane_' . self.pane_type), [], self)
+    p = call(get(self, '_pane_by_' . self.pane_type), [], self)
+    try
+      let n = p.name
+    catch //
+      throw 'command ''' . self.name . ''' is missing its pane ''' .
+            \ self.pane_name . ''''
+    end
+    return p
   end
 
-  defm _pane_eval
+  defm _pane_by_eval
     try
       return eval(self.pane_name)
     catch
       echo v:exception
-      return self._pane_name
+      return self._pane_by_name
     end
   end
 
-  defm _pane_name
+  defm _pane_by_name
     return maque#pane(self.pane_name)
   end
 
