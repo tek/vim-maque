@@ -43,6 +43,7 @@ let g:maque_tmux_mappings = [
       \ ['cycle-panes'],
       \ ['cycle-panes'],
       \ ['clear-log'],
+      \ ['show', '', 0],
       \ ['set-layout-size', '', '+'],
       \ ['send', 'call maque#tmux#_send_cmd(<q-args>)', '+'],
       \ ['buffer',

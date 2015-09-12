@@ -499,4 +499,7 @@ function! maque#tmux#create_default_panes() abort "{{{
         \ )
   let g:maque_tmux_current_pane = 'main'
 endfunction "}}}
+
+function! maque#tmux#show() abort "{{{
+  echo join(maque#tmux#layout('main').show(), "\n")
 endfunction "}}}

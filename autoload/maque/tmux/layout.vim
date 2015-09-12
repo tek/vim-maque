@@ -202,6 +202,9 @@ function! s:LayoutConstructor(name, args)
   let layoutObj.current_position = function('<SNR>' . s:SID() . '_Layout_current_position')
   let layoutObj.stretch_size = function('<SNR>' . s:SID() . '_Layout_stretch_size')
   let layoutObj.layout_vertical = function('<SNR>' . s:SID() . '_Layout_layout_vertical')
+  let layoutObj.show_flat = function('<SNR>' . s:SID() . '_Layout_show_flat')
+  let layoutObj.show = function('<SNR>' . s:SID() . '_Layout_show')
+  let layoutObj.show_panes = function('<SNR>' . s:SID() . '_Layout_show_panes')
   return layoutObj
 endfunction
 
@@ -219,10 +222,10 @@ function! s:Layout_any_pane(layoutObj)
   return s:Layout_open_panes(a:layoutObj)[0]
 endfunction
 
-function! s:Layout_add(pane) dict
-  call add(self.panes, a:pane)
+function! s:Layout_add(view) dict
+  call add(self.panes, a:view)
   call sort(self.panes, 'maque#tmux#layout#cmp_view_order')
-  let a:pane.layout = self
+  let a:view.layout = self
 endfunction
 
 function! s:Layout_create() dict
@@ -419,6 +422,22 @@ endfunction
 
 function! s:Layout_layout_vertical() dict
   return self.direction ==# 'vertical'
+endfunction
+
+function! s:Layout_show_flat() dict
+  return self.name . ' (' . self.size . ')'
+endfunction
+
+function! s:Layout_show() dict
+  return ['* ' . self.show_flat()] + self.show_panes()
+endfunction
+
+function! s:Layout_show_panes() dict
+  let sub = []
+  for pane in self.panes
+    let sub += pane.show()
+  endfor
+  return map(sub, '''  '' . v:val')
 endfunction
 
 function! maque#tmux#layout#new(name, ...)

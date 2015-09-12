@@ -402,6 +402,10 @@ class Pane < g:View
       self.send_keys('c-c')
     end
   end
+
+  defm show
+    return ['[' . self.name . '] (' . self.size . ')']
+  end
 end
 
 def next_signal(idx)

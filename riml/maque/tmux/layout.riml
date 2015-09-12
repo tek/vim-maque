@@ -22,10 +22,10 @@ class Layout < g:View
     self.id = 'layout ' . a:name
   end
 
-  defm add(pane)
-    add(self.panes, pane)
+  defm add(view)
+    add(self.panes, view)
     sort(self.panes, 'maque#tmux#layout#cmp_view_order')
-    pane.layout = self
+    view.layout = self
   end
 
   defm create
@@ -236,6 +236,22 @@ class Layout < g:View
 
   defm layout_vertical
     return self.direction == 'vertical'
+  end
+
+  defm show_flat
+    return self.name . ' (' . self.size . ')'
+  end
+
+  defm show
+    return ['* ' . self.show_flat()] + self.show_panes()
+  end
+
+  defm show_panes
+    sub = []
+    for pane in self.panes
+      sub += pane.show()
+    end
+    return map(sub, '''  '' . v:val')
   end
 end
 

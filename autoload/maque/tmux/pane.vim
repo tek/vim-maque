@@ -281,6 +281,7 @@ function! s:PaneConstructor(name, ...)
   let paneObj.clear_log = function('<SNR>' . s:SID() . '_Pane_clear_log')
   let paneObj.copy_mode = function('<SNR>' . s:SID() . '_Pane_copy_mode')
   let paneObj.quit_copy_mode = function('<SNR>' . s:SID() . '_Pane_quit_copy_mode')
+  let paneObj.show = function('<SNR>' . s:SID() . '_Pane_show')
   return paneObj
 endfunction
 
@@ -584,6 +585,10 @@ function! s:Pane_quit_copy_mode() dict
   if self.open() && get(self.metadata(), 'mode')
     call self.send_keys('c-c')
   endif
+endfunction
+
+function! s:Pane_show() dict
+  return ['[' . self.name . '] (' . self.size . ')']
 endfunction
 
 function! s:next_signal(idx)
