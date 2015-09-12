@@ -582,7 +582,7 @@ function! s:Pane_copy_mode() dict
 endfunction
 
 function! s:Pane_quit_copy_mode() dict
-  if self.open() && get(self.metadata(), 'mode')
+  if self.open() && get(self.metadata(), 'in_mode')
     call self.send_keys('c-c')
   endif
 endfunction

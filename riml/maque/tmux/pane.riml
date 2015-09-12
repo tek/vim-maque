@@ -398,7 +398,7 @@ class Pane < g:View
   end
 
   defm quit_copy_mode
-    if self.open() && get(self.metadata(), 'mode')
+    if self.open() && get(self.metadata(), 'in_mode')
       self.send_keys('c-c')
     end
   end
