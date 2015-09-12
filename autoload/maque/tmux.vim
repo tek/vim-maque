@@ -256,6 +256,10 @@ function! maque#tmux#clear_log(...) "{{{
   return call('maque#tmux#pane_action', ['clear_log'] + a:000)
 endfunction "}}}
 
+function! maque#tmux#set_layout_size(args) abort "{{{
+  return maque#tmux#layout_action('set_size', [2], a:args)
+endfunction "}}}
+
 " send input to the specified pane
 function! maque#tmux#send(name, msg) "{{{
   return maque#tmux#call_pane({
