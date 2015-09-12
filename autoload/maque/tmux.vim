@@ -169,20 +169,25 @@ function! maque#tmux#pane_action(action, ...) abort "{{{
   endif
 endfunction "}}}
 
-function! maque#tmux#layout_action(action, ...) abort "{{{
+function! maque#tmux#layout_action(action, nargs, args) abort "{{{
   call maque#tmux#pane#enable_cache()
-  let name = get(a:000, 0, '')
-  let layout = get(g:maque_tmux_layouts, name, s:layout())
-  call call(layout[a:action], [], layout)
+  try
+    let fargs = maque#util#fargs(a:action, a:nargs, a:args)
+    let name = get(fargs, 0, '')
+    let layout = get(g:maque_tmux_layouts, name, s:layout())
+    call call(layout[a:action], fargs[1:], layout)
+  catch /wrong argument count/
+    call maque#util#error(v:exception)
+  endtry
   call maque#tmux#pane#disable_cache()
 endfunction "}}}
 
-function! maque#tmux#toggle_layout(...) abort "{{{
-  return call('maque#tmux#layout_action', ['toggle'] + a:000)
+function! maque#tmux#toggle_layout(args) abort "{{{
+  return maque#tmux#layout_action('toggle', [0, 1], a:args)
 endfunction "}}}
 
-function! maque#tmux#minimize_layout(...) abort "{{{
-  return call('maque#tmux#layout_action', ['minimize'] + a:000)
+function! maque#tmux#minimize_layout(args) abort "{{{
+  return maque#tmux#layout_action('minimize', [0, 1], a:args)
 endfunction "}}}
 
 " kill the running process

@@ -212,3 +212,13 @@ function! maque#util#silent(cmd) abort "{{{
     execute 'silent ' . a:cmd
   endif
 endfunction "}}}
+
+function! maque#util#fargs(action, nargs, args) abort "{{{
+  let fags = split(a:args)
+  if index(a:nargs, len(fags)) >= 0
+    return fags
+  else
+    throw 'wrong argument count for ''' . a:action . ''': ' . len(fargs)
+          \ . ', allowed: ' . string(a:nargs)
+  end
+endfunction "}}}
