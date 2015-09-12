@@ -134,14 +134,10 @@ endfunction "}}}
 function! maque#util#system(cmd, ...) abort "{{{
   let blocking = get(a:000, 0)
   try
-    if maque#util#has_vimproc()
-      if blocking || !g:maque_async
-        return vimproc#system(a:cmd)
-      else
-        call vimproc#system_bg(a:cmd)
-      endif
-    else
+    if blocking || !g:maque_async || !has('nvim')
       return system(a:cmd)
+    else
+      call jobstart(a:cmd)
     endif
   catch
     return 'error'
