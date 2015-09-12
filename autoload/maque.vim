@@ -510,7 +510,7 @@ endfunction
 function! maque#reset() abort
   call maque#quit()
   unlet! g:maque_default_commands_added
-  unlet! g:maque_tmux_default_panes_created
+  unlet! g:maque_tmux_panes_created
   call maque#init()
 endfunction
 

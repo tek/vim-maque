@@ -145,7 +145,9 @@ endfunction "}}}
 
 function! maque#tmux#add_pane_to_layout(name, pane) abort "{{{
   if !has_key(g:maque_tmux_layouts, a:name)
-    call maque#util#warn('layout "'.a:name.'" doesn''t exist!')
+    call maque#util#warn(
+          \ 'layout "' . a:name . '" doesn''t exist(adding pane ' .
+          \ a:pane.name . ')')
   else
     call g:maque_tmux_layouts[a:name].add(a:pane)
   endif
@@ -165,7 +167,9 @@ endfunction "}}}
 function! maque#tmux#pane_action(action, ...) abort "{{{
   if !a:0 || a:1 == '' || has_key(g:maque_tmux_panes, a:1)
     let name = get(a:000, 0, '')
-    call maque#tmux#call_pane({'name': name, 'action': a:action})
+    call maque#tmux#call_pane(
+      \ { 'name': name, 'action': a:action, 'args': a:000[1:] }
+      \ )
   endif
 endfunction "}}}
 
@@ -318,14 +322,13 @@ function! maque#tmux#set_vim_id() abort "{{{
     let children = maque#util#child_pids(pane.pid)
     if len(children) && children[0][0] == pid
       let g:maque_vim_pane_id = pane.id
-      return pane.id
+      return 1
     endif
   endfor
 endfunction "}}}
 
 function! maque#tmux#wait_for_vim_id() abort "{{{
-  call maque#util#wait_until(
-        \ 'maque#tmux#is_valid_id(maque#tmux#set_vim_id())', 10)
+  call maque#util#wait_until('maque#tmux#set_vim_id()', 2)
   if !exists('g:maque_vim_pane_id') ||
         \ !maque#tmux#is_valid_id(g:maque_vim_pane_id)
     throw 'could not determine vim''s pane id'
@@ -333,12 +336,9 @@ function! maque#tmux#wait_for_vim_id() abort "{{{
   return g:maque_vim_pane_id
 endfunction "}}}
 
-function! maque#tmux#initialized() abort "{{{
-  return exists('g:maque_tmux_layout_done')
-endfunction "}}}
-
+" called by autocmd MaqueTmuxPanesCreated, after
 function! maque#tmux#finish_init() abort "{{{
-  let g:maque_tmux_default_panes_created = 1
+  let g:maque_tmux_panes_created = 1
   call maque#util#run_scheduled_tasks()
 endfunction "}}}
 
@@ -413,39 +413,64 @@ function! maque#tmux#quit() abort "{{{
   call maque#tmux#close_all()
   let g:maque_tmux_panes = {}
   let g:maque_tmux_layouts = {}
-  let g:maque_tmux_layout_done = 0
+  let g:maque_tmux_panes_created = 0
+endfunction "}}}
+
+function! maque#tmux#initialized() abort "{{{
+  return maque#util#want('tmux_panes_created')
+endfunction "}}}
+
+function! maque#tmux#panes_created_autocmd() abort "{{{
+  let cmd = 'doautocmd User MaqueTmuxPanesCreated'
+  try
+    if maque#util#want_debug()
+      execute cmd
+    else
+      execute 'silent ' . cmd
+    endif
+  catch //
+    call maque#util#error(v:throwpoint . ': ' . v:exception)
+  endtry
 endfunction "}}}
 
 function! maque#tmux#init() abort "{{{
-  if maque#util#want('tmux_default_panes') &&
-        \ maque#util#not_want('tmux_default_panes_created')
-    call maque#tmux#create_default_panes()
+  if !maque#tmux#initialized()
+    call maque#tmux#create_basic_layout()
+    if maque#util#want('tmux_default_panes')
+      call maque#tmux#create_default_panes()
+    endif
+    call maque#tmux#setup_metadata()
+    let g:maque_tmux_panes_created = 1
+    call maque#tmux#panes_created_autocmd()
   endif
 endfunction "}}}
 
-function! maque#tmux#create_default_panes() abort "{{{
-  let main_layout = maque#tmux#add_layout('main', {
+function! maque#tmux#create_basic_layout() abort "{{{
+  let g:maque_main_layout = maque#tmux#add_layout('main', {
         \ 'direction': 'horizontal',
         \ }
         \ )
-  let vim_layout = maque#tmux#add_layout('vim', {
+  let g:maque_vim_layout = maque#tmux#add_layout('vim', {
         \ 'direction': 'vertical',
         \ }
         \ )
-  let make_layout = maque#tmux#add_layout('make', {
-        \ 'direction': 'vertical',
-        \ }
-        \ )
-  call main_layout.add(vim_layout)
-  call main_layout.add(make_layout)
-  let g:maque_tmux_layout_done = 1
-  let vim = maque#tmux#add_vim_pane({
+  let g:maque_vim = maque#tmux#add_vim_pane({
         \ '_splitter': '',
         \ 'capture': 0,
         \ }
         \ )
-  call vim_layout.add(vim)
-  let main = maque#tmux#add_pane_in_layout('main', 'make', {
+  call g:maque_vim_layout.add(g:maque_vim)
+  call g:maque_vim.open()
+endfunction "}}}
+
+function! maque#tmux#create_default_panes() abort "{{{
+  let make_layout = maque#tmux#add_layout('make', {
+        \ 'direction': 'vertical',
+        \ }
+        \ )
+  call g:maque_main_layout.add(g:maque_vim_layout)
+  call g:maque_main_layout.add(make_layout)
+  let main = maque#tmux#_add_pane_in_layout('main', 'make', {
         \ 'eval_splitter': 1,
         \ '_splitter': 'g:maque_tmux_main_split_cmd',
         \ 'capture': 1,
@@ -460,7 +485,7 @@ function! maque#tmux#create_default_panes() abort "{{{
         \ 'minimal_shell': 1,
         \ }
         \ )
-  let status = maque#tmux#add_pane_in_layout('status', 'make', {
+  let status = maque#tmux#_add_pane_in_layout('status', 'make', {
         \ '_splitter': 'tmux split-window -v -d',
         \ 'capture': 0,
         \ 'autoclose': 0,
@@ -469,15 +494,5 @@ function! maque#tmux#create_default_panes() abort "{{{
         \ }
         \ )
   let g:maque_tmux_current_pane = 'main'
-  let g:maque_tmux_default_panes_created = 1
-  let cmd = 'doautocmd User MaqueTmuxPanesCreated'
-  try
-    if maque#util#want_debug()
-      execute cmd
-    else
-      execute 'silent ' . cmd
-    endif
-  catch //
-    call maque#util#error(v:exception)
-  endtry
+endfunction "}}}
 endfunction "}}}
