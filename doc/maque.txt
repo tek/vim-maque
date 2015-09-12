@@ -19,19 +19,6 @@ command assembler and tmux coordinator
 
 maque handles two sets of objects: commands and panes.
 
-Commands are context sensitive executables and arguments that ease behaviour
-driven development, to be dispatched in targets represented by panes.
-Panes are abstractions of shells that can have the following manifestations:
-
-Native:~
-Use vim's |:make|
-
-Dispatch:~
-use http://github.com/tpope/vim-dispatch to run the command
-
-tmux:~
-use |maque|'s builtin tmux handling
-
 ===============================================================================
 COMMANDS                                                        *maque-command*
 
