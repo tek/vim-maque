@@ -1,8 +1,3 @@
-" public functions
-
-" TODO always call determine_target_pane(a:000), refactor
-" use abort
-
 " execute a command in the active pane, creating it if necessary
 function! maque#tmux#make(cmd) "{{{
   call maque#tmux#make_pane(s:pane(), a:cmd)
@@ -93,8 +88,14 @@ function! maque#tmux#_add_pane_in_layout(name, layout, ...) abort "{{{
   return maque#tmux#add_pane_to_layout(a:layout, pane)
 endfunction "}}}
 
+function! maque#tmux#schedule(ident, args) abort "{{{
+  if g:maque_tmux_custom_panes
+    return maque#util#schedule(a:ident, a:args)
+  endif
+endfunction "}}}
+
 function! maque#tmux#add_pane_in_layout(...) abort "{{{
-  return maque#util#schedule('maque#tmux#_add_pane_in_layout', a:000)
+  return maque#tmux#schedule('maque#tmux#_add_pane_in_layout', a:000)
 endfunction "}}}
 
 function! maque#tmux#_add_service_pane_in_layout(name, layout, ...) abort "{{{
@@ -109,7 +110,8 @@ function! maque#tmux#_add_service_pane_in_layout(name, layout, ...) abort "{{{
 endfunction "}}}
 
 function! maque#tmux#add_service_pane_in_layout(...) abort "{{{
-  return maque#util#schedule('maque#tmux#_add_service_pane_in_layout', a:000)
+  return maque#tmux#schedule('maque#tmux#_add_service_pane_in_layout',
+        \ a:000)
 endfunction "}}}
 
 " add a pane for the main vim
@@ -425,16 +427,6 @@ function! maque#tmux#initialized() abort "{{{
 endfunction "}}}
 
 function! maque#tmux#panes_created_autocmd() abort "{{{
-  let cmd = 'doautocmd User MaqueTmuxPanesCreated'
-  try
-    if maque#util#want_debug()
-      execute cmd
-    else
-      execute 'silent ' . cmd
-    endif
-  catch //
-    call maque#util#error(v:throwpoint . ': ' . v:exception)
-  endtry
 endfunction "}}}
 
 function! maque#tmux#init() abort "{{{
@@ -442,10 +434,11 @@ function! maque#tmux#init() abort "{{{
     call maque#tmux#create_basic_layout()
     if maque#util#want('tmux_default_panes')
       call maque#tmux#create_default_panes()
+      call maque#util#silent('doautocmd User MaqueTmuxDefaultPanesCreated')
     endif
     call maque#tmux#setup_metadata()
     let g:maque_tmux_panes_created = 1
-    call maque#tmux#panes_created_autocmd()
+    call maque#util#silent('doautocmd User MaqueTmuxPanesCreated')
   endif
 endfunction "}}}
 

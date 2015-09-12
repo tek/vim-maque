@@ -8,6 +8,7 @@ let g:maque_tmux_config_defaults = {
       \ 'minimize_on_toggle': 1,
       \ 'error_pane': 'main',
       \ 'default_panes': 1,
+      \ 'custom_panes': 1,
       \ 'minimal_shell': 'zsh -f',
       \ }
 
@@ -16,6 +17,7 @@ call maque#interface#config_options(g:maque_tmux_config_defaults, 'tmux')
 if (argc() > 0 && argv(0) =~ '\.git') || exists('g:maque_remote')
       \ || exists('$NO_MAQUE')
   let g:maque_tmux_default_panes = 0
+  let g:maque_tmux_custom_panes = 0
 endif
 "}}}
 

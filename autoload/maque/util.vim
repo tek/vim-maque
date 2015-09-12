@@ -206,11 +206,15 @@ function! maque#util#exec_handler(fun) abort "{{{
 endfunction "}}}
 
 function! maque#util#silent(cmd) abort "{{{
-  if maque#util#want_debug()
-    execute a:cmd
-  else
-    execute 'silent ' . a:cmd
-  endif
+  try
+    if maque#util#want_debug()
+      execute a:cmd
+    else
+      execute 'silent ' . a:cmd
+    endif
+  catch //
+    call maque#util#error(v:throwpoint . ': ' . v:exception)
+  endtry
 endfunction "}}}
 
 function! maque#util#fargs(action, nargs, args) abort "{{{
