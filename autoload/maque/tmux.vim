@@ -362,6 +362,53 @@ function! s:buffer() "{{{
   return 'buffer' . bufnr('%')
 endfunction "}}}
 
+function! s:tmux(cmd) abort "{{{
+  return maque#tmux#command_output(a:cmd)
+endfunction "}}}
+
+function! s:parse_tmux_output(line, vars, prefix) abort "{{{
+  let values = split(a:line)
+  let res = {}
+  for i in range(len(a:vars))
+    let key = substitute(a:vars[i], a:prefix, '', '')
+    let res[key] = get(values, i)
+  endfor
+  return res
+endfunction "}}}
+
+function! maque#tmux#info(cmd, vars, prefix) abort "{{{
+  let format = join(map(copy(a:vars), '''#{'' . v:val . ''}'''), ' ')
+  let output = split(s:tmux(a:cmd . ' -F ''' . format . ''''), "\n")
+  let values =
+        \ map(copy(output), 's:parse_tmux_output(v:val, a:vars, a:prefix)')
+  return values
+endfunction "}}}
+
+function! maque#tmux#window_info(vars) abort "{{{
+  return maque#tmux#info('list-windows -t ' . g:maque_tmux_window,
+        \ a:vars, 'window_')
+endfunction "}}}
+
+function! maque#tmux#vim_window_info(vars) abort "{{{
+  return maque#tmux#window_info(a:vars)[g:maque_tmux_window]
+endfunction "}}}
+
+function! maque#tmux#window_size() abort "{{{
+  let info = maque#tmux#vim_window_info(
+        \ ['window_id', 'window_width', 'window_height'])
+  return [info.width, info.height]
+endfunction "}}}
+
+function! maque#tmux#window_width() abort "{{{
+  return maque#tmux#window_size()[0]
+endfunction "}}}
+
+function! maque#tmux#setup_metadata() abort "{{{
+  let panes = maque#tmux#pane#all(1)
+  let pane = panes[g:maque_vim.id]
+  let g:maque_tmux_window = pane.window_id
+endfunction "}}}
+
 function! maque#tmux#quit() abort "{{{
   call maque#tmux#close_all()
   let g:maque_tmux_panes = {}

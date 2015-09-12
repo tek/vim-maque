@@ -4,6 +4,10 @@ use_cache = 0
 cached_panes = {}
 cache_valid = 0
 
+def tmux(cmd)
+  return maque#tmux#command_output(a:cmd)
+end
+
 def maque#tmux#pane#enable_cache
   maque#tmux#pane#disable_cache()
   maque#tmux#pane#all()
@@ -18,30 +22,32 @@ def maque#tmux#pane#invalidate_cache
   s:cache_valid = 0
 end
 
-def parse_tmux_output(line)
+def parse_tmux_output(line, vars)
   values = split(line)
-  return {
-        \ 'id': get(values, 0, ''),
-        \ 'pid': get(values, 1, 1) + 0,
-        \ 'width': get(values, 2, 0) + 0,
-        \ 'height': get(values, 3, 0) + 0,
-        \ 'left': get(values, 4, 0) + 0,
-        \ 'top': get(values, 5, 0) + 0,
-        \ 'mode': get(values, 6, 0) + 0,
-        \ }
+  res = {}
+  for i in range(len(vars))
+    key = substitute(vars[i], 'pane_', '', '')
+    res[key] = get(values, i)
+  end
+  return res
+end
+
+def maque#tmux#pane#info(vars)
+  format = join(map(copy(vars), '''#{'' . v:val . ''}'''), ' ')
+  output = split(s:tmux('list-panes -a -F ''' . format . ''''), "\n")
+  values = map(copy(output), 's:parse_tmux_output(v:val, a:vars)')
+  return values
 end
 
 def maque#tmux#pane#all(*args)
   force = get(args, 0)
   if !s:use_cache || force || !s:cache_valid
-    cmd = 'list-panes -a -F "#{pane_id} #{pane_pid} #{pane_width}' .
-          \ ' #{pane_height} #{pane_left} #{pane_top} #{pane_in_mode}"'
-    lines = split(maque#tmux#command_output(cmd), "\n")
-    s:cached_panes = {}
     s:cache_valid = 1
-    for line in lines
-      data = parse_tmux_output(line)
-      s:cached_panes[data.id] = data
+    vars = split(
+          \ 'pane_id pane_pid pane_width pane_height pane_left pane_top ' .
+          \ 'pane_in_mode window_id')
+    for pane in maque#tmux#info('list-panes -a', vars, 'pane_')
+      s:cached_panes[pane.id] = pane
     end
   end
   return s:cached_panes
