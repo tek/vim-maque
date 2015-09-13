@@ -536,4 +536,5 @@ endfunction
 
 function! maque#shutdown()
   call maque#quit()
+  call maque#util#silent('doautocmd VimLeavePre obsession')
 endfunction
