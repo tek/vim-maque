@@ -196,7 +196,7 @@ endfunction
 
 function! maque#init_command(generic, pane, command) abort
   call maque#add_service_pane(a:generic.name, a:generic.layout, a:pane)
-  if a:generic.start && maque#autostart_ok()
+  if a:generic.start && maque#autostart_commands()
     call maque#run_command(a:command.name)
   endif
 endfunction
@@ -503,8 +503,8 @@ function! maque#make_all(...) abort
   return maque#make()
 endfunction
 
-function! maque#autostart_ok() abort
-  return !argc()
+function! maque#autostart_commands() abort
+  return g:maque_autostart_commands
 endfunction
 
 function! maque#reset() abort
@@ -514,7 +514,7 @@ function! maque#reset() abort
   call maque#init()
 endfunction
 
-function! maque#init() abort
+function! maque#start() abort
   call maque#load_maqueprg()
   call maque#command#init()
   call maque#util#exec_handler('init')
@@ -530,11 +530,19 @@ endfunction
 
 function! maque#startup()
   if maque#util#want('autostart')
-    call maque#init()
+    call maque#start()
   endif
 endfunction
 
 function! maque#shutdown()
   call maque#quit()
   call maque#util#silent('doautocmd VimLeavePre obsession')
+endfunction
+
+function! maque#startup_prevention_checker()
+  return (argc() ># 0 && argv(0) =~# '\.git') || exists('g:maque_remote') || exists('$NO_MAQUE')
+endfunction
+
+function! maque#no_autostart()
+  let g:maque_autostart = 0
 endfunction

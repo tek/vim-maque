@@ -7,6 +7,8 @@ endif
 "{{{ options
 let g:maque_config_defaults = {
       \ 'autostart': 1,
+      \ 'autostart_commands': 1,
+      \ 'startup_prevention_checker': 'maque#startup_prevention_checker',
       \ 'handler': 'tmux',
       \ 'makeprg_set': 0,
       \ 'jump_to_error': 'first',
@@ -34,7 +36,10 @@ let g:_maque_scheduled_tasks = []
 
 "{{{ mappings & commands
 let g:maque_mappings = [
+      \ ['start', '', 0],
+      \ ['quit', '', 0],
       \ ['reset', '', 0],
+      \ ['no-autostart', '', 0],
       \ ['cycle', '', 0],
       \ ['parse', '', '?'],
       \ ['run-command', '', 1],

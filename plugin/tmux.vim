@@ -14,11 +14,6 @@ let g:maque_tmux_config_defaults = {
 
 call maque#interface#config_options(g:maque_tmux_config_defaults, 'tmux')
 
-if (argc() > 0 && argv(0) =~ '\.git') || exists('g:maque_remote')
-      \ || exists('$NO_MAQUE')
-  let g:maque_tmux_default_panes = 0
-  let g:maque_tmux_custom_panes = 0
-endif
 "}}}
 
 let g:maque_tmux_layouts = {}
