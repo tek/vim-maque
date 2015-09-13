@@ -91,7 +91,7 @@ class Command
 
   defm make_directly(cmdline, replace=true)
     g:maque_making_command = self.name
-    maque#util#silent('doautocmd User MaqueCommandMake')
+    maque#util#mautocmd('CommandMake')
     self.run_deps()
     pane = self.pane()
     pane.compiler = self.compiler
@@ -274,7 +274,7 @@ def maque#command#init()
   if maque#util#want('add_default_commands') &&
         \ maque#util#not_want('remote', 'default_commands_added')
     maque#command#start_default_commands()
-    " maque#util#silent('doautocmd User MaqueCommandsCreated')
+    maque#util#mautocmd('CommandsCreated')
   endif
 end
 

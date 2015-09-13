@@ -15,7 +15,7 @@ function! maque#tmux#make_pane(pane, cmd, ...) "{{{
   let replace = a:0 ? a:1 : 1
   let g:maque_making_pane = a:pane.name
   let g:maque_making_cmdline = a:cmd
-  call maque#util#silent('doautocmd User MaqueTmuxMake')
+  call maque#util#tautocmd('Make')
   call maque#tmux#pane#enable_cache()
   call a:pane.create_and_make(a:cmd, replace)
   call maque#tmux#pane#disable_cache()
@@ -432,10 +432,10 @@ function! maque#tmux#init() abort "{{{
     call maque#tmux#setup_metadata()
     if maque#util#want('tmux_default_panes')
       call maque#tmux#create_default_panes()
-      call maque#util#silent('doautocmd User MaqueTmuxDefaultPanesCreated')
+      call maque#util#tautocmd('DefaultPanesCreated')
     endif
     let g:maque_tmux_panes_created = 1
-    call maque#util#silent('doautocmd User MaqueTmuxPanesCreated')
+    call maque#util#tautocmd('PanesCreated')
   endif
 endfunction "}}}
 

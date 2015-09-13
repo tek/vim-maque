@@ -196,6 +196,7 @@ function! maque#util#run_scheduled_tasks() abort "{{{
   for info in g:_maque_scheduled_tasks
     call call(info[0], info[1])
   endfor
+  call maque#util#mautocmd('InitializedPre')
 endfunction "}}}
 
 function! maque#util#true() abort "{{{
@@ -233,4 +234,16 @@ function! maque#util#fargs(action, nargs, args) abort "{{{
     throw 'wrong argument count for ''' . a:action . ''': ' . len(fargs)
           \ . ', allowed: ' . string(a:nargs)
   end
+endfunction "}}}
+
+function! maque#util#doautocmd(event, ident) abort "{{{
+  call maque#util#silent('doautocmd ' . a:event . ' ' . a:ident)
+endfunction "}}}
+
+function! maque#util#mautocmd(ident) abort "{{{
+  call maque#util#doautocmd('User', 'Maque' . a:ident)
+endfunction "}}}
+
+function! maque#util#tautocmd(ident) abort "{{{
+  call maque#util#mautocmd('Tmux' . a:ident)
 endfunction "}}}

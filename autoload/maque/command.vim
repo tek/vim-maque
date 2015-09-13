@@ -139,7 +139,7 @@ function! s:Command_make_directly(cmdline, ...) dict
     let replace = 1
   endif
   let g:maque_making_command = self.name
-  call maque#util#silent('doautocmd User MaqueCommandMake')
+  call maque#util#mautocmd('CommandMake')
   call self.run_deps()
   let pane = self.pane()
   let pane.compiler = self.compiler
@@ -325,6 +325,7 @@ endfunction
 function! maque#command#init()
   if maque#util#want('add_default_commands') && maque#util#not_want('remote', 'default_commands_added')
     call maque#command#start_default_commands()
+    call maque#util#mautocmd('CommandsCreated')
   endif
 endfunction
 
