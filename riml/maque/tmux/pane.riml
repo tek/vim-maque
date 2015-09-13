@@ -397,8 +397,18 @@ class Pane < g:View
     maque#tmux#command('copy-mode -t ' . self.id)
   end
 
+  defm copy_mode_wait
+    self.copy_mode()
+    maque#util#wait_until_dict('maque#tmux#pane#copy_mode_active', [self])
+  end
+
+  defm copy_mode_active
+    maque#tmux#pane#invalidate_cache()
+    return self.open() && get(self.metadata(), 'in_mode')
+  end
+
   defm quit_copy_mode
-    if self.open() && get(self.metadata(), 'in_mode')
+    if self.copy_mode_active()
       self.send_keys('c-c')
     end
   end
@@ -437,4 +447,8 @@ end
 
 def maque#tmux#pane#new_vim(params={})
   return new VimPane(params)
+end
+
+def maque#tmux#pane#copy_mode_active(pane)
+  return pane.copy_mode_active()
 end

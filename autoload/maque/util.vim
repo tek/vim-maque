@@ -160,6 +160,15 @@ function! maque#util#wait_until(predicate, ...) "{{{
   endwhile
 endfunction "}}}
 
+function! maque#util#wait_until_dict(...) "{{{
+  let counter = 0
+  let timeout = get(a:000, 0, 10)
+  while !call('call', a:000) && counter < timeout
+    sleep 200m
+    let counter += 1
+  endwhile
+endfunction "}}}
+
 function! maque#util#parse_args(args, min_num, max_num) abort "{{{
   try
     sandbox let parsed = eval('[' . a:args . ']')

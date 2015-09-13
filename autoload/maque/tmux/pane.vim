@@ -280,6 +280,8 @@ function! s:PaneConstructor(name, ...)
   let paneObj.pane_id = function('<SNR>' . s:SID() . '_Pane_pane_id')
   let paneObj.clear_log = function('<SNR>' . s:SID() . '_Pane_clear_log')
   let paneObj.copy_mode = function('<SNR>' . s:SID() . '_Pane_copy_mode')
+  let paneObj.copy_mode_wait = function('<SNR>' . s:SID() . '_Pane_copy_mode_wait')
+  let paneObj.copy_mode_active = function('<SNR>' . s:SID() . '_Pane_copy_mode_active')
   let paneObj.quit_copy_mode = function('<SNR>' . s:SID() . '_Pane_quit_copy_mode')
   let paneObj.show = function('<SNR>' . s:SID() . '_Pane_show')
   return paneObj
@@ -581,8 +583,18 @@ function! s:Pane_copy_mode() dict
   call maque#tmux#command('copy-mode -t ' . self.id)
 endfunction
 
+function! s:Pane_copy_mode_wait() dict
+  call self.copy_mode()
+  call maque#util#wait_until_dict('maque#tmux#pane#copy_mode_active', [self])
+endfunction
+
+function! s:Pane_copy_mode_active() dict
+  call maque#tmux#pane#invalidate_cache()
+  return self.open() && get(self.metadata(), 'in_mode')
+endfunction
+
 function! s:Pane_quit_copy_mode() dict
-  if self.open() && get(self.metadata(), 'in_mode')
+  if self.copy_mode_active()
     call self.send_keys('c-c')
   endif
 endfunction
@@ -639,4 +651,8 @@ function! maque#tmux#pane#new_vim(...)
     let params = {}
   endif
   return s:VimPaneConstructor(params)
+endfunction
+
+function! maque#tmux#pane#copy_mode_active(pane)
+  return a:pane.copy_mode_active()
 endfunction
