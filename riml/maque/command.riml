@@ -218,8 +218,7 @@ class RemoteVim < Command
       if self.main
         self._server_name = v:servername
       else
-        id = maque#tmux#vim_id()
-        self._server_name = "maque_#{id}_#{self.name}"
+        self._server_name = "maque_#{g:maque_tmux_vim_pane_id}_#{self.name}"
       end
     end
     return self._server_name

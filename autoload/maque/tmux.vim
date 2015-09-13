@@ -327,7 +327,7 @@ function! maque#tmux#set_vim_id() abort "{{{
   for pane in values(panes)
     let children = maque#util#child_pids(pane.pid)
     if len(children) && children[0][0] == pid
-      let g:maque_vim_pane_id = pane.id
+      let g:maque_tmux_vim_pane_id = pane.id
       return 1
     endif
   endfor
@@ -335,11 +335,11 @@ endfunction "}}}
 
 function! maque#tmux#wait_for_vim_id() abort "{{{
   call maque#util#wait_until('maque#tmux#set_vim_id()', 2)
-  if !exists('g:maque_vim_pane_id') ||
-        \ !maque#tmux#is_valid_id(g:maque_vim_pane_id)
+  if !exists('g:maque_tmux_vim_pane_id') ||
+        \ !maque#tmux#is_valid_id(g:maque_tmux_vim_pane_id)
     throw 'could not determine vim''s pane id'
   endif
-  return g:maque_vim_pane_id
+  return g:maque_tmux_vim_pane_id
 endfunction "}}}
 
 " called by autocmd MaqueTmuxPanesCreated, after

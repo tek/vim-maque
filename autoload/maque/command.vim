@@ -269,8 +269,7 @@ function! s:RemoteVim_server_name() dict
     if self.main
       let self._server_name = v:servername
     else
-      let id = maque#tmux#vim_id()
-      let self._server_name = "maque_" . id . "_" . self.name
+      let self._server_name = "maque_" . g:maque_tmux_vim_pane_id . "_" . self.name
     endif
   endif
   return self._server_name
