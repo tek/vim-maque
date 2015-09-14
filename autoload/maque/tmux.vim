@@ -203,16 +203,12 @@ endfunction "}}}
 
 " kill the running process and wait until it is dead
 function! maque#tmux#kill_wait(...) "{{{
-  return maque#tmux#pane_action('kill_wait')
+  return call('maque#tmux#pane_action', ['kill_wait'] + a:000)
 endfunction "}}}
 
 " minimize a pane
 function! maque#tmux#minimize(...) "{{{
   return call('maque#tmux#pane_action', ['minimize'] + a:000)
-endfunction "}}}
-
-function! maque#tmux#minimize_pane(...) abort "{{{
-  return call('maque#tmux#minimize', a:000)
 endfunction "}}}
 
 " kill the process running in the active pane with all available signals until
