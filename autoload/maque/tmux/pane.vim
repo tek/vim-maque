@@ -237,7 +237,7 @@ function! s:PaneConstructor(name, ...)
     let params = {}
   endif
   let paneObj = {}
-  let attrs = {'id': -1, 'errorfile': tempname(), '_splitter': 'tmux neww -d', 'eval_splitter': 0, 'capture': 1, 'autoclose': 0, '_last_killed': 0, '_killed': 0, 'shell_pid': 0, 'command_pid': 0, 'wait_before_autoclose': 2, 'create_minimized': 0, 'restore_on_make': 1, 'kill_running_on_make': 1, 'focus_on_make': 0, 'manual_termination': 0, 'layout': 0, 'minimal_shell': 0, 'compiler': '', 'shell': 0}
+  let attrs = {'id': -1, 'errorfile': tempname(), '_splitter': 'tmux neww -d', 'eval_splitter': 0, 'capture': 1, 'autoclose': 0, '_last_killed': 0, '_killed': 0, 'shell_pid': 0, 'command_pid': 0, 'wait_before_autoclose': 2, 'create_minimized': 0, 'restore_on_make': 1, 'kill_running_on_make': 1, 'focus_on_make': 0, 'manual_termination': 0, 'layout': 0, 'minimal_shell': 0, 'compiler': '', 'shell': 0, 'kill_signals': g:maque_tmux_kill_signals}
   call extend(attrs, params)
   let paneObj.command_executable = ''
   let paneObj.spawning_make = 0
@@ -284,6 +284,7 @@ function! s:PaneConstructor(name, ...)
   let paneObj.copy_mode_active = function('<SNR>' . s:SID() . '_Pane_copy_mode_active')
   let paneObj.quit_copy_mode = function('<SNR>' . s:SID() . '_Pane_quit_copy_mode')
   let paneObj.show = function('<SNR>' . s:SID() . '_Pane_show')
+  let paneObj.next_signal = function('<SNR>' . s:SID() . '_Pane_next_signal')
   return paneObj
 endfunction
 
@@ -383,7 +384,7 @@ function! s:Pane_kill(...) dict
       let self._last_killed = self.command_pid
     endif
     if !(force_signal)
-      let signal = s:next_signal(self._killed)
+      let signal = self.next_signal(self._killed)
     endif
     call self._kill(signal)
     if !(force_signal)
@@ -401,7 +402,7 @@ function! s:Pane__kill(signal) dict
 endfunction
 
 function! s:Pane_kill_wait() dict
-  for index in range(len(g:maque_tmux_kill_signals))
+  for index in range(len(self.kill_signals))
     call self.kill()
     if !(self.process_alive())
       return 1
@@ -603,8 +604,8 @@ function! s:Pane_show() dict
   return ['[' . self.name . '] (' . self.size . ')']
 endfunction
 
-function! s:next_signal(idx)
-  let sigs = g:maque_tmux_kill_signals
+function! s:Pane_next_signal(idx) dict
+  let sigs = self.kill_signals
   return sigs[min([a:idx, len(sigs) - 1])]
 endfunction
 

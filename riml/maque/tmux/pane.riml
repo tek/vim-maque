@@ -102,6 +102,7 @@ class Pane < g:View
           \ 'minimal_shell': 0,
           \ 'compiler': '',
           \ 'shell': 0,
+          \ 'kill_signals': g:maque_tmux_kill_signals,
           \ }
     extend(attrs, params)
     self.command_executable = ''
@@ -190,7 +191,7 @@ class Pane < g:View
   end
 
   " Send a signal to the command.
-  " Iterates g:maque_tmux_kill_signals for subsequent calls until the process
+  " Iterates kill_signals for subsequent calls until the process
   " is dead (default INT, TERM, KILL)
   " Argument overrides the employed signal and does not advance the current
   " signal.
@@ -201,7 +202,7 @@ class Pane < g:View
         self._killed = 0
         self._last_killed = self.command_pid
       end
-      signal = next_signal(self._killed) unless force_signal
+      signal = self.next_signal(self._killed) unless force_signal
       self._kill(signal)
       self._killed += 1 unless force_signal
       return 1
@@ -216,7 +217,7 @@ class Pane < g:View
   end
 
   defm kill_wait
-    for index in range(len(g:maque_tmux_kill_signals))
+    for index in range(len(self.kill_signals))
       self.kill()
       return 1 unless self.process_alive()
       sleep 1
@@ -416,11 +417,11 @@ class Pane < g:View
   defm show
     return ['[' . self.name . '] (' . self.size . ')']
   end
-end
 
-def next_signal(idx)
-  sigs = g:maque_tmux_kill_signals
-  return sigs[min([idx, len(sigs)-1])]
+  defm next_signal(idx)
+    sigs = self.kill_signals
+    return sigs[min([idx, len(sigs)-1])]
+  end
 end
 
 def maque#tmux#pane#new(name, params={})
