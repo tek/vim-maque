@@ -129,7 +129,6 @@ class Command
 
   defm ensure_running
     if !self.running()
-      :echo 'ensure_running launching command ' . self.name
       self.make()
     end
   end

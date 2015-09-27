@@ -176,7 +176,6 @@ endfunction
 
 function! s:Command_ensure_running() dict
   if !self.running()
-    echo 'ensure_running launching command ' . self.name
     call self.make()
   endif
 endfunction
