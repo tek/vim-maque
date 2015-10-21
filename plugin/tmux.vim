@@ -36,6 +36,7 @@ let g:maque_tmux_mappings = [
       \ ['toggle-layout'],
       \ ['minimize-pane'],
       \ ['minimize-layout'],
+      \ ['zoom-pane'],
       \ ['reset-capture'],
       \ ['cycle-panes'],
       \ ['cycle-panes'],

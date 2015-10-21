@@ -263,6 +263,7 @@ function! s:PaneConstructor(name, ...)
   let paneObj.set_preferred_size = function('<SNR>' . s:SID() . '_Pane_set_preferred_size')
   let paneObj.resize = function('<SNR>' . s:SID() . '_Pane_resize')
   let paneObj.focus = function('<SNR>' . s:SID() . '_Pane_focus')
+  let paneObj.zoom = function('<SNR>' . s:SID() . '_Pane_zoom')
   let paneObj.pipe_to_file = function('<SNR>' . s:SID() . '_Pane_pipe_to_file')
   let paneObj.pipe_cmd = function('<SNR>' . s:SID() . '_Pane_pipe_cmd')
   let paneObj.reset_capture = function('<SNR>' . s:SID() . '_Pane_reset_capture')
@@ -470,6 +471,10 @@ endfunction
 
 function! s:Pane_focus() dict
   call maque#tmux#command('select-pane -t ' . self.id)
+endfunction
+
+function! s:Pane_zoom() dict
+  call maque#tmux#command('resize-pane -Z -t ' . self.id)
 endfunction
 
 function! s:Pane_pipe_to_file() dict

@@ -222,6 +222,11 @@ function! maque#tmux#toggle_pane(...) "{{{
   return call('maque#tmux#pane_action', ['toggle'] + a:000)
 endfunction "}}}
 
+" zoom the specified pane, default to active
+function! maque#tmux#zoom_pane(...) "{{{
+  return call('maque#tmux#pane_action', ['zoom'] + a:000)
+endfunction "}}}
+
 " open the specified pane, default to active
 function! maque#tmux#open(...) "{{{
   return call('maque#tmux#pane_action', ['open'] + a:000)

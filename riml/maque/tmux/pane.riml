@@ -284,6 +284,10 @@ class Pane < g:View
     maque#tmux#command('select-pane -t '.self.id)
   end
 
+  defm zoom
+    maque#tmux#command('resize-pane -Z -t '.self.id)
+  end
+
   defm pipe_to_file
     filter = g:maque_tmux_filter_escape_sequences ?
           \ g:maque_tmux_pane_escape_filter : 'tee'
