@@ -338,6 +338,11 @@ function! s:Pane_make(cmd, ...) dict
   else
     let replace = 1
   endif
+  if !empty(__splat_var_cpy)
+    let capture = remove(__splat_var_cpy, 0)
+  else
+    let capture = 0
+  endif
   call maque#util#debug('pane ' . self.name . ' making ''' . a:cmd . '''')
   if self.ready_for_make(replace)
     if self.minimized && self.restore_on_make
@@ -345,7 +350,7 @@ function! s:Pane_make(cmd, ...) dict
     endif
     call self.quit_copy_mode()
     call self.send(a:cmd)
-    if self.capture
+    if self.capture && capture
       if !self.manual_termination
         call self.send(' tmux ' . self.pipe_cmd())
       endif

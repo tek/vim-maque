@@ -19,6 +19,7 @@ class Command
           \ 'deps': [],
           \ 'envs': [],
           \ 'current_env': 0,
+          \ 'capture': 1,
           \ }
     extend(commandObj, attrs)
     extend(commandObj, params)
@@ -95,7 +96,7 @@ class Command
     self.run_deps()
     pane = self.pane()
     pane.compiler = self.compiler
-    maque#make_pane(pane, cmdline, self.handler, replace)
+    maque#make_pane(pane, cmdline, self.handler, replace, self.capture)
     g:maque_making_command = ''
   end
 

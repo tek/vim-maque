@@ -152,7 +152,7 @@ class Pane < g:View
     end
   end
 
-  defm make(cmd, replace=1)
+  defm make(cmd, replace=1, capture=0)
     maque#util#debug('pane ' . self.name . ' making ''' . cmd . '''')
     if self.ready_for_make(replace)
       if self.minimized && self.restore_on_make
@@ -160,7 +160,7 @@ class Pane < g:View
       end
       self.quit_copy_mode()
       self.send(cmd)
-      if self.capture
+      if self.capture && capture
         if !self.manual_termination
           " send the pipe canceling command now, so that it executes as soon as the
           " make command is finished

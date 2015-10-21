@@ -281,12 +281,15 @@ function! maque#process_service_args(args) abort
   let pane = get(a:args, 1, {})
   let generic = {'command': a:args[0], 'start': s:pop(pane, 'start'), 'layout': s:pop(pane, 'layout', 'make')}
   let generic.name = s:pop(pane, 'name', split(generic['command'], ' ')[0])
-  let cmd = {'compiler': s:pop(pane, 'compiler', ''), 'name': generic['name'], 'pane': generic['name']}
+  let generic.pane = s:pop(pane, 'pane', generic.name)
+  let cmd = {'compiler': s:pop(pane, 'compiler', ''), 'name': generic['name'], 'pane': generic['pane']}
   return [generic, pane, cmd]
 endfunction
 
 function! maque#create_service(generic, pane, cmd) abort
-  let comm = maque#_create_command(a:generic.name, a:generic.command, a:cmd)
+  let default = {'capture': get(a:generic, 'capture', 0)}
+  let args = extend(default, a:cmd)
+  let comm = maque#_create_command(a:generic.name, a:generic.command, args)
   call maque#init_command(a:generic, a:pane, comm)
 endfunction
 

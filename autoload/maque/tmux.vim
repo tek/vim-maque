@@ -17,7 +17,7 @@ function! maque#tmux#make_pane(pane, cmd, ...) "{{{
   let g:maque_making_cmdline = a:cmd
   call maque#util#tautocmd('Make')
   call maque#tmux#pane#enable_cache()
-  call a:pane.create_and_make(a:cmd, replace)
+  call call(a:pane.create_and_make, [a:cmd] + a:000, a:pane)
   call maque#tmux#pane#disable_cache()
   unlet g:maque_making_pane
   unlet g:maque_making_cmdline

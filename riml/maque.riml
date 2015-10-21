@@ -241,16 +241,21 @@ def maque#process_service_args(args) abort
         \ 'layout': s:pop(pane, 'layout', 'make'),
         \ }
   generic.name = s:pop(pane, 'name', split(generic['command'], ' ')[0])
+  generic.pane = s:pop(pane, 'pane', generic.name)
   cmd = {
         \ 'compiler': s:pop(pane, 'compiler', ''),
         \ 'name': generic['name'],
-        \ 'pane': generic['name'],
+        \ 'pane': generic['pane'],
         \ }
   return [generic, pane, cmd]
 end
 
 def maque#create_service(generic, pane, cmd) abort
-  comm = maque#_create_command(generic.name, generic.command, cmd)
+  default = {
+        \ 'capture': get(generic, 'capture', 0),
+        \ }
+  args = extend(default, cmd)
+  comm = maque#_create_command(generic.name, generic.command, args)
   maque#init_command(generic, pane, comm)
 end
 
