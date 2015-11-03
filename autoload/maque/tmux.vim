@@ -41,6 +41,8 @@ function! maque#tmux#parse(...) "{{{
       execute 'compiler ' . compiler_before
     endif
     return 1
+  else
+    call maque#util#debug('no errorfile for pane ' . pane.name)
   endif
 endfunction "}}}
 
