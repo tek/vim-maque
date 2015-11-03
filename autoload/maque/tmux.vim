@@ -177,11 +177,11 @@ function! maque#tmux#pane_action(action, ...) abort "{{{
   endif
 endfunction "}}}
 
-function! maque#tmux#layout_action(action, nargs, args) abort "{{{
+function! maque#tmux#layout_action(action, nargs, args, default) abort "{{{
   call maque#tmux#pane#enable_cache()
   try
     let fargs = maque#util#fargs(a:action, a:nargs, a:args)
-    let name = get(fargs, 0, '')
+    let name = get(fargs, 0, a:default)
     let layout = get(g:maque_tmux_layouts, name, s:layout())
     call call(layout[a:action], fargs[1:], layout)
   catch /wrong argument count/
@@ -191,11 +191,23 @@ function! maque#tmux#layout_action(action, nargs, args) abort "{{{
 endfunction "}}}
 
 function! maque#tmux#toggle_layout(args) abort "{{{
-  return maque#tmux#layout_action('toggle', [0, 1], a:args)
+  return maque#tmux#layout_action('toggle', [0, 1], a:args, 'make')
 endfunction "}}}
 
 function! maque#tmux#minimize_layout(args) abort "{{{
-  return maque#tmux#layout_action('minimize', [0, 1], a:args)
+  return maque#tmux#layout_action('minimize', [0, 1], a:args, 'make')
+endfunction "}}}
+
+function! maque#tmux#pack(args) abort "{{{
+  return maque#tmux#layout_action('pack', [0, 1], a:args, 'main')
+endfunction "}}}
+
+function! maque#tmux#pack_all(args) abort "{{{
+  return maque#tmux#layout_action('pack_recursive', [0, 1], a:args, 'main')
+endfunction "}}}
+
+function! maque#tmux#set_layout_size(args) abort "{{{
+  return maque#tmux#layout_action('set_size', [2], a:args, '')
 endfunction "}}}
 
 " kill the running process
@@ -259,10 +271,6 @@ endfunction "}}}
 " clear the specified pane, default to active
 function! maque#tmux#clear_log(...) "{{{
   return call('maque#tmux#pane_action', ['clear_log'] + a:000)
-endfunction "}}}
-
-function! maque#tmux#set_layout_size(args) abort "{{{
-  return maque#tmux#layout_action('set_size', [2], a:args)
 endfunction "}}}
 
 " send input to the specified pane
