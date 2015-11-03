@@ -227,9 +227,9 @@ function! maque#util#silent(cmd) abort "{{{
 endfunction "}}}
 
 function! maque#util#fargs(action, nargs, args) abort "{{{
-  let fags = split(a:args)
-  if index(a:nargs, len(fags)) >= 0
-    return fags
+  let fargs = split(a:args)
+  if index(a:nargs, len(fargs)) >= 0
+    return fargs
   else
     throw 'wrong argument count for ''' . a:action . ''': ' . len(fargs)
           \ . ', allowed: ' . string(a:nargs)
