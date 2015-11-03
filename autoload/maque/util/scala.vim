@@ -1,7 +1,14 @@
 function! maque#util#scala#package() abort "{{{
-  let pkgline = getline(1)
-  let package = substitute(pkgline, 'package \(.*\)', '\1', '')
-  return package == pkgline ? '' : package
+  let i = 1
+  let pkgline = ''
+  while getline(i) =~ '^package .*'
+    if i != 1
+      let pkgline .= '.'
+    endif
+    let pkgline .= substitute(getline(i), 'package \(.*\)', '\1', '')
+    let i += 1
+  endwhile
+  return pkgline
 endfunction "}}}
 
 function! maque#util#scala#test_class() abort "{{{
