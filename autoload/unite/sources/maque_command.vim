@@ -89,9 +89,9 @@ function! s:CommandSource_format_candidate(name, longest_name, longest_command) 
 endfunction
 
 function! s:CommandSource_init_syntax() dict
-  syntax match uniteSource__MaqueCommand_name /\%(^\s*\[\)\@<=[^\]]\+/ 
+  syntax match uniteSource__MaqueCommand_name /\%(^\s*\[\)\@<=[^\]]\+/
   \ containedin=uniteSource__MaqueCommand contained
-  syntax match uniteSource__MaqueCommand_bracket /[\[\]]/ 
+  syntax match uniteSource__MaqueCommand_bracket /[\[\]]/
   \ containedin=uniteSource__MaqueCommand contained
   highlight link uniteSource__MaqueCommand_name Type
   highlight link uniteSource__MaqueCommand_bracket Identifier

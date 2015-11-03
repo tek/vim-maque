@@ -15,7 +15,8 @@ class CommandSource < g:MaqueUniteSource
 
   defm gather_candidates(args, context)
     longest_name = max(map(keys(g:maque_commands), 'len(v:val)'))
-    longest_command = max(map(values(g:maque_commands), 'len(v:val.cmd_compact())'))
+    longest_command =
+          \ max(map(values(g:maque_commands), 'len(v:val.cmd_compact())'))
     return map(keys(g:maque_commands),
           \ 'self.format_candidate(v:val, longest_name, longest_command)')
   end
@@ -25,7 +26,7 @@ class CommandSource < g:MaqueUniteSource
     pane = cmd.pane()
     pad_name = repeat(' ', longest_name - len(name))
     pad_cmd = repeat(' ', longest_command - len(cmd.cmd_compact()))
-    line = '['. name .']  '. pad_name . cmd.cmd_compact() . pad_cmd . 
+    line = '['. name .']  '. pad_name . cmd.cmd_compact() . pad_cmd .
           \ '  ['.pane.description() .']'
     return {
           \ 'word': line,
@@ -34,9 +35,9 @@ class CommandSource < g:MaqueUniteSource
   end
 
   defm init_syntax
-    :syntax match uniteSource__MaqueCommand_name /\%(^\s*\[\)\@<=[^\]]\+/ 
+    :syntax match uniteSource__MaqueCommand_name /\%(^\s*\[\)\@<=[^\]]\+/
           :\ containedin=uniteSource__MaqueCommand contained
-    :syntax match uniteSource__MaqueCommand_bracket /[\[\]]/ 
+    :syntax match uniteSource__MaqueCommand_bracket /[\[\]]/
           :\ containedin=uniteSource__MaqueCommand contained
     :highlight link uniteSource__MaqueCommand_name Type
     :highlight link uniteSource__MaqueCommand_bracket Identifier
