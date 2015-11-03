@@ -11,12 +11,13 @@ class g:View
           \ 'vertical': 1,
           \ 'size': 0,
           \ 'position': 0.5,
+          \ 'is_layout': 0,
           \ }
     extend(attrs, params)
     attrs.minimized_size = max([attrs.minimized_size, 2])
     extend(viewObj, attrs)
   end
-    
+
   defm toggle
     if self.open()
       if self.minimize_on_toggle

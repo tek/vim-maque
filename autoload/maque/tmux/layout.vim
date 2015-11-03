@@ -20,7 +20,7 @@ function! g:ViewConstructor(name, ...)
   endif
   let viewObj = {}
   let viewObj.name = a:name
-  let attrs = {'_original_size': [0, 0], 'minimized': 0, 'minimized_size': 2, 'minimize_on_toggle': get(g:, 'maque_tmux_minimize_on_toggle', 0), 'focus_on_restore': 0, 'vertical': 1, 'size': 0, 'position': 0.5}
+  let attrs = {'_original_size': [0, 0], 'minimized': 0, 'minimized_size': 2, 'minimize_on_toggle': get(g:, 'maque_tmux_minimize_on_toggle', 0), 'focus_on_restore': 0, 'vertical': 1, 'size': 0, 'position': 0.5, 'is_layout': 0}
   call extend(attrs, params)
   let attrs.minimized_size = max([attrs.minimized_size, 2])
   call extend(viewObj, attrs)
@@ -174,9 +174,11 @@ function! s:LayoutConstructor(name, args)
   let layoutObj.direction = get(a:args, 'direction', 'vertical')
   let layoutObj.layout = 0
   let layoutObj.id = 'layout ' . a:name
+  let layoutObj.is_layout = 1
   let layoutObj.add = function('<SNR>' . s:SID() . '_Layout_add')
   let layoutObj.create = function('<SNR>' . s:SID() . '_Layout_create')
   let layoutObj.create_pane = function('<SNR>' . s:SID() . '_Layout_create_pane')
+  let layoutObj.pack_recursive = function('<SNR>' . s:SID() . '_Layout_pack_recursive')
   let layoutObj.pack = function('<SNR>' . s:SID() . '_Layout_pack')
   let layoutObj.pack_pane = function('<SNR>' . s:SID() . '_Layout_pack_pane')
   let layoutObj.order_panes = function('<SNR>' . s:SID() . '_Layout_order_panes')
@@ -257,6 +259,15 @@ function! s:Layout_create_pane(pane) dict
     call a:pane.post_create()
     call self.pack()
   endif
+endfunction
+
+function! s:Layout_pack_recursive() dict
+  call self.pack()
+  for pane in s:Layout_open_panes(self)
+    if pane.is_layout
+      call pane.pack()
+    endif
+  endfor
 endfunction
 
 function! s:Layout_pack() dict

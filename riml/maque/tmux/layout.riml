@@ -20,6 +20,7 @@ class Layout < g:View
     self.direction = get(a:args, 'direction', 'vertical')
     self.layout = 0
     self.id = 'layout ' . a:name
+    self.is_layout = 1
   end
 
   defm add(view)
@@ -58,6 +59,15 @@ class Layout < g:View
       end
       pane.post_create()
       self.pack()
+    end
+  end
+
+  defm pack_recursive
+    self.pack()
+    for pane in self.open_panes()
+      if pane.is_layout
+        pane.pack()
+      end
     end
   end
 
