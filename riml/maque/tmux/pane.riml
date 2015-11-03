@@ -152,7 +152,7 @@ class Pane < g:View
     end
   end
 
-  defm make(cmd, replace=1, capture=0)
+  defm make(cmd, replace=true, capture=false)
     maque#util#debug('pane ' . self.name . ' making ''' . cmd . '''')
     if self.ready_for_make(replace)
       if self.minimized && self.restore_on_make
@@ -162,14 +162,14 @@ class Pane < g:View
       self.send(cmd)
       if self.capture && capture
         if !self.manual_termination
-          " send the pipe canceling command now, so that it executes as soon as the
-          " make command is finished
+          " send the pipe canceling command now, so that it executes as soon as
+          " the make command is finished
           " omit this if manual_termination is set, i.e. the program is
           " interactive or just doesn't terminate automatically (guard, log)
           self.send(' tmux '.self.pipe_cmd())
         end
-        " initiate the pipe to the errorfile after starting the command, so that it
-        " doesn't contain the command line
+        " initiate the pipe to the errorfile after starting the command, so
+        " that it doesn't contain the command line
         self.pipe_to_file()
       end
       if self.autoclose
