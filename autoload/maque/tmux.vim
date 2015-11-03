@@ -464,6 +464,7 @@ function! maque#tmux#create_basic_layout() abort "{{{
         \ 'capture': 0,
         \ }
         \ )
+  call g:maque_main_layout.add(g:maque_vim_layout)
   call g:maque_vim_layout.add(g:maque_vim)
   call g:maque_vim.open()
 endfunction "}}}
@@ -473,7 +474,6 @@ function! maque#tmux#create_default_panes() abort "{{{
         \ 'direction': 'vertical',
         \ }
         \ )
-  call g:maque_main_layout.add(g:maque_vim_layout)
   call g:maque_main_layout.add(make_layout)
   let main = maque#tmux#_add_pane_in_layout('main', 'make', {
         \ 'eval_splitter': 1,
