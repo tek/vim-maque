@@ -3,7 +3,8 @@ let g:maque_tmux_config_defaults = {
       \ 'main_split_cmd': 'split-window -h -d',
       \ 'bg_split_cmd': 'new-window -d',
       \ 'filter_escape_sequences': 1,
-      \ 'pane_escape_filter': "sed -u -e \"s/\r//g\" -e \"s/\e[[0-9;]*m//g\"",
+      \ 'pane_escape_filter':
+      \   'sed -u -e ''s/\r//g'' -e ''s/\x1b\[[0-9;]*m//g''',
       \ 'kill_signals': ['INT', 'TERM', 'KILL'],
       \ 'minimize_on_toggle': 1,
       \ 'error_pane': 'main',
