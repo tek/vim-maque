@@ -265,6 +265,7 @@ function! s:PaneConstructor(name, ...)
   let paneObj.focus = function('<SNR>' . s:SID() . '_Pane_focus')
   let paneObj.zoom = function('<SNR>' . s:SID() . '_Pane_zoom')
   let paneObj.pipe_to_file = function('<SNR>' . s:SID() . '_Pane_pipe_to_file')
+  let paneObj.pipe_to_file_cmd = function('<SNR>' . s:SID() . '_Pane_pipe_to_file_cmd')
   let paneObj.pipe_cmd = function('<SNR>' . s:SID() . '_Pane_pipe_cmd')
   let paneObj.reset_capture = function('<SNR>' . s:SID() . '_Pane_reset_capture')
   let paneObj.output = function('<SNR>' . s:SID() . '_Pane_output')
@@ -483,9 +484,13 @@ function! s:Pane_zoom() dict
 endfunction
 
 function! s:Pane_pipe_to_file() dict
+  call maque#tmux#command(self.pipe_to_file_cmd())
+endfunction
+
+function! s:Pane_pipe_to_file_cmd() dict
   let filter = g:maque_tmux_filter_escape_sequences ? g:maque_tmux_pane_escape_filter : 'tee'
   let redirect = filter . ' > ' . self.errorfile
-  call maque#tmux#command(self.pipe_cmd() . ' ' . shellescape(redirect))
+  return self.pipe_cmd() . ' ' . shellescape(redirect)
 endfunction
 
 function! s:Pane_pipe_cmd() dict
