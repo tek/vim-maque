@@ -371,7 +371,7 @@ def maque#commands()
 end
 
 def maque#command(name)
-  return maque#commands()[name]
+  return get(maque#commands(), name, {})
 end
 
 def maque#making(*names) abort

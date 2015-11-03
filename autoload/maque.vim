@@ -393,7 +393,7 @@ function! maque#commands()
 endfunction
 
 function! maque#command(name)
-  return maque#commands()[a:name]
+  return get(maque#commands(), a:name, {})
 endfunction
 
 function! maque#making(...) abort
