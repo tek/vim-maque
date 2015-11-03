@@ -30,7 +30,7 @@ function! maque#util#debug(msg) "{{{
 endfunction "}}}
 
 function! maque#util#want_debug() abort "{{{
-  return exists('$MAQUE_DEBUG')
+  return exists('$MAQUE_DEBUG') || exists('g:maque_debug')
 endfunction "}}}
 
 " returns true if all of the arguments are existing, true variables
