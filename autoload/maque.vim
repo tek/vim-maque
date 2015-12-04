@@ -40,9 +40,14 @@ function! maque#make_pane(pane, cmd, ...)
   else
     let replace = 1
   endif
+  if !empty(__splat_var_cpy)
+    let capture = remove(__splat_var_cpy, 0)
+  else
+    let capture = 0
+  endif
   let s:Handler = maque#util#handler_function('make_pane', '', handler)
   if type(s:Handler) ==# 2
-    call s:Handler(a:pane, a:cmd, replace)
+    call s:Handler(a:pane, a:cmd, replace, capture)
   else
     call maque#util#warn('no handler for executing commands in a pane!')
   endif

@@ -18,10 +18,11 @@ def maque#make_auto(*args)
   end
 end
 
-def maque#make_pane(pane, cmd, handler=g:maque_handler, replace=true)
+def maque#make_pane(pane, cmd, handler=g:maque_handler, replace=true,
+      \ capture=false)
   s:Handler = maque#util#handler_function('make_pane', '', handler)
   if type(s:Handler) == 2
-    s:Handler(pane, cmd, replace)
+    s:Handler(pane, cmd, replace, capture)
   else
     maque#util#warn('no handler for executing commands in a pane!')
   end
