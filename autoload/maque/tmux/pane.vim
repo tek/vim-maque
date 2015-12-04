@@ -344,7 +344,7 @@ function! s:Pane_make(cmd, ...) dict
   else
     let capture = 0
   endif
-  call maque#util#debug('pane ' . self.name . ' making ''' . a:cmd . '''')
+  call maque#util#debug('pane ' . self.name . ' making ''' . a:cmd . '''' . ' replace: ' . replace . ', capture: ' . capture)
   if self.ready_for_make(replace)
     if self.minimized && self.restore_on_make
       call self.restore()

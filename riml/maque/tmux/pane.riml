@@ -153,7 +153,8 @@ class Pane < g:View
   end
 
   defm make(cmd, replace=true, capture=false)
-    maque#util#debug('pane ' . self.name . ' making ''' . cmd . '''')
+    maque#util#debug('pane ' . self.name . ' making ''' . cmd . '''' .
+          \ ' replace: ' . replace . ', capture: ' . capture)
     if self.ready_for_make(replace)
       if self.minimized && self.restore_on_make
         self.restore()

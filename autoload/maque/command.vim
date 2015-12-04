@@ -98,6 +98,7 @@ function! s:Command_make(...) dict
   else
     let replace = 1
   endif
+  call maque#util#debug('making command ''' . self.name . ''', replace: ' . replace)
   call self.make_cmdline(self.command(), replace)
 endfunction
 
@@ -108,6 +109,7 @@ function! s:Command_make_cmdline(cmdline, ...) dict
   else
     let replace = 1
   endif
+  call maque#util#debug('making cmdline ''' . a:cmdline . ''', replace: ' . replace)
   if self.run_in_shell()
     call self.shell_cmd().shell_make(a:cmdline, replace)
   else
@@ -143,6 +145,7 @@ function! s:Command_make_directly(cmdline, ...) dict
   call self.run_deps()
   let pane = self.pane()
   let pane.compiler = self.compiler
+  call maque#util#debug('making directly, capture: ' . self.capture)
   call maque#make_pane(pane, a:cmdline, self.handler, replace, self.capture)
   let g:maque_making_command = ''
 endfunction

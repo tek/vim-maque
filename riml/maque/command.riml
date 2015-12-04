@@ -71,10 +71,13 @@ class Command
   end
 
   defm make(replace=true)
+    maque#util#debug('making command ''' . self.name . ''', replace: ' .
+          \ replace)
     self.make_cmdline(self.command(), replace)
   end
 
   defm make_cmdline(cmdline, replace=true)
+    maque#util#debug('making cmdline ''' . cmdline . ''', replace: ' . replace)
     if self.run_in_shell()
       self.shell_cmd().shell_make(cmdline, replace)
     else
@@ -96,6 +99,7 @@ class Command
     self.run_deps()
     pane = self.pane()
     pane.compiler = self.compiler
+    maque#util#debug('making directly, capture: ' . self.capture)
     maque#make_pane(pane, cmdline, self.handler, replace, self.capture)
     g:maque_making_command = ''
   end
