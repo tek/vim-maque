@@ -327,7 +327,7 @@ class Pane < g:View
   end
 
   defm reset_capture
-    maque#tmux#command(self.pipe_cmd())
+    maque#tmux#command(self.pipe_cmd(), 1)
     delete(self.errorfile)
     self.pipe_to_file()
   end

@@ -521,7 +521,7 @@ function! s:Pane_pipe_cmd() dict
 endfunction
 
 function! s:Pane_reset_capture() dict
-  call maque#tmux#command(self.pipe_cmd())
+  call maque#tmux#command(self.pipe_cmd(), 1)
   call delete(self.errorfile)
   call self.pipe_to_file()
 endfunction
