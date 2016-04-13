@@ -163,9 +163,7 @@ class Pane < g:View
     maque#util#debug('pane ' . self.name . ' making ''' . cmd . '''' .
           \ ' replace: ' . replace . ', capture: ' . capture)
     if self.ready_for_make(replace)
-      if self.minimized && self.restore_on_make
-        self.restore()
-      end
+      self.restore_for_make()
       self.quit_copy_mode()
       self.send(cmd)
       if self.capture && capture
@@ -300,6 +298,17 @@ class Pane < g:View
 
   defm zoom
     maque#tmux#command('resize-pane -Z -t '.self.id)
+  end
+
+  defm restore_for_make
+    if self.restore_on_make
+      if self.minimized
+        self.restore()
+      end
+      if self.in_layout()
+        self.layout.restore_for_make()
+      end
+    end
   end
 
   defm pipe_to_file

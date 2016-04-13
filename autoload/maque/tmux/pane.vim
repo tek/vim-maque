@@ -20,7 +20,7 @@ function! g:ViewConstructor(name, ...)
   endif
   let viewObj = {}
   let viewObj.name = a:name
-  let attrs = {'_original_size': [0, 0], 'minimized': 0, 'minimized_size': 2, 'minimize_on_toggle': get(g:, 'maque_tmux_minimize_on_toggle', 0), 'focus_on_restore': 0, 'vertical': 1, 'size': 0, 'position': 0.5}
+  let attrs = {'_original_size': [0, 0], 'minimized': 0, 'minimized_size': 2, 'minimize_on_toggle': get(g:, 'maque_tmux_minimize_on_toggle', 0), 'focus_on_restore': 0, 'vertical': 1, 'size': 0, 'position': 0.5, 'is_layout': 0}
   call extend(attrs, params)
   let attrs.minimized_size = max([attrs.minimized_size, 2])
   call extend(viewObj, attrs)
@@ -271,6 +271,7 @@ function! s:PaneConstructor(name, ...)
   let paneObj.resize = function('<SNR>' . s:SID() . '_Pane_resize')
   let paneObj.focus = function('<SNR>' . s:SID() . '_Pane_focus')
   let paneObj.zoom = function('<SNR>' . s:SID() . '_Pane_zoom')
+  let paneObj.restore_for_make = function('<SNR>' . s:SID() . '_Pane_restore_for_make')
   let paneObj.pipe_to_file = function('<SNR>' . s:SID() . '_Pane_pipe_to_file')
   let paneObj.pipe_to_file_cmd = function('<SNR>' . s:SID() . '_Pane_pipe_to_file_cmd')
   let paneObj.pipe_cmd = function('<SNR>' . s:SID() . '_Pane_pipe_cmd')
@@ -353,9 +354,7 @@ function! s:Pane_make(cmd, ...) dict
   endif
   call maque#util#debug('pane ' . self.name . ' making ''' . a:cmd . '''' . ' replace: ' . replace . ', capture: ' . capture)
   if self.ready_for_make(replace)
-    if self.minimized && self.restore_on_make
-      call self.restore()
-    endif
+    call self.restore_for_make()
     call self.quit_copy_mode()
     call self.send(a:cmd)
     if self.capture && capture
@@ -494,6 +493,17 @@ endfunction
 
 function! s:Pane_zoom() dict
   call maque#tmux#command('resize-pane -Z -t ' . self.id)
+endfunction
+
+function! s:Pane_restore_for_make() dict
+  if self.restore_on_make
+    if self.minimized
+      call self.restore()
+    endif
+    if self.in_layout()
+      call self.layout.restore_for_make()
+    endif
+  endif
 endfunction
 
 function! s:Pane_pipe_to_file() dict

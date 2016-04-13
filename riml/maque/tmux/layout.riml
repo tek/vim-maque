@@ -263,6 +263,15 @@ class Layout < g:View
     end
     return map(sub, '''  '' . v:val')
   end
+
+  defm restore_for_make
+    if self.minimized
+      self.restore()
+    end
+    if self.in_layout()
+      self.layout.restore()
+    end
+  end
 end
 
 def maque#tmux#layout#new(name, args={})

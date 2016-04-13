@@ -207,6 +207,7 @@ function! s:LayoutConstructor(name, args)
   let layoutObj.show_flat = function('<SNR>' . s:SID() . '_Layout_show_flat')
   let layoutObj.show = function('<SNR>' . s:SID() . '_Layout_show')
   let layoutObj.show_panes = function('<SNR>' . s:SID() . '_Layout_show_panes')
+  let layoutObj.restore_for_make = function('<SNR>' . s:SID() . '_Layout_restore_for_make')
   return layoutObj
 endfunction
 
@@ -449,6 +450,15 @@ function! s:Layout_show_panes() dict
     let sub += pane.show()
   endfor
   return map(sub, '''  '' . v:val')
+endfunction
+
+function! s:Layout_restore_for_make() dict
+  if self.minimized
+    call self.restore()
+  endif
+  if self.in_layout()
+    call self.layout.restore()
+  endif
 endfunction
 
 function! maque#tmux#layout#new(name, ...)
