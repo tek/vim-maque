@@ -11,6 +11,7 @@ let g:maque_tmux_config_defaults = {
       \ 'default_panes': 1,
       \ 'custom_panes': 1,
       \ 'minimal_shell': 'zsh -f',
+      \ 'bracketed_paste': 0,
       \ }
 
 call maque#interface#config_options(g:maque_tmux_config_defaults, 'tmux')

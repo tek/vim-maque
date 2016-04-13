@@ -229,6 +229,13 @@ function! maque#tmux#pane#swap(p1, p2)
   call maque#tmux#pane#invalidate_cache()
 endfunction
 
+function! maque#tmux#pane#bracketed_paste(cmd, id)
+  call maque#tmux#command('set-buffer -b maque_cmd ' . a:cmd, 1)
+  call maque#tmux#command('paste-buffer -p -b maque_cmd -t ' . a:id, 1)
+  call maque#tmux#command('send-keys' . a:id . ' ENTER', 1)
+  call maque#tmux#command('delete-buffer -b maque_cmd', 1)
+endfunction
+
 function! s:PaneConstructor(name, ...)
   let __splat_var_cpy = copy(a:000)
   if !empty(__splat_var_cpy)
@@ -423,11 +430,17 @@ function! s:Pane_kill_wait() dict
 endfunction
 
 function! s:Pane_send(cmd) dict
-  call self.send_keys("'" . a:cmd . "' 'ENTER'")
+  let nl = g:maque_tmux_bracketed_paste ? '
+            \ ''' : ''' ''ENTER'''
+  call self.send_keys('''' . a:cmd . nl)
 endfunction
 
 function! s:Pane_send_keys(cmd) dict
-  call maque#tmux#command('send-keys -t ' . self.id . ' ' . a:cmd, 1)
+  if g:maque_tmux_bracketed_paste
+    call maque#tmux#pane#bracketed_paste(a:cmd, self.id)
+  else
+    call maque#tmux#command('send-keys -t ' . self.id . ' ' . a:cmd, 1)
+  endif
 endfunction
 
 function! s:Pane_open() dict

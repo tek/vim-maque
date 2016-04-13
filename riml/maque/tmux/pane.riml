@@ -78,6 +78,13 @@ def maque#tmux#pane#swap(p1, p2)
   maque#tmux#pane#invalidate_cache()
 end
 
+def maque#tmux#pane#bracketed_paste(cmd, id)
+  maque#tmux#command('set-buffer -b maque_cmd ' . cmd, 1)
+  maque#tmux#command('paste-buffer -p -b maque_cmd -t ' . id, 1)
+  maque#tmux#command('send-keys' . id . ' ENTER', 1)
+  maque#tmux#command('delete-buffer -b maque_cmd', 1)
+end
+
 class Pane < g:View
 
   def initialize(name, params={})
@@ -229,12 +236,18 @@ class Pane < g:View
 
   " execute a shell command in the target pane
   defm send(cmd)
-    self.send_keys("'".cmd."' 'ENTER'")
+    nl = g:maque_tmux_bracketed_paste ? '
+          \ ''' : ''' ''ENTER'''
+    self.send_keys('''' . cmd . nl)
   end
 
   " send input to the target pane
   defm send_keys(cmd)
-    maque#tmux#command('send-keys -t ' . self.id .' ' . cmd, 1)
+    if g:maque_tmux_bracketed_paste
+      maque#tmux#pane#bracketed_paste(cmd, self.id)
+    else
+      maque#tmux#command('send-keys -t ' . self.id .' ' . cmd, 1)
+    end
   end
 
   defm open
